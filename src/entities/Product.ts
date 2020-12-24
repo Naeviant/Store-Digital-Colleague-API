@@ -1,4 +1,10 @@
-import { Schema, model } from 'mongoose';
+import { Document, Schema, model } from 'mongoose';
+
+export interface IProduct extends Document {
+	name: string;
+	ean: string;
+	price: number;
+}
 
 const productSchema = new Schema({
 	name: { type: String, required: true },
@@ -6,5 +12,4 @@ const productSchema = new Schema({
 	price: { type: Number, required: true }
 });
 
-// eslint-disable-next-line
-export const Product = new (model as any)('Product', productSchema);
+export const Product = model <IProduct>('Product', productSchema);

@@ -24,11 +24,11 @@ class ResponseBody {
 	}
 }
 
-import { Product } from '../entities/Product';
+import { IProduct } from '../entities/Product';
 export class ProductResponse extends ResponseBody {
-	data!: typeof Product[];
+	data!: IProduct | IProduct[] | null;
 
-	constructor(code: number, description: string, data?: typeof Product[]) {
+	constructor(code: number, description: string, data?: IProduct | IProduct[] | null) {
 		super(code, description);
 		this.data = data ?? [];
 	}
