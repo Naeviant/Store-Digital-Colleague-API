@@ -33,3 +33,13 @@ export class ProductResponse extends ResponseBody {
 		this.data = data ?? [];
 	}
 }
+
+import { ISite } from '../entities/Location';
+export class SiteResponse extends ResponseBody {
+	data!: ISite | ISite[] | null;
+
+	constructor(code: number, description: string, data?: ISite | ISite[] | null) {
+		super(code, description);
+		this.data = data ?? [];
+	}
+}
