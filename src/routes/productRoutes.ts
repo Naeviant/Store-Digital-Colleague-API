@@ -1,12 +1,17 @@
 import { Router } from 'express';
 import * as productController from '../controllers/productController';
+import { generate405 } from '../helpers/httpErrors';
 
 const router = Router();
 
-router.post('/product', productController.addProduct);
-router.get('/product', productController.getAllProducts);
-router.get('/product/:ean', productController.getProduct);
-router.put('/product/:ean', productController.updateProduct);
-router.delete('/product/:ean', productController.deleteProduct);
+router.route('/product')
+	.post(productController.addProduct)
+	.get(productController.getAllProducts)
+	.all(generate405);
+router.route('/product/:ean')
+	.get(productController.getProduct)
+	.put(productController.updateProduct)
+	.delete(productController.deleteProduct)
+	.all(generate405);
 
 export const productRoutes = router;

@@ -23,9 +23,9 @@ export const addProduct = async (req: Request, res: Response): Promise<void> => 
 
 export const getProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.params.ean) res.status(400).send(new ProductResponse(404, 'Product Not Found'));
+		if (!req.params.ean) res.status(400).send(new ProductResponse(400, 'Cannot Get Product: Invalid EAN Provided'));
 		Product.findOne({ ean: req.params.ean }, { _id: 0, __v: 0 }).then((doc: IProduct | null) => {
-			if (!doc) res.status(400).send(new ProductResponse(404, 'Product Not Found'));
+			if (!doc) res.status(404).send(new ProductResponse(404, 'Cannot Get Product: Product Not Found'));
 			else res.status(200).send(new ProductResponse(200, 'Product Retrieved Successfully', doc));
 		}, (error: Error & { code: number } | null) => {
 			if (error) res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
@@ -49,13 +49,13 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
 
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.params.ean) res.status(400).send(new ProductResponse(400, 'Invalid EAN Provided'));
+		if (!req.params.ean) res.status(400).send(new ProductResponse(400, 'Cannot Update Product: Invalid EAN Provided'));
 		const update = new Update();
 		if (req.body.name) update.name = req.body.name;
 		if (req.body.price) update.price = req.body.price;
-		if (Object.keys(update).length === 0) res.status(400).send(new ProductResponse(400, 'Invalid Request Body'));
+		if (Object.keys(update).length === 0) res.status(400).send(new ProductResponse(400, 'Cannot Update Product: Invalid Request Body'));
 		Product.updateOne({ ean: req.params.ean }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
-			if (docs.n === 0) res.status(400).send(new ProductResponse(400, 'Invalid EAN Provided'));
+			if (docs.n === 0) res.status(400).send(new ProductResponse(400, 'Cannot Update Product: Invalid EAN Provided'));
 			else if (docs.nModified === 0) res.status(200).send(new ProductResponse(200, 'No Changes Required'));
 			else res.status(200).send(new ProductResponse(200, 'Product Updated Successfully'));
 		}, (error: Error & { code: number } | null) => {
@@ -68,9 +68,9 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
 
 export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.params.ean) res.status(400).send(new ProductResponse(400, 'Invalid EAN Provided'));
+		if (!req.params.ean) res.status(400).send(new ProductResponse(400, 'Cannot Delete Product: Invalid EAN Provided'));
 		Product.deleteOne({ ean: req.params.ean }).then((doc: { deletedCount: number }) => {
-			if (doc.deletedCount === 0) res.status(400).send(new ProductResponse(400, 'Invalid EAN Provided'));
+			if (doc.deletedCount === 0) res.status(400).send(new ProductResponse(400, 'Cannot Delete Product: Invalid EAN Provided'));
 			else res.status(200).send(new ProductResponse(200, 'Product Deleted Successfully'));
 		}, (error: Error & { code: number } | null) => {
 			if (error) res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));

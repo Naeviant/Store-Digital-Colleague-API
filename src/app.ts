@@ -1,6 +1,7 @@
 import express, { Router, Request, Response } from 'express';
 import { config } from './helpers/config';
 import { makeConnection } from './helpers/makeConnection';
+import { generate404 } from './helpers/httpErrors';
 import { productRoutes } from './routes/productRoutes';
 import { locationRoutes } from './routes/locationRoutes';
 
@@ -18,6 +19,7 @@ router.get('/', (req: Request, res: Response) => {
 
 router.use(productRoutes);
 router.use(locationRoutes);
+router.route('*').all(generate404);
 
 app.listen(config.port, () => {
 	console.log(`Listening on Port ${config.port}`);
