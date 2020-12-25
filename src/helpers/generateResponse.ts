@@ -43,3 +43,13 @@ export class SiteResponse extends ResponseBody {
 		this.data = data ?? [];
 	}
 }
+
+import { IAisle } from '../entities/Location';
+export class AisleResponse extends ResponseBody {
+	data!: IAisle | IAisle[] | null;
+
+	constructor(code: number, description: string, data?: IAisle | IAisle[] | null) {
+		super(code, description);
+		this.data = data ?? [];
+	}
+}
