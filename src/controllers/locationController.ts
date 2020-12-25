@@ -4,6 +4,7 @@ import { Aisle, IAisle } from '../entities/Location';
 import { AisleResponse } from '../helpers/generateResponse';
 
 class AisleUpdate {
+	name?: string;
 	aisle?: number;
 }
 
@@ -16,7 +17,7 @@ export const addAisle = async (req: Request, res: Response): Promise<void> => {
 				if (response.data.data) res.status(409).send(new AisleResponse(409, 'Cannot Add Aisle: Aisle Number Already in Use'));
 			}).catch((error: Error & { response: { status: number } } | null) => {
 				if (error && error.response && error.response.status === 404) {
-					const newAisle = new Aisle({ aisle: req.body.aisle, site: site._id });
+					const newAisle = new Aisle({ name: req.body.name, aisle: req.body.aisle, site: site._id });
 					newAisle.save().then(() => {
 						res.status(201).send(new AisleResponse(201, 'Aisle Added Successfully'));
 					}, (error: Error & { code: number } | null) => {
@@ -78,6 +79,7 @@ export const updateAisle = async (req: Request & { params: { aisle: number } }, 
 			const update = new AisleUpdate();
 			// TODO: This allows updates to aisle numbers already in use
 			if (req.body.aisle) update.aisle = req.body.aisle;
+			if (req.body.name) update.name = req.body.name;
 			Aisle.updateOne({ site: site._id, aisle: req.params.aisle }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
 				if (docs.n === 0) res.status(400).send(new AisleResponse(400, 'Cannot Update Aisle: Invalid Site Code or Aisle Number Provided'));
 				else if (docs.nModified === 0) res.status(200).send(new AisleResponse(200, 'No Changes Required'));

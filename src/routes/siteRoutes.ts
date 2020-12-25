@@ -1,17 +1,17 @@
 import { Router } from 'express';
-import * as locationController from '../controllers/siteController';
+import * as siteController from '../controllers/siteController';
 import { generate405 } from '../helpers/httpErrors';
 
 const router = Router();
 
 router.route('/site')
-	.post(locationController.addSite)
-	.get(locationController.getAllSites)
+	.post(siteController.addSite)
+	.get(siteController.getAllSites)
 	.all(generate405);
 router.route('/site/:code')
-	.get(locationController.getSite)
-	.patch(locationController.updateSite)
-	.delete(locationController.deleteSite)
+	.get(siteController.getSite)
+	.patch(siteController.updateSite)
+	.delete(siteController.deleteSite)
 	.all(generate405);
 
-export const locationRoutes = router;
+export const siteRoutes = router;
