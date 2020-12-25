@@ -33,7 +33,7 @@ export class ProductResponse extends ResponseBody {
 	}
 }
 
-import { ISite } from '../entities/Location';
+import { ISite } from '../entities/Site';
 export class SiteResponse extends ResponseBody {
 	data!: ISite | ISite[] | null;
 
