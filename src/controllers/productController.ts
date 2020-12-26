@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Product, IProduct } from '../entities/Product';
 import { ProductResponse } from '../helpers/generateResponse';
+import { generate500 } from '../helpers/httpErrors';
 
 class Update {
 	name?: string;
@@ -17,7 +18,7 @@ export const addProduct = async (req: Request, res: Response): Promise<void> => 
 			else if (error) res.status(400).send(new ProductResponse(400, 'Cannot Add Product: Invalid Request Body'));
 		});
 	} catch (error) {
-		res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -28,10 +29,10 @@ export const getProduct = async (req: Request, res: Response): Promise<void> => 
 			if (!doc) res.status(404).send(new ProductResponse(404, 'Cannot Get Product: Product Not Found'));
 			else res.status(200).send(new ProductResponse(200, 'Product Retrieved Successfully', doc));
 		}, (error: Error & { code: number } | null) => {
-			if (error) res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -40,10 +41,10 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
 		Product.find({}, { _id: 0, __v: 0 }).then((docs: IProduct[] | null) => {
 			res.status(200).send(new ProductResponse(200, 'Products Retrieved Successfully', docs));
 		}, (error: Error & { code: number } | null) => {
-			if (error) res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -59,10 +60,10 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
 			else if (docs.nModified === 0) res.status(200).send(new ProductResponse(200, 'No Changes Required'));
 			else res.status(200).send(new ProductResponse(200, 'Product Updated Successfully'));
 		}, (error: Error & { code: number } | null) => {
-			if (error) res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -73,9 +74,9 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
 			if (doc.deletedCount === 0) res.status(400).send(new ProductResponse(400, 'Cannot Delete Product: Invalid EAN Provided'));
 			else res.status(200).send(new ProductResponse(200, 'Product Deleted Successfully'));
 		}, (error: Error & { code: number } | null) => {
-			if (error) res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new ProductResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };

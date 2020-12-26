@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Site, ISite } from '../entities/Site';
 import { SiteResponse  } from '../helpers/generateResponse';
+import { generate500 } from '../helpers/httpErrors';
 
 class SiteUpdate {
 	name?: string;
@@ -16,7 +17,7 @@ export const addSite = async (req: Request, res: Response): Promise<void> => {
 			else if (error) res.status(400).send(new SiteResponse(400, 'Cannot Add Site: Invalid Request Body'));
 		});
 	} catch (error) {
-		res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -27,10 +28,10 @@ export const getSite = async (req: Request, res: Response): Promise<void> => {
 			if (!doc) res.status(404).send(new SiteResponse(404, 'Cannot Get Site: Site Code Not Found'));
 			else res.status(200).send(new SiteResponse(200, 'Site Retrieved Successfully', doc));
 		}, (error: Error & { code: number } | null) => {
-			if (error) res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -39,10 +40,10 @@ export const getAllSites = async (req: Request, res: Response): Promise<void> =>
 		Site.find({}, { _id: 0, __v: 0 }).then((docs: ISite[] | null) => {
 			res.status(200).send(new SiteResponse(200, 'Sites Retrieved Successfully', docs));
 		}, (error: Error & { code: number } | null) => {
-			if (error) res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -56,10 +57,10 @@ export const updateSite = async (req: Request, res: Response): Promise<void> => 
 			else if (docs.nModified === 0) res.status(200).send(new SiteResponse(200, 'No Changes Required'));
 			else res.status(200).send(new SiteResponse(200, 'Site Updated Successfully'));
 		}, (error: Error & { code: number } | null) => {
-			if (error) res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -70,9 +71,9 @@ export const deleteSite = async (req: Request, res: Response): Promise<void> => 
 			if (doc.deletedCount === 0) res.status(400).send(new SiteResponse(400, 'Cannot Delete Site: Invalid Site Code Provided'));
 			else res.status(200).send(new SiteResponse(200, 'Site Deleted Successfully'));
 		}, (error: Error & { code: number } | null) => {
-			if (error) res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new SiteResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };

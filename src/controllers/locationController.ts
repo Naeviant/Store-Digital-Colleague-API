@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import { Aisle, IAisle, Bay, IBay } from '../entities/Location';
 import { AisleResponse, BayResponse } from '../helpers/generateResponse';
+import { generate500 } from '../helpers/httpErrors';
 
 class AisleUpdate {
 	name?: string;
@@ -16,22 +17,22 @@ export const addAisle = async (req: Request, res: Response): Promise<void> => {
 			axios.get(`http://localhost:8000/api/aisle/${req.params.code}/${req.body.aisle}`).then((response: AxiosResponse) => {
 				if (response.data.data) res.status(409).send(new AisleResponse(409, 'Cannot Add Aisle: Aisle Number Already in Use'));
 			}).catch((error: Error & { response: { status: number } } | null) => {
-				if (error && error.response && error.response.status === 404) {
+				if (error && error.response && (error.response.status === 404 || error.response.status === 400)) {
 					const newAisle = new Aisle({ name: req.body.name, aisle: req.body.aisle, site: site._id });
 					newAisle.save().then(() => {
 						res.status(201).send(new AisleResponse(201, 'Aisle Added Successfully'));
 					}, (error: Error & { code: number } | null) => {
-						if (error) res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+						if (error) res.status(400).send(new AisleResponse(400, 'Cannot Add Aisle: Invalid Request Body'));
 					});
 				}
-				else if (error) res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+				else if (error) generate500(req, res, error);
 			});			
 		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && error.response.status === 404) res.status(400).send(new AisleResponse(400, 'Cannot Add Aisle: Invalid Site Code Provided'));
-			else res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new AisleResponse(400, 'Cannot Add Aisle: Invalid Site Code Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -44,11 +45,14 @@ export const getAisle = async (req: Request & { params: { aisle: number } }, res
 				if (!doc) res.status(404).send(new AisleResponse(404, 'Cannot Get Aisle: Aisle Not Found'));
 				else res.status(200).send(new AisleResponse(200, 'Aisle Retrieved Successfully', doc));
 			}, (error: Error & { code: number } | null) => {
-				if (error) res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+				if (error) generate500(req, res, error);
 			});
+		}).catch((error: Error & { response: { status: number } } | null) => {
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new AisleResponse(400, 'Cannot Get Aisle: Invalid Site Code Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -60,14 +64,14 @@ export const getAllAislesAtSite = async (req: Request, res: Response): Promise<v
 			Aisle.find({ site: site._id }, { _id: 0, __v: 0 }).populate('site', '-__v -_id').then((docs: IAisle[] | null) => {
 				res.status(200).send(new AisleResponse(200, 'Aisles Retrieved Successfully', docs));
 			}, (error: Error & { code: number } | null) => {
-				if (error) res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+				if (error) generate500(req, res, error);
 			});
 		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && error.response.status === 400) res.status(400).send(new AisleResponse(400, 'Cannot Get Aisles: Invalid Site Code Provided'));
-			else res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new AisleResponse(400, 'Cannot Get Aisles: Invalid Site Code Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -85,11 +89,14 @@ export const updateAisle = async (req: Request & { params: { aisle: number } }, 
 				else if (docs.nModified === 0) res.status(200).send(new AisleResponse(200, 'No Changes Required'));
 				else res.status(200).send(new AisleResponse(200, 'Aisle Updated Successfully'));
 			}, (error: Error & { code: number } | null) => {
-				if (error) res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+				if (error) generate500(req, res, error);
 			});
+		}).catch((error: Error & { response: { status: number } } | null) => {
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new AisleResponse(400, 'Cannot Get Aisle: Invalid Site Code Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -102,11 +109,14 @@ export const deleteAisle = async (req: Request & { params: { aisle: number } }, 
 				if (doc.deletedCount === 0) res.status(400).send(new AisleResponse(400, 'Cannot Delete Aisle: Invalid Site Code or Aisle Number Provided'));
 				else res.status(200).send(new AisleResponse(200, 'Aisle Deleted Successfully'));
 			}, (error: Error & { code: number } | null) => {
-				if (error) res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+				if (error) generate500(req, res, error);
 			});
+		}).catch((error: Error & { response: { status: number } } | null) => {
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new AisleResponse(400, 'Cannot Delete Aisle: Invalid Site Code Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new AisleResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -129,24 +139,23 @@ export const addBay = async (req: Request, res: Response): Promise<void> => {
 			axios.get(`http://localhost:8000/api/bay/${req.params.code}/${req.params.aisle}/${req.body.bay}/`).then((response: AxiosResponse) => {
 				if (response.data.data) res.status(409).send(new BayResponse(409, 'Cannot Add Bay: Bay Number Already in Use'));
 			}).catch((error: Error & { response: { status: number } } | null) => {
-				if (error && error.response && error.response.status === 404) {
+				if (error && error.response && (error.response.status === 404 || error.response.status === 400)) {
 					req.body.aisle = aisle._id;
 					const newBay = new Bay(req.body);
 					newBay.save().then(() => {
 						res.status(201).send(new BayResponse(201, 'Bay Added Successfully'));
 					}, (error: Error & { code: number } | null) => {
-						console.log(error);
-						if (error) res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+						if (error) res.status(400).send(new BayResponse(400, 'Cannot Add Bay: Invalid Request Body'));
 					});
 				}
-				else if (error) res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+				else if (error) generate500(req, res, error);
 			});			
 		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && error.response.status === 404) res.status(400).send(new BayResponse(400, 'Cannot Add Bay: Invalid Site Code or Bay Number Provided'));
-			else res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new BayResponse(400, 'Cannot Add Bay: Invalid Site Code or Bay Number Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -159,11 +168,14 @@ export const getBay = async (req: Request & { params: { bay: number } }, res: Re
 				if (!doc) res.status(404).send(new BayResponse(404, 'Cannot Get Bay: Bay Not Found'));
 				else res.status(200).send(new BayResponse(200, 'Bay Retrieved Successfully', doc));
 			}, (error: Error & { code: number } | null) => {
-				if (error) res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+				if (error) generate500(req, res, error);
 			});
-		});
+		}).catch((error: Error & { response: { status: number } } | null) => {
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new BayResponse(400, 'Cannot Get Bay: Invalid Site Code or Bay Number Provided'));
+			else if (error) generate500(req, res, error);
+		});;
 	} catch (error) {
-		res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -175,14 +187,14 @@ export const getAllBaysInAisle = async (req: Request, res: Response): Promise<vo
 			Bay.find({ aisle: aisle._id }, { _id: 0, __v: 0 }).populate({ path: 'aisle', select: '-__v -_id', populate: { path: 'site', select: '-__v -_id' } }).then((docs: IBay[] | null) => {
 				res.status(200).send(new BayResponse(200, 'Bays Retrieved Successfully', docs));
 			}, (error: Error & { code: number } | null) => {
-				if (error) res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+				if (error) generate500(req, res, error);
 			});
 		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && error.response.status === 400) res.status(400).send(new BayResponse(400, 'Cannot Get Bays: Invalid Site Code or Aisle Number Provided'));
-			else res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new BayResponse(400, 'Cannot Get Bays: Invalid Site Code or Aisle Number Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -206,11 +218,14 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 				else if (docs.nModified === 0) res.status(200).send(new BayResponse(200, 'No Changes Required'));
 				else res.status(200).send(new BayResponse(200, 'Bay Updated Successfully'));
 			}, (error: Error & { code: number } | null) => {
-				if (error) res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+				if (error) generate500(req, res, error);
 			});
+		}).catch((error: Error & { response: { status: number } } | null) => {
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new BayResponse(400, 'Cannot Update Bay: Invalid Site Code or Bay Number Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
 
@@ -223,10 +238,13 @@ export const deleteBay = async (req: Request & { params: { bay: number } }, res:
 				if (doc.deletedCount === 0) res.status(400).send(new BayResponse(400, 'Cannot Delete Bay: Invalid Site Code, Aisle Number or Bay Number Provided'));
 				else res.status(200).send(new BayResponse(200, 'Aisle Deleted Successfully'));
 			}, (error: Error & { code: number } | null) => {
-				if (error) res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+				if (error) generate500(req, res, error);
 			});
+		}).catch((error: Error & { response: { status: number } } | null) => {
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new BayResponse(400, 'Cannot Delete Bay: Invalid Site Code or Bay Number Provided'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
-		res.status(500).send(new BayResponse(500, 'Something Went Wrong'));
+		generate500(req, res, error);
 	}
 };
