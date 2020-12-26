@@ -8,12 +8,20 @@ import { generate500 } from '../helpers/httpErrors';
 export const addAssignment = async (req: Request, res: Response): Promise<void> => {
 	try {
 		if (!req.params.code || !req.params.aisle || !req.params.bay) res.status(400).send(new AssignmentResponse(400, 'Cannot Assign Product: Invalid Site Code, Aisle Number or Bay Number Provided'));
-		else if (!req.body.ean) res.status(400).send(new AssignmentResponse(400, 'Cannot Assign Product: Invalid Request Body'));
+		else if (!req.body.ean || !req.body.type) res.status(400).send(new AssignmentResponse(400, 'Cannot Assign Product: Invalid Request Body'));
 		else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.params.bay}`).then((response: AxiosResponse) => {
 			const bay = response.data.data;
-			axios.get(`${config.base}/product/${req.body.ean}`).then((response: AxiosResponse) => {
+			if (
+				(!bay.allowsMultiLocation && req.body.type === 'Multi-Location') ||
+				(!bay.allowsClearance && req.body.type === 'Clearance') ||
+				(!bay.allowsDisplay && req.body.type === 'Display') ||
+				(!bay.allowsOverstock && req.body.type === 'Overstock') ||
+				(!bay.allowsTopstock && req.body.type === 'Topstock') ||
+				(!bay.allowsStockroom && req.body.type == 'Stockroom')	
+			) res.status(422).send(new AssignmentResponse(422, 'Cannot Assign Product: Location Does Not Accept Assignment Type'));
+			else axios.get(`${config.base}/product/${req.body.ean}`).then((response: AxiosResponse) => {
 				const product = response.data.data;
-				const newAssignment = new Assignment({ bay: bay._id, product: product._id });
+				const newAssignment = new Assignment({ bay: bay._id, product: product._id, type: req.body.type });
 				newAssignment.save().then(() => {
 					res.status(201).send(new AssignmentResponse(201, 'Assignment Added Successfully'));
 				}, (error: Error & { code: number } | null) => {

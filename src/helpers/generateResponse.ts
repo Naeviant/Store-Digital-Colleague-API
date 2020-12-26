@@ -17,6 +17,7 @@ class ResponseBody {
 		case 409: this.status = 'Conflict'; break;
 		case 410: this.status = 'Gone'; break;
 		case 418: this.status = 'Coming Soon'; break;
+		case 422: this.status = 'Unprocessable Entity'; break;
 		default: this.status = 'Internal Server Error'; break;
 		}
 		this.description = description;
