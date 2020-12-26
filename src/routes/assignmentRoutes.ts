@@ -105,16 +105,217 @@ export const assignmentRoutes = router;
 *		    "code": 200,
 *		    "status": "OK",
 *		    "description": "Assignments Retrieved Successfully",
-*		    "data": []
+*		    "data": [
+*		        {
+*		            "bay": {
+*		                "moduleLimit": 1,
+*		                "bay": 1,
+*		                "allowsMultiLocation": true,
+*		                "allowsClearance": false,
+*		                "allowsDisplay": false,
+*		                "allowsOverstock": true,
+*		                "allowsTopstock": false,
+*		                "allowsStockroom": false,
+*		                "aisle": {
+*		                    "name": "Food",
+*		                    "aisle": 1,
+*		                    "site": {
+*		                        "code": 1111,
+*		                        "name": "My Store"
+*		                    }
+*		                }
+*		            },
+*		            "product": {
+*		                "status": "Live",
+*		                "name": "My Product",
+*		                "price": 10,
+*		                "ean": "1234567890123"
+*		            },
+*		            "type": "Multi-Location"
+*		        },
+*		       	{
+*		            "bay": {
+*		                "moduleLimit": 1,
+*		                "bay": 2,
+*		                "allowsMultiLocation": true,
+*		                "allowsClearance": false,
+*		                "allowsDisplay": false,
+*		                "allowsOverstock": true,
+*		                "allowsTopstock": false,
+*		                "allowsStockroom": false,
+*		                "aisle": {
+*		                    "name": "Food",
+*		                    "aisle": 1,
+*		                    "site": {
+*		                        "code": 1111,
+*		                        "name": "My Store"
+*		                    }
+*		                }
+*		            },
+*		            "product": {
+*		                "status": "Live",
+*		                "name": "My Product",
+*		                "price": 10,
+*		                "ean": "1234567890123"
+*		            },
+*		            "type": "Multi-Location"
+*		        },
+*				...
+*		    ]
 *		}
 *
-*	@apiErrorExample {json} Error Example:
+*	@apiErrorExample {json} Error Example 1:
 *		// Returned when the site code and EAN is invalid or missing
 *		HTTP/1.1 400 Bad Request
 *		{
 *		    "code": 400,
 *		    "status": "Bad Request",
-*		    "description": "Cannot Get Assignments: Cannot Get Assignments: Invalid Site Code or EAN Provided",
+*		    "description": "Cannot Get Assignments: Invalid Site Code or EAN Provided",
+*		    "data": []
+*		}
+*	@apiErrorExample {json} Error Example 2:
+*		// Returned when the EAN is invalid or missing
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Cannot Get Assignments: Invalid EAN Provided",
+*		    "data": []
+*		}
+*/
+
+/**
+*	@api {get} /assignment/location/:code/:aisle/:bay/:type Get Location Assignments
+*	@apiVersion 1.0.0
+*	@apiDescription Get all products that are assigned to a bay.
+*	@apiName GetLocationAssignments
+*	@apiGroup Assignments
+*
+*	@apiParam (URL Parameters) {Number{4}} code ID Code of Site
+*	@apiParam (URL Parameters) {Number} aisle Aisle Number
+*	@apiParam (URL Parameters) {Number} bay Bay Number
+*	@apiParam (URL Parameters) {String="Multi-Location","Clearance","Display","Overstock","Topstock","Stockroom"} type Type of Assignment
+*
+*	@apiParamExample {json} Request Example:
+*		GET /assignment/location/1111/1/1/Multi-Location
+*
+*	@apiSuccessExample {json} Success Example:
+*		HTTP/1.1 200 OK
+*		{
+*		    "code": 200,
+*		    "status": "OK",
+*		    "description": "Assignments Retrieved Successfully",
+*		    "data": [
+*		        {
+*		            "bay": {
+*		                "moduleLimit": 1,
+*		                "bay": 1,
+*		                "allowsMultiLocation": true,
+*		                "allowsClearance": false,
+*		                "allowsDisplay": false,
+*		                "allowsOverstock": true,
+*		                "allowsTopstock": false,
+*		                "allowsStockroom": false,
+*		                "aisle": {
+*		                    "name": "Food",
+*		                    "aisle": 1,
+*		                    "site": {
+*		                        "code": 1111,
+*		                        "name": "My Store"
+*		                    }
+*		                }
+*		            },
+*		            "product": {
+*		                "status": "Live",
+*		                "name": "My Product",
+*		                "price": 10,
+*		                "ean": "1234567890123"
+*		            },
+*		            "type": "Multi-Location"
+*		        },
+*		        {
+*		            "bay": {
+*		                "moduleLimit": 1,
+*		                "bay": 1,
+*		                "allowsMultiLocation": true,
+*		                "allowsClearance": false,
+*		                "allowsDisplay": false,
+*		                "allowsOverstock": true,
+*		                "allowsTopstock": false,
+*		                "allowsStockroom": false,
+*		                "aisle": {
+*		                    "name": "Food",
+*		                    "aisle": 1,
+*		                    "site": {
+*		                        "code": 1111,
+*		                        "name": "My Store"
+*		                    }
+*		                }
+*		            },
+*		            "product": {
+*		                "status": "Discontinued",
+*		                "name": "My Other Product",
+*		                "price": 12.5,
+*		                "ean": "1234567890124"
+*		            },
+*		            "type": "Multi-Location"
+*		        },
+*				...
+*		    ]
+*		}
+*
+*	@apiErrorExample {json} Error Example:
+*		// Returned when the site code, bay number, aisle number or assignment type is invalid or missing
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Cannot Get Assignments: Invalid Site Code, Aisle Number, Bay Number or Assignment Type Provided",
+*		    "data": []
+*		}
+*/
+
+/**
+*	@api {delete} /assignment/location/:code/:aisle/:bay/:type/:ean Delete Assignment
+*	@apiVersion 1.0.0
+*	@apiDescription Unassign a product from a bay.
+*	@apiName DeleteAssignment
+*	@apiGroup Assignments
+*
+*	@apiParam (URL Parameters) {Number{4}} code ID Code of Site
+*	@apiParam (URL Parameters) {Number} aisle Aisle Number
+*	@apiParam (URL Parameters) {Number} bay Bay Number
+*	@apiParam (URL Parameters) {String="Multi-Location","Clearance","Display","Overstock","Topstock","Stockroom"} type Type of Assignment
+*	@apiParam (URL Parameters) {String} ean EAN/Barcode of Product
+*
+*	@apiParamExample {json} Request Example:
+*		DELETE /assignment/location/1111/1/1/Multi-Location/1234567890123
+*
+*	@apiSuccessExample {json} Success Example:
+*		HTTP/1.1 200 OK
+*		{
+*		    "code": 200,
+*		    "status": "OK",
+*		    "description": "Assignment Deleted Successfully",
+*		    "data": []
+*		}
+*
+*	@apiErrorExample {json} Error Example 1:
+*		// Returned when the site code, aisle number, bay number, assignment type and EAN is invalid or missing
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Cannot Unassign Product: Invalid Site Code, Aisle Number, Bay Number, Assignment Type or EAN Provided",
+*		    "data": []
+*		}
+*	@apiErrorExample {json} Error Example 2:
+*		// Returned when the EAN is invalid or missing
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Cannot Unassign Product: Invalid EAN Provided",
 *		    "data": []
 *		}
 */
