@@ -167,7 +167,7 @@ export const addBay = async (req: Request, res: Response): Promise<void> => {
 				else if (error) generate500(req, res, error);
 			});			
 		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new BayResponse(400, 'Cannot Add Bay: Invalid Site Code or Bay Number Provided'));
+			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) res.status(400).send(new BayResponse(400, 'Cannot Add Bay: Invalid Site Code or Aisle Number Provided'));
 			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {

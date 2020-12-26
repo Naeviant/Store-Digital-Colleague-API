@@ -153,21 +153,17 @@ export const locationRoutes = router;
 *		    "description": "Aisles Retrieved Successfully",
 *		    "data": [
 *				{
-*			        "_id": "5fe7482d43ac916074cb0d82",
 *			        "name": "Food",
 *			        "aisle": 1,
 *			        "site": {
-*			            "_id": "5fe7481543ac916074cb0d81",
 *			            "name": "My Store",
 *			            "code": 1111
 *					}
 *		        },
 *				{
-*			        "_id": "5fe7482d43ac916074cb0d83",
 *			        "name": "Drinks",
 *			        "aisle": 2,
 *			        "site": {
-*			            "_id": "5fe7481543ac916074cb0d81",
 *			            "name": "My Store",
 *			            "code": 1111
 *					}
@@ -431,7 +427,6 @@ export const locationRoutes = router;
 *		    "description": "Bays Retrieved Successfully",
 *		    "data": [
 *				{
-*			        "_id": "5fe7807a0c519319c402342c",
 *			        "moduleLimit": 1,
 *			        "bay": 1,
 *		    	    "allowsMultiLocation": true,
@@ -441,18 +436,15 @@ export const locationRoutes = router;
 *			        "allowsTopstock": false,
 *			        "allowsStockroom": false,
 *			        "aisle": {
-*			            "_id": "5fe7758138a37545e8f6298d",
 *			            "name": "Food",
 *			            "aisle": 1,
 *			            "site": {
-*			                "_id": "5fe7755038a37545e8f6298c",
 *			                "code": 1111,
 *			                "name": "My Store"
 *			            }
 *			        }
 *			    },
 *				{
-*			        "_id": "5fe7807a0c519319c402342d",
 *			        "moduleLimit": 1,
 *			        "bay": 2,
 *		    	    "allowsMultiLocation": true,
@@ -462,11 +454,9 @@ export const locationRoutes = router;
 *			        "allowsTopstock": false,
 *			        "allowsStockroom": false,
 *			        "aisle": {
-*			            "_id": "5fe7758138a37545e8f6298d",
 *			            "name": "Food",
 *			            "aisle": 1,
 *			            "site": {
-*			                "_id": "5fe7755038a37545e8f6298c",
 *			                "code": 1111,
 *			                "name": "My Store"
 *			            }

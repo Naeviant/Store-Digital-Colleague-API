@@ -4,13 +4,13 @@ import { generate405 } from '../helpers/httpErrors';
 
 const router = Router();
 
-router.route('/assignment/location/:code/:aisle/:bay')
+router.route('/assignment/location/:code/:aisle/:bay/:type')
 	.get(assignmentController.getAssignmentsByLocation)
 	.all(generate405);
 router.route('/assignment/product/:code/:ean')
 	.get(assignmentController.getAssignmentsByProduct)
 	.all(generate405);
-router.route('/assignment/:code/:aisle/:bay/:ean')
+router.route('/assignment/:code/:aisle/:bay/:type/:ean')
 	.delete(assignmentController.deleteAssignment)
 	.all(generate405);
 router.route('/assignment/:code/:aisle/:bay')
