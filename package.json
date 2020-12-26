@@ -12,6 +12,11 @@
     "lint:fix": "./node_modules/.bin/eslint src --ext .ts --fix",
     "build": "tsc"
   },
+  "apidoc": {
+    "name": "Store Digital Colleague API",
+    "title": "Store Digital Colleague API",
+    "url" : "https://example.com/api"
+  },
   "author": "Sam Hirst",
   "license": "ISC",
   "dependencies": {
