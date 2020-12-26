@@ -62,3 +62,13 @@ export class BayResponse extends ResponseBody {
 		this.data = data ?? [];
 	}
 }
+
+import { IAssignment } from '../entities/Assignment';
+export class AssignmentResponse extends ResponseBody {
+	data!: IAssignment | IAssignment[] | null;
+
+	constructor(code: number, description: string, data?: IAssignment | IAssignment[] | null) {
+		super(code, description);
+		this.data = data ?? [];
+	}
+}

@@ -25,7 +25,7 @@ export const addProduct = async (req: Request, res: Response): Promise<void> => 
 export const getProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
 		if (!req.params.ean) res.status(400).send(new ProductResponse(400, 'Cannot Get Product: Invalid EAN Provided'));
-		Product.findOne({ ean: req.params.ean }, { _id: 0, __v: 0 }).then((doc: IProduct | null) => {
+		Product.findOne({ ean: req.params.ean }, { __v: 0 }).then((doc: IProduct | null) => {
 			if (!doc) res.status(404).send(new ProductResponse(404, 'Cannot Get Product: Product Not Found'));
 			else res.status(200).send(new ProductResponse(200, 'Product Retrieved Successfully', doc));
 		}, (error: Error & { code: number } | null) => {
