@@ -15,7 +15,7 @@ export const addProduct = async (req: Request, res: Response): Promise<void> => 
 		newProduct.save().then(() => {
 			res.status(201).send(new ProductResponse(201, 'Product Added Successfully'));
 		}, (error: Error & { code: number } | null) => {
-			if (error && error.code === 11000) res.status(400).send(new ProductResponse(400, 'Cannot Add Product: EAN Already in Use'));
+			if (error && error.code === 11000) res.status(409).send(new ProductResponse(409, 'Cannot Add Product: EAN Already in Use'));
 			else if (error) res.status(400).send(new ProductResponse(400, 'Cannot Add Product: Invalid Request Body'));
 		});
 	} catch (error) {
