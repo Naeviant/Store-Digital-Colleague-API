@@ -6,6 +6,7 @@ import { generate500 } from '../helpers/httpErrors';
 class Update {
 	name?: string;
 	price?: number;
+	status?: string;
 }
 
 export const addProduct = async (req: Request, res: Response): Promise<void> => {
@@ -54,13 +55,15 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
 		const update = new Update();
 		if (req.body.name) update.name = req.body.name;
 		if (req.body.price) update.price = req.body.price;
+		if (req.body.status) update.status = req.body.status;
 		if (Object.keys(update).length === 0) res.status(400).send(new ProductResponse(400, 'Cannot Update Product: Invalid Request Body'));
-		Product.updateOne({ ean: req.params.ean }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
+		Product.updateOne({ ean: req.params.ean }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {
 			if (docs.n === 0) res.status(400).send(new ProductResponse(400, 'Cannot Update Product: Invalid EAN Provided'));
 			else if (docs.nModified === 0) res.status(200).send(new ProductResponse(200, 'No Changes Required'));
 			else res.status(200).send(new ProductResponse(200, 'Product Updated Successfully'));
 		}, (error: Error & { code: number } | null) => {
-			if (error) generate500(req, res, error);
+			if (error && error.name === 'ValidationError') res.status(400).send(new ProductResponse(400, 'Cannot Update Product: Invalid Request Body'));
+			else if (error) generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);

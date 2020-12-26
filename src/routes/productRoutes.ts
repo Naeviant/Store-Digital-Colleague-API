@@ -10,7 +10,7 @@ router.route('/product')
 	.all(generate405);
 router.route('/product/:ean')
 	.get(productController.getProduct)
-	.put(productController.updateProduct)
+	.patch(productController.updateProduct)
 	.delete(productController.deleteProduct)
 	.all(generate405);
 
