@@ -14,4 +14,14 @@ router.route('/aisle/:code/:aisle')
 	.delete(locationController.deleteAisle)
 	.all(generate405);
 
+router.route('/bay/:code/:aisle')
+	.post(locationController.addBay)
+	.get(locationController.getAllBaysInAisle)
+	.all(generate405);
+router.route('/bay/:code/:aisle/:bay')
+	.get(locationController.getBay)
+	.patch(locationController.updateBay)
+	.delete(locationController.deleteBay)
+	.all(generate405);
+
 export const locationRoutes = router;

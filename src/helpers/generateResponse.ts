@@ -52,3 +52,13 @@ export class AisleResponse extends ResponseBody {
 		this.data = data ?? [];
 	}
 }
+
+import { IBay } from '../entities/Location';
+export class BayResponse extends ResponseBody {
+	data!: IBay | IBay[] | null;
+
+	constructor(code: number, description: string, data?: IBay | IBay[] | null) {
+		super(code, description);
+		this.data = data ?? [];
+	}
+}
