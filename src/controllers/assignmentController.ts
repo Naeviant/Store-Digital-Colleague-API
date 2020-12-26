@@ -46,7 +46,8 @@ export const getAssignmentsByLocation = async (req: Request, res: Response): Pro
 		else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.params.bay}`).then((response: AxiosResponse) => {
 			const bay = response.data.data;
 			Assignment.find({ bay: bay._id, type: req.params.type }, { _id: 0, __v: 0 }).populate({ path: 'bay product', select: '-_id -__v', populate: { path: 'aisle', select: '-_id -__v', populate: { path: 'site', select: '-_id -__v' } } }).then((docs: IAssignment[] | null) => {
-				res.status(200).send(new AssignmentResponse(200, 'Assignments Retrieved Successfully', docs));
+				if (docs) res.status(200).send(new AssignmentResponse(200, 'Assignments Retrieved Successfully', docs));
+				else res.status(404).send(new AssignmentResponse(404, 'Cannot Get Assignments: No Assignments Found'));
 			}, (error: Error & { code: number } | null) => {
 				if (error) generate500(req, res, error);
 			});
@@ -65,7 +66,8 @@ export const getAssignmentsByProduct = async (req: Request, res: Response): Prom
 		else axios.get(`${config.base}/product/${req.params.ean}`).then((response: AxiosResponse) => {
 			const product = response.data.data;
 			Assignment.find({ product: product._id }, { _id: 0, __v: 0 }).populate({ path: 'bay product', select: '-_id -__v', populate: { path: 'aisle', select: '-_id -__v', populate: { path: 'site', select: '-_id -__v' } } }).then((docs: IAssignment[] | null) => {
-				res.status(200).send(new AssignmentResponse(200, 'Assignments Retrieved Successfully', docs.filter(x => x.bay.aisle.site.code == req.params.code)));
+				if (docs) res.status(200).send(new AssignmentResponse(200, 'Assignments Retrieved Successfully', docs.filter(x => x.bay.aisle.site.code == req.params.code)));
+				else res.status(404).send(new AssignmentResponse(404, 'Cannot Get Assignments: No Assignments Found'));
 			}, (error: Error & { code: number } | null) => {
 				if (error) generate500(req, res, error);
 			});

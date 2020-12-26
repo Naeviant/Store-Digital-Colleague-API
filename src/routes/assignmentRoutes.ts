@@ -182,6 +182,15 @@ export const assignmentRoutes = router;
 *		    "description": "Cannot Get Assignments: Invalid EAN Provided",
 *		    "data": []
 *		}
+*	@apiErrorExample {json} Error Example 3:
+*		// Returned when no assignments are found
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Cannot Get Assignments: No Assignments Found",
+*		    "data": []
+*		}
 */
 
 /**
@@ -264,13 +273,22 @@ export const assignmentRoutes = router;
 *		    ]
 *		}
 *
-*	@apiErrorExample {json} Error Example:
+*	@apiErrorExample {json} Error Example 1:
 *		// Returned when the site code, bay number, aisle number or assignment type is invalid or missing
 *		HTTP/1.1 400 Bad Request
 *		{
 *		    "code": 400,
 *		    "status": "Bad Request",
 *		    "description": "Cannot Get Assignments: Invalid Site Code, Aisle Number, Bay Number or Assignment Type Provided",
+*		    "data": []
+*		}
+*	@apiErrorExample {json} Error Example 2:
+*		// Returned when no assignments are found
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Cannot Get Assignments: No Assignments Found",
 *		    "data": []
 *		}
 */
