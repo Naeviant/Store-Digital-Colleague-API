@@ -63,7 +63,7 @@ export const assignmentRoutes = router;
 *		{
 *		    "code": 400,
 *		    "status": "Bad Request",
-*		    "description": "Cannot Update Bay: Invalid Site Code, Aisle Number or Bay Number Provided",
+*		    "description": "Cannot Add Assignment: Invalid Site Code, Aisle Number or Bay Number Provided",
 *		    "data": []
 *		}
 *	@apiErrorExample {json} Error Example 3:
@@ -72,7 +72,7 @@ export const assignmentRoutes = router;
 *		{
 *		    "code": 400,
 *		    "status": "Bad Request",
-*		    "description": "Cannot Add Site: Invalid Request Body",
+*		    "description": "Cannot Add Assignment: Invalid Request Body",
 *		    "data": []
 *		}
 *	@apiErrorExample {json} Error Example 4:
@@ -294,7 +294,7 @@ export const assignmentRoutes = router;
 */
 
 /**
-*	@api {delete} /assignment/location/:code/:aisle/:bay/:type/:ean Delete Assignment
+*	@api {delete} /assignment/:code/:aisle/:bay/:type/:ean Delete Assignment
 *	@apiVersion 1.0.0
 *	@apiDescription Unassign a product from a bay.
 *	@apiName DeleteAssignment
@@ -307,7 +307,7 @@ export const assignmentRoutes = router;
 *	@apiParam (URL Parameters) {String} ean EAN/Barcode of Product
 *
 *	@apiParamExample {json} Request Example:
-*		DELETE /assignment/location/1111/1/1/Multi-Location/1234567890123
+*		DELETE /assignment/1111/1/1/Multi-Location/1234567890123
 *
 *	@apiSuccessExample {json} Success Example:
 *		HTTP/1.1 200 OK

@@ -208,7 +208,7 @@ export const locationRoutes = router;
 *		{
 *		    "code": 200,
 *		    "status": "OK",
-*		    "description": "Aisle Update Successfully",
+*		    "description": "Aisle Updated Successfully",
 *		    "data": []
 *		}
 *	@apiSuccessExample {json} Success Example 2:

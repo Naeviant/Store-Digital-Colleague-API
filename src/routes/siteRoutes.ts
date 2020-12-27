@@ -97,7 +97,7 @@ export const siteRoutes = router;
 *		    "data": []
 *		}
 *	@apiErrorExample {json} Error Example 2:
-*		// Returned when no site has the provided EAN
+*		// Returned when no site has the provided code
 *		HTTP/1.1 404 Not Found
 *		{
 *		    "code": 404,
@@ -108,7 +108,7 @@ export const siteRoutes = router;
 */
 
 /**
-*	@api {get} /sites Get All Sites
+*	@api {get} /site Get All Sites
 *	@apiVersion 1.0.0
 *	@apiDescription Gets all existing sites.
 *	@apiName GetSites
