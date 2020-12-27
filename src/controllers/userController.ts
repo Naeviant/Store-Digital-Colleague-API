@@ -44,7 +44,7 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
 export const getUser = async (req: Request, res: Response): Promise<void> => {
 	try {
 		if (!req.params.username) res.status(400).send(new UserResponse(400, 'Cannot Get User: Invalid Username Provided'));
-		else User.findOne({ username: req.params.username }, { __v: 0 }).populate('site', '-__v').then((doc: IUser | null) => {
+		else User.findOne({ username: req.params.username }, { password: 0, __v: 0 }).populate('site', '-__v').then((doc: IUser | null) => {
 			if (!doc) res.status(404).send(new UserResponse(404, 'Cannot Get User: User Not Found'));
 			else res.status(200).send(new UserResponse(200, 'User Retrieved Successfully', doc));
 		}, (error: Error & { code: number } | null) => {

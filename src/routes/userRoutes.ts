@@ -97,7 +97,6 @@ export const userRoutes = router;
 *		        "firstName": "John",
 *		        "lastName": "Smith",
 *		        "username": "SMITHJ01",
-*		        "password": <PASSWORD>,
 *		        "userType": "Salesperson",
 *		        "site": {
 *		            "_id": "5fe78f73efda845ed089e046",
