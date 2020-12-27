@@ -1,17 +1,18 @@
 import { Router } from 'express';
 import * as productController from '../controllers/productController';
+import { isAdmin } from '../middleware/auth';
 import { generate405 } from '../helpers/httpErrors';
 
 const router = Router();
 
 router.route('/product')
-	.post(productController.addProduct)
+	.post(isAdmin, productController.addProduct)
 	.get(productController.getAllProducts)
 	.all(generate405);
 router.route('/product/:ean')
 	.get(productController.getProduct)
-	.patch(productController.updateProduct)
-	.delete(productController.deleteProduct)
+	.patch(isAdmin, productController.updateProduct)
+	.delete(isAdmin, productController.deleteProduct)
 	.all(generate405);
 
 export const productRoutes = router;
@@ -22,6 +23,10 @@ export const productRoutes = router;
 *	@apiDescription Creates a new product.
 *	@apiName AddProduct
 *	@apiGroup Products
+*
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (Body Parameters) {String} name Name of Product 
 *	@apiParam (Body Parameters) {String} ean EAN/Barcode of Product 
@@ -73,6 +78,8 @@ export const productRoutes = router;
 *	@apiName GetProduct
 *	@apiGroup Products
 *
+*	@apiPermission None
+*
 *	@apiParam (URL Parameters) {String} ean EAN/Barcode of Product 
 *
 *	@apiParamExample {json} Request Example:
@@ -120,6 +127,8 @@ export const productRoutes = router;
 *	@apiName GetProducts
 *	@apiGroup Products
 *
+*	@apiPermission None
+*
 *	@apiParamExample {json} Request Example:
 *		GET /product
 *	
@@ -153,6 +162,10 @@ export const productRoutes = router;
 *	@apiDescription Updates an existing product.
 *	@apiName UpdateProduct
 *	@apiGroup Products
+*
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {String}	ean EAN/Barcode of Product
 *	@apiParam (Body Parameters) {String} [name] Name of Product  
@@ -212,6 +225,10 @@ export const productRoutes = router;
 *	@apiDescription Deletes an existing product.
 *	@apiName DeleteProduct
 *	@apiGroup Products
+*
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {String} ean EAN/Barcode of Product 
 *

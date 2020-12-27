@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as assignmentController from '../controllers/assignmentController';
+import { isUser } from '../middleware/auth';
 import { generate405 } from '../helpers/httpErrors';
 
 const router = Router();
@@ -11,10 +12,10 @@ router.route('/assignment/product/:code/:ean')
 	.get(assignmentController.getAssignmentsByProduct)
 	.all(generate405);
 router.route('/assignment/:code/:aisle/:bay/:type/:ean')
-	.delete(assignmentController.deleteAssignment)
+	.delete(isUser, assignmentController.deleteAssignment)
 	.all(generate405);
 router.route('/assignment/:code/:aisle/:bay')
-	.post(assignmentController.addAssignment)
+	.post(isUser, assignmentController.addAssignment)
 	.all(generate405);
 
 export const assignmentRoutes = router;
@@ -25,6 +26,10 @@ export const assignmentRoutes = router;
 *	@apiDescription Assigns a product to a bay.
 *	@apiName AddAssignment
 *	@apiGroup Assignments
+*
+*	@apiPermission Any Authenticated User
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number
@@ -92,6 +97,8 @@ export const assignmentRoutes = router;
 *	@apiDescription Get all bays that a product is assigned to.
 *	@apiName GetProductAssignments
 *	@apiGroup Assignments
+*
+*	@apiPermission None
 *
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site
 *	@apiParam (URL Parameters) {String} ean EAN/Barcode of Product
@@ -200,6 +207,8 @@ export const assignmentRoutes = router;
 *	@apiName GetLocationAssignments
 *	@apiGroup Assignments
 *
+*	@apiPermission None
+*
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number
 *	@apiParam (URL Parameters) {Number} bay Bay Number
@@ -299,6 +308,10 @@ export const assignmentRoutes = router;
 *	@apiDescription Unassign a product from a bay.
 *	@apiName DeleteAssignment
 *	@apiGroup Assignments
+*
+*	@apiPermission Any Authenticated User
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number

@@ -1,17 +1,18 @@
 import { Router } from 'express';
 import * as userController from '../controllers/userController';
+import { isAdmin } from '../middleware/auth';
 import { generate405 } from '../helpers/httpErrors';
 
 const router = Router();
 
 router.route('/user')
-	.post(userController.addUser)
+	.post(isAdmin, userController.addUser)
 	.all(generate405);
 
 router.route('/user/:username')
 	.get(userController.getUser)
-	.patch(userController.updateUser)
-	.delete(userController.deleteUser)
+	.patch(isAdmin, userController.updateUser)
+	.delete(isAdmin, userController.deleteUser)
 	.all(generate405);
 
 router.route('/authenticate/')
@@ -26,6 +27,10 @@ export const userRoutes = router;
 *	@apiDescription Creates a new user.
 *	@apiName AddUser
 *	@apiGroup Users
+*
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (Body Parameters) {String} firstName First Name of User
 *	@apiParam (Body Parameters) {String} lastName Last Name of User
@@ -81,6 +86,8 @@ export const userRoutes = router;
 *	@apiName GetUser
 *	@apiGroup Users
 *
+*	@apiPermission None
+*
 *	@apiParam (URL Parameters) {String} username Username of User 
 *
 *	@apiParamExample {json} Request Example:
@@ -132,6 +139,10 @@ export const userRoutes = router;
 *	@apiDescription Updates an existing user.
 *	@apiName UpdateUser
 *	@apiGroup Users
+*
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {String}	username Username of User
 *	@apiParam (Body Parameters) {String} [firstName] First Name of User
@@ -207,6 +218,10 @@ export const userRoutes = router;
 *	@apiName DeleteUser
 *	@apiGroup Users
 *
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
+*
 *	@apiParam (URL Parameters) {String} username Username of User 
 *
 *	@apiParamExample {json} Request Example:
@@ -238,6 +253,8 @@ export const userRoutes = router;
 *	@apiDescription	Requests a token to perform actions on the behalf of a user.
 *	@apiName Authenticate
 *	@apiGroup Users
+*
+*	@apiPermission None
 *
 *	@apiParam (URL Parameters) {String} username Username of User 
 *	@apiParam (URL Parameters) {String} password Password of User 

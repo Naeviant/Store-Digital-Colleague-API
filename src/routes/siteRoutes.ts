@@ -1,17 +1,18 @@
 import { Router } from 'express';
 import * as siteController from '../controllers/siteController';
+import { isAdmin } from '../middleware/auth';
 import { generate405 } from '../helpers/httpErrors';
 
 const router = Router();
 
 router.route('/site')
-	.post(siteController.addSite)
+	.post(isAdmin, siteController.addSite)
 	.get(siteController.getAllSites)
 	.all(generate405);
 router.route('/site/:code')
 	.get(siteController.getSite)
-	.patch(siteController.updateSite)
-	.delete(siteController.deleteSite)
+	.patch(isAdmin, siteController.updateSite)
+	.delete(isAdmin, siteController.deleteSite)
 	.all(generate405);
 
 export const siteRoutes = router;
@@ -22,6 +23,10 @@ export const siteRoutes = router;
 *	@apiDescription Creates a new site.
 *	@apiName AddSite
 *	@apiGroup Sites
+*
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (Body Parameters) {String} name Name of Site 
 *	@apiParam (Body Parameters) {Number{4}} code ID Code of Site
@@ -69,6 +74,8 @@ export const siteRoutes = router;
 *	@apiName GetSite
 *	@apiGroup Sites
 *
+*	@apiPermission None
+*
 *	@apiParam (URL Parameters) {String} code ID Code of Site 
 *
 *	@apiParamExample {json} Request Example:
@@ -114,6 +121,8 @@ export const siteRoutes = router;
 *	@apiName GetSites
 *	@apiGroup Sites
 *
+*	@apiPermission None
+*
 *	@apiParamExample {json} Request Example:
 *		GET /site
 *	
@@ -143,6 +152,10 @@ export const siteRoutes = router;
 *	@apiDescription Updates an existing site.
 *	@apiName UpdateSite
 *	@apiGroup Sites
+*
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {String}	code ID Code of Site
 *	@apiParam (Body Parameters) {String} [name] Name of Site 
@@ -198,6 +211,10 @@ export const siteRoutes = router;
 *	@apiDescription	Deletes an existing site.
 *	@apiName DeleteSite
 *	@apiGroup Sites
+*
+*	@apiPermission Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {String} code ID Code of Site 
 *

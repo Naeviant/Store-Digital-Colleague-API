@@ -1,27 +1,28 @@
 import { Router } from 'express';
 import * as locationController from '../controllers/locationController';
+import { isManager } from '../middleware/auth';
 import { generate405 } from '../helpers/httpErrors';
 
 const router = Router();
 
 router.route('/aisle/:code')
-	.post(locationController.addAisle)
+	.post(isManager, locationController.addAisle)
 	.get(locationController.getAllAislesAtSite)
 	.all(generate405);
 router.route('/aisle/:code/:aisle')
 	.get(locationController.getAisle)
-	.patch(locationController.updateAisle)
-	.delete(locationController.deleteAisle)
+	.patch(isManager, locationController.updateAisle)
+	.delete(isManager, locationController.deleteAisle)
 	.all(generate405);
 
 router.route('/bay/:code/:aisle')
-	.post(locationController.addBay)
+	.post(isManager, locationController.addBay)
 	.get(locationController.getAllBaysInAisle)
 	.all(generate405);
 router.route('/bay/:code/:aisle/:bay')
 	.get(locationController.getBay)
-	.patch(locationController.updateBay)
-	.delete(locationController.deleteBay)
+	.patch(isManager, locationController.updateBay)
+	.delete(isManager, locationController.deleteBay)
 	.all(generate405);
 
 export const locationRoutes = router;
@@ -32,6 +33,10 @@ export const locationRoutes = router;
 *	@apiDescription Creates a new aisle at a site.
 *	@apiName AddAisle
 *	@apiGroup Aisles
+*
+*	@apiPermission Managers or Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site
 *	@apiParam (Body Parameters) {String} name General Contents of Aisle
@@ -89,6 +94,8 @@ export const locationRoutes = router;
 *	@apiName GetAisle
 *	@apiGroup Aisles
 *
+*	@apiPermission None
+*
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number 
 *
@@ -140,6 +147,8 @@ export const locationRoutes = router;
 *	@apiName GetAisles
 *	@apiGroup Aisles
 *
+*	@apiPermission None
+*
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
 *
 *	@apiParamExample {json} Request Example:
@@ -189,6 +198,10 @@ export const locationRoutes = router;
 *	@apiDescription Updates an existing aisle at a site.
 *	@apiName UpdateAisle
 *	@apiGroup Aisles
+*
+*	@apiPermission Managers or Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
 *	@apiParam (URL Parameters) {Number} aisle Existing Aisle Number 
@@ -248,6 +261,10 @@ export const locationRoutes = router;
 *	@apiName DeleteAisle
 *	@apiGroup Aisles
 *
+*	@apiPermission Managers or Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
+*
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number 
 *
@@ -280,6 +297,10 @@ export const locationRoutes = router;
 *	@apiDescription Creates a new bay on an aisle.
 *	@apiName AddBay
 *	@apiGroup Bays
+*
+*	@apiPermission Managers or Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number
@@ -350,6 +371,8 @@ export const locationRoutes = router;
 *	@apiName GetBay
 *	@apiGroup Bays
 *
+*	@apiPermission None
+*
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number 
 *	@apiParam (URL Parameters) {Number} bay Bay Number 
@@ -412,6 +435,8 @@ export const locationRoutes = router;
 *	@apiDescription Gets all existing bays in an aisle.
 *	@apiName GetBays
 *	@apiGroup Bays
+*
+*	@apiPermission None
 
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number
@@ -484,6 +509,10 @@ export const locationRoutes = router;
 *	@apiName UpdateBay
 *	@apiGroup Bays
 *
+*	@apiPermission Managers or Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
+*
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
 *	@apiParam (URL Parameters) {Number} aisle Existing Aisle Number 
 *	@apiParam (Body Parameters) {Number} [bay] Bay Number
@@ -549,6 +578,10 @@ export const locationRoutes = router;
 *	@apiDescription Deletes an existing bay from an aisle.
 *	@apiName DeleteBay
 *	@apiGroup Bays
+*
+*	@apiPermission Managers or Admins
+*
+*	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
 *	@apiParam (URL Parameters) {Number} aisle Aisle Number 
