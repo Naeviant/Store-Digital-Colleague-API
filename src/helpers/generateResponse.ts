@@ -73,3 +73,13 @@ export class AssignmentResponse extends ResponseBody {
 		this.data = data ?? [];
 	}
 }
+
+import { IUser } from '../entities/User';
+export class UserResponse extends ResponseBody {
+	data!: IUser | IUser[] | null;
+
+	constructor(code: number, description: string, data?: IUser | IUser[] | null) {
+		super(code, description);
+		this.data = data ?? [];
+	}
+}

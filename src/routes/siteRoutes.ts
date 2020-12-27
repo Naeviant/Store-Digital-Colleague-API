@@ -81,7 +81,7 @@ export const siteRoutes = router;
 *		    "status": "OK",
 *		    "description": "Site Retrieved Successfully",
 *		    "data": {
-				"_id": "5fe7481543ac916074cb0d81",
+*				"_id": "5fe7481543ac916074cb0d81",
 *				"name": "My Store",
 *				"code": 1111		        
 *		    }

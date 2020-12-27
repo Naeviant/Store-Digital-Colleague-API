@@ -6,6 +6,7 @@ import { productRoutes } from './routes/productRoutes';
 import { siteRoutes } from './routes/siteRoutes';
 import { locationRoutes } from './routes/locationRoutes';
 import { assignmentRoutes } from './routes/assignmentRoutes';
+import { userRoutes } from './routes/userRoutes';
 
 const app = express();
 const router = Router();
@@ -23,6 +24,7 @@ router.use(productRoutes);
 router.use(siteRoutes);
 router.use(locationRoutes);
 router.use(assignmentRoutes);
+router.use(userRoutes);
 router.route('*').all(generate404);
 
 app.listen(config.port, () => {

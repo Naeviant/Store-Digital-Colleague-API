@@ -7,7 +7,7 @@ export interface ISite extends Document {
 
 const siteSchema = new Schema({
 	name: { type: String, required: true },
-	code: { type: Number, required: true, unique: true, index: true }
+	code: { type: Number, required: true, unique: true }
 });
 
 export const Site = model<ISite>('Site', siteSchema);
