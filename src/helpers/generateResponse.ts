@@ -82,4 +82,13 @@ export class UserResponse extends ResponseBody {
 		super(code, description);
 		this.data = data ?? [];
 	}
-}
+} 
+
+export class AuthResponse extends ResponseBody {
+	data!: string | null;
+
+	constructor(code: number, description: string, data?: string | null) {
+		super(code, description);
+		this.data = data ?? '';
+	}
+} 

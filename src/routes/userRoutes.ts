@@ -14,6 +14,10 @@ router.route('/user/:username')
 	.delete(userController.deleteUser)
 	.all(generate405);
 
+router.route('/authenticate/')
+	.post(userController.authenticate)
+	.all(generate405);
+
 export const userRoutes = router;
 
 /**

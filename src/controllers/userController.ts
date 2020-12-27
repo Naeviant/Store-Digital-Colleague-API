@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import axios, { AxiosResponse } from 'axios';
-import { hash } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
+import { sign } from 'jsonwebtoken';
 import { config } from '../helpers/config';
 import { User, IUser } from '../entities/User';
-import { UserResponse } from '../helpers/generateResponse';
+import { UserResponse, AuthResponse } from '../helpers/generateResponse';
 import { generate500 } from '../helpers/httpErrors';
 
 class UserUpdate {
@@ -93,6 +94,30 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
 			if (error) generate500(req, res, error);
 		});
 	} catch (error) {
+		generate500(req, res, error);
+	}
+};
+
+export const authenticate = async (req: Request, res: Response): Promise<void> => {
+	try {
+		User.findOne({ username: req.body.username }, { __v: 0 }).populate('site', '-__v').then((doc: IUser | null) => {
+			if (!doc) res.status(404).send(new AuthResponse(401, 'Invalid Credentials Provided'));
+			else {
+				compare(req.body.password, doc.password, (error: Error, valid: boolean) => {
+					if (!valid) res.status(404).send(new AuthResponse(401, 'Invalid Credentials Provided'));
+					else {
+						const payload = doc.toObject();
+						payload.password = '';
+						const token = sign(payload, config.jwtSecret);
+						res.status(200).send(new AuthResponse(200, 'Authentication Successful', token));
+					}
+				});
+			}
+		}, (error: Error & { code: number } | null) => {
+			if (error) generate500(req, res, error);
+		});
+	}
+	catch (error) {
 		generate500(req, res, error);
 	}
 };
