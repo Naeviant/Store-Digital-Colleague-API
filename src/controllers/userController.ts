@@ -101,10 +101,10 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
 export const authenticate = async (req: Request, res: Response): Promise<void> => {
 	try {
 		User.findOne({ username: req.body.username }, { __v: 0 }).populate('site', '-__v').then((doc: IUser | null) => {
-			if (!doc) res.status(404).send(new AuthResponse(401, 'Invalid Credentials Provided'));
+			if (!doc) res.status(401).send(new AuthResponse(401, 'Invalid Credentials Provided'));
 			else {
 				compare(req.body.password, doc.password, (error: Error, valid: boolean) => {
-					if (!valid) res.status(404).send(new AuthResponse(401, 'Invalid Credentials Provided'));
+					if (!valid) res.status(401).send(new AuthResponse(401, 'Invalid Credentials Provided'));
 					else {
 						const payload = doc.toObject();
 						payload.password = '';

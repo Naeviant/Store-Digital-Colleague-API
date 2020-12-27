@@ -97,7 +97,7 @@ export const userRoutes = router;
 *		        "firstName": "John",
 *		        "lastName": "Smith",
 *		        "username": "SMITHJ01",
-*		        "password": <REDACTED>,
+*		        "password": <PASSWORD>,
 *		        "userType": "Salesperson",
 *		        "site": {
 *		            "_id": "5fe78f73efda845ed089e046",
@@ -229,6 +229,43 @@ export const userRoutes = router;
 *		    "code": 400,
 *		    "status": "Bad Request",
 *		    "description": "Cannot Delete Site: Invalid Username Provided",
+*		    "data": []
+*		}
+*/
+
+/**
+*	@api {post} /authenticate Authenticate
+*	@apiVersion 1.0.0
+*	@apiDescription	Requests a token to perform actions on the behalf of a user.
+*	@apiName Authenticate
+*	@apiGroup Users
+*
+*	@apiParam (URL Parameters) {String} username Username of User 
+*	@apiParam (URL Parameters) {String} password Password of User 
+*
+*	@apiParamExample {json} Request Example:
+*		POST /authenticate
+*		{
+*		    "username": "SMITHJ01",
+*		    "password": "V3ryS3cr3t",			
+*		}
+*	
+*	@apiSuccessExample Success Example:
+*		HTTP/1.1 200 OK
+*		{
+*		    "code": 200,
+*		    "status": "OK",
+*		    "description": "Authentication Sucessful",
+*		    "data": <TOKEN>
+*		}
+*
+*	@apiErrorExample {json} Error Example:
+*		// Returned when the provided credentials were invalid
+*		HTTP/1.1 401 Forbidden
+*		{
+*		    "code": 401,
+*		    "status": "Forbidden",
+*		    "description": "Invalid Credentials Provided",
 *		    "data": []
 *		}
 */
