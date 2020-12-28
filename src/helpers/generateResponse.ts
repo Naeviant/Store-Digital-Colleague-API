@@ -74,6 +74,16 @@ export class AssignmentResponse extends ResponseBody {
 	}
 }
 
+import { IModule } from '../entities/Module';
+export class ModuleResponse extends ResponseBody {
+	data!: IModule | IModule[] | null;
+
+	constructor(code: number, description: string, data?: IModule | IModule[] | null) {
+		super(code, description);
+		this.data = data ?? [];
+	}
+}
+
 import { IUser } from '../entities/User';
 export class UserResponse extends ResponseBody {
 	data!: IUser | IUser[] | null;
