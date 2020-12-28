@@ -8,6 +8,7 @@ import { locationRoutes } from './routes/locationRoutes';
 import { assignmentRoutes } from './routes/assignmentRoutes';
 import { userRoutes } from './routes/userRoutes';
 import { moduleRoutes } from './routes/moduleRoutes';
+import { moduleInstanceRoutes } from './routes/moduleInstanceRoutes';
 
 const app = express();
 const router = Router();
@@ -26,6 +27,7 @@ router.use(siteRoutes);
 router.use(locationRoutes);
 router.use(assignmentRoutes);
 router.use(userRoutes);
+router.use(moduleInstanceRoutes);
 router.use(moduleRoutes);
 router.route('*').all(generate404);
 
