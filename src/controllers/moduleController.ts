@@ -29,7 +29,7 @@ export const addModule = async (req: Request, res: Response): Promise<void> => {
 export const getModule = async (req: Request, res: Response): Promise<void> => {
 	try {
 		if (!req.params.discriminator) res.status(400).send(new ModuleResponse(400, 'Cannot Get Module: Invalid Discriminator Provided'));
-		Module.findOne({ discriminator: req.params.discriminator }, { __v: 0 }).then((doc: IModule | null) => {
+		Module.findOne({ discriminator: req.params.discriminator }, { __v: 0 }).populate({ path: 'products.product', model: 'Product', select: '-__v' }).then((doc: IModule | null) => {
 			if (!doc) res.status(404).send(new ModuleResponse(404, 'Cannot Get Module: Module Not Found'));
 			else res.status(200).send(new ModuleResponse(200, 'Module Retrieved Successfully', doc));
 		}, (error: Error & { code: number } | null) => {
@@ -42,7 +42,7 @@ export const getModule = async (req: Request, res: Response): Promise<void> => {
 
 export const getAllModules = async (req: Request, res: Response): Promise<void> => {
 	try {
-		Module.find({}, { _id: 0, __v: 0 }).then((docs: IModule[] | null) => {
+		Module.find({}, { _id: 0, __v: 0, 'products._id': 0 }).populate({ path: 'products.product', model: 'Product', select: '-_id -__v' }).then((docs: IModule[] | null) => {
 			res.status(200).send(new ModuleResponse(200, 'Modules Retrieved Successfully', docs));
 		}, (error: Error & { code: number } | null) => {
 			if (error) generate500(req, res, error);
