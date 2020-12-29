@@ -12,25 +12,25 @@ class AisleUpdate {
 
 export const addAisle = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code) respond(req, res, 400, 'Cannot Add Aisle: Invalid Site Code Provided');
-		else axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
 			const site = response.data.data;
 			axios.get(`${config.base}/aisle/${req.params.code}/${req.body.aisle}`).then((response: AxiosResponse) => {
-				if (response.data.data) respond(req, res, 409, 'Cannot Add Aisle: Aisle Number Already in Use');
-			}).catch((error: Error & { response: { status: number } } | null) => {
-				if (error && error.response && (error.response.status === 404 || error.response.status === 400)) {
+				respond(req, res, 409, 'Cannot Add Aisle: Aisle Number Already in Use');
+			}).catch((error: Error & { response: { status: number } }) => {
+				if (error.response.status === 404 || error.response.status === 400) {
 					const newAisle = new Aisle({ name: req.body.name, aisle: req.body.aisle, site: site._id });
 					newAisle.save().then(() => {
 						respond(req, res, 201, 'Aisle Added Successfully');
-					}, (error: Error & { code: number } | null) => {
-						if (error) respond(req, res, 400, 'Cannot Add Aisle: Invalid Request Body');
+					}, (error: Error & { name: string }) => {
+						if (error.name === 'ValidationError') respond(req, res, 400, 'Cannot Add Aisle: Invalid Request Body');
+						else generate500(req, res, error);
 					});
 				}
-				else if (error) generate500(req, res, error);
+				else generate500(req, res, error);
 			});			
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Add Aisle: Invalid Site Code Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Add Aisle: Invalid Site Code Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -39,18 +39,17 @@ export const addAisle = async (req: Request, res: Response): Promise<void> => {
 
 export const getAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code || !req.params.aisle) respond(req, res, 400, 'Cannot Get Aisle: Invalid Site Code or Aisle Number Provided');
-		else axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
 			const site = response.data.data;
 			Aisle.findOne({ site: site._id, aisle: req.params.aisle }, { __v: 0 }).populate('site', '-__v').then((doc: IAisle | null) => {
 				if (!doc) respond(req, res, 404, 'Cannot Get Aisle: Aisle Not Found');
 				else respond(req, res, 200, 'Aisle Retrieved Successfully', doc);
-			}, (error: Error & { code: number } | null) => {
-				if (error) generate500(req, res, error);
+			}, (error: Error) => {
+				generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Get Aisle: Invalid Site Code Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Aisle: Invalid Site Code Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -59,17 +58,16 @@ export const getAisle = async (req: Request & { params: { aisle: number } }, res
 
 export const getAllAislesAtSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code) respond(req, res, 400, 'Cannot Get Aisles: Invalid Site Code Provided');
-		else axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
 			const site = response.data.data;
 			Aisle.find({ site: site._id }, { _id: 0, __v: 0 }).populate('site', '-__v -_id').then((docs: IAisle[] | null) => {
 				respond(req, res, 200, 'Aisles Retrieved Successfully', docs);
-			}, (error: Error & { code: number } | null) => {
-				if (error) generate500(req, res, error);
+			}, (error: Error) => {
+				generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Get Aisles: Invalid Site Code Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Aisles: Invalid Site Code Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -78,8 +76,7 @@ export const getAllAislesAtSite = async (req: Request, res: Response): Promise<v
 
 export const updateAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code || !req.params.aisle) respond(req, res, 400, 'Cannot Update Aisle: Invalid Site Code or Aisle Number Provided');
-		else axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
 			const site = response.data.data;
 			const update = new AisleUpdate();
 			if (req.body.aisle) update.aisle = req.body.aisle;
@@ -89,27 +86,27 @@ export const updateAisle = async (req: Request & { params: { aisle: number } }, 
 					if (docs.n === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Site Code or Aisle Number Provided');
 					else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 					else respond(req, res, 200, 'Aisle Updated Successfully');
-				}, (error: Error & { code: number } | null) => {
-					if (error) generate500(req, res, error);
+				}, (error: Error) => {
+					generate500(req, res, error);
 				});
 			}
 			else axios.get(`${config.base}/aisle/${req.params.code}/${req.body.aisle}`).then((response: AxiosResponse) => {
 				if (response.data.data) respond(req, res, 409, 'Cannot Update Aisle: New Aisle Number Already in Use');
-			}).catch((error: Error & { response: { status: number } } | null) => {
-				if (error && error.response && (error.response.status === 404 || error.response.status === 400)) {
+			}).catch((error: Error & { response: { status: number } }) => {
+				if (error.response.status === 404 || error.response.status === 400) {
 					Aisle.updateOne({ site: site._id, aisle: req.params.aisle }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
 						if (docs.n === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Site Code or Aisle Number Provided');
 						else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 						else respond(req, res, 200, 'Aisle Updated Successfully');
-					}, (error: Error & { code: number } | null) => {
-						if (error) generate500(req, res, error);
+					}, (error: Error) => {
+						generate500(req, res, error);
 					});
 				}
-				else if (error) generate500(req, res, error);
+				else generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Get Aisle: Invalid Site Code Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Aisle: Invalid Site Code Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -118,18 +115,17 @@ export const updateAisle = async (req: Request & { params: { aisle: number } }, 
 
 export const deleteAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code || !req.params.aisle) respond(req, res, 400, 'Cannot Delete Aisle: Invalid Site Code or Aisle Number Provided');
-		else axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
 			const site = response.data.data;
 			Aisle.deleteOne({ site: site._id, aisle: req.params.aisle }).then((doc: { deletedCount: number }) => {
 				if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Delete Aisle: Invalid Site Code or Aisle Number Provided');
 				else respond(req, res, 200, 'Aisle Deleted Successfully');
-			}, (error: Error & { code: number } | null) => {
-				if (error) generate500(req, res, error);
+			}, (error: Error) => {
+				generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Delete Aisle: Invalid Site Code Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Delete Aisle: Invalid Site Code Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -149,26 +145,25 @@ class BayUpdate {
 
 export const addBay = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code || !req.params.aisle) respond(req, res, 400, 'Cannot Add Bay: Invalid Site Code or Aisle Number Provided');
-		else axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
 			const aisle = response.data.data;
 			axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.body.bay}/`).then((response: AxiosResponse) => {
-				if (response.data.data) respond(req, res, 409, 'Cannot Add Bay: Bay Number Already in Use');
-			}).catch((error: Error & { response: { status: number } } | null) => {
-				if (error && error.response && (error.response.status === 404 || error.response.status === 400)) {
+				respond(req, res, 409, 'Cannot Add Bay: Bay Number Already in Use');
+			}).catch((error: Error & { response: { status: number } }) => {
+				if (error.response.status === 404 || error.response.status === 400) {
 					req.body.aisle = aisle._id;
 					const newBay = new Bay(req.body);
 					newBay.save().then(() => {
 						respond(req, res, 201, 'Bay Added Successfully');
-					}, (error: Error & { code: number } | null) => {
-						if (error) respond(req, res, 400, 'Cannot Add Bay: Invalid Request Body');
+					}, (error: Error) => {
+						respond(req, res, 400, 'Cannot Add Bay: Invalid Request Body');
 					});
 				}
-				else if (error) generate500(req, res, error);
+				else generate500(req, res, error);
 			});			
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Add Bay: Invalid Site Code or Aisle Number Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Add Bay: Invalid Site Code or Aisle Number Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -177,18 +172,17 @@ export const addBay = async (req: Request, res: Response): Promise<void> => {
 
 export const getBay = async (req: Request & { params: { bay: number } }, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code || !req.params.aisle || !req.params.bay) respond(req, res, 400, 'Cannot Get Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
-		else axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
 			const aisle = response.data.data;
 			Bay.findOne({ aisle: aisle._id, bay: req.params.bay }, { __v: 0 }).populate({ path: 'aisle', select: '-__v', populate: { path: 'site', select: '-__v' } }).then((doc: IBay | null) => {
 				if (!doc) respond(req, res, 404, 'Cannot Get Bay: Bay Not Found');
 				else respond(req, res, 200, 'Bay Retrieved Successfully', doc);
-			}, (error: Error & { code: number } | null) => {
-				if (error) generate500(req, res, error);
+			}, (error: Error) => {
+				generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Get Bay: Invalid Site Code or Bay Number Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Bay: Invalid Site Code or Bay Number Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -197,17 +191,16 @@ export const getBay = async (req: Request & { params: { bay: number } }, res: Re
 
 export const getAllBaysInAisle = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code || !req.params.aisle) respond(req, res, 400, 'Cannot Get Bays: Invalid Site Code or Aisle Number Provided');
-		else axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
 			const aisle = response.data.data;
 			Bay.find({ aisle: aisle._id }, { _id: 0, __v: 0 }).populate({ path: 'aisle', select: '-__v -_id', populate: { path: 'site', select: '-__v -_id' } }).then((docs: IBay[] | null) => {
 				respond(req, res, 200, 'Bays Retrieved Successfully', docs);
-			}, (error: Error & { code: number } | null) => {
-				if (error) generate500(req, res, error);
+			}, (error: Error) => {
+				generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Get Bays: Invalid Site Code or Aisle Number Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Bays: Invalid Site Code or Aisle Number Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -216,8 +209,7 @@ export const getAllBaysInAisle = async (req: Request, res: Response): Promise<vo
 
 export const updateBay = async (req: Request & { params: { bay: number } }, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code || !req.params.aisle || !req.params.bay) respond(req, res, 400, 'Cannot Update Aisle: Invalid Site Code, Aisle Number or Bay Number Provided');
-		else axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
 			const aisle = response.data.data;
 			const update = new BayUpdate();
 			if (req.body.bay) update.bay = req.body.bay;
@@ -233,27 +225,27 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 					if (docs.n === 0) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
 					else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 					else respond(req, res, 200, 'Bay Updated Successfully');
-				}, (error: Error & { code: number } | null) => {
-					if (error) generate500(req, res, error);
+				}, (error: Error) => {
+					generate500(req, res, error);
 				});
 			}
 			else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${update.bay}`).then((response: AxiosResponse) => {
-				if (response.data.data) respond(req, res, 409, 'Cannot Update Bay: New Bay Number Already in Use');
-			}).catch((error: Error & { response: { status: number } } | null) => {
-				if (error && error.response && (error.response.status === 404 || error.response.status === 400)) {
+				respond(req, res, 409, 'Cannot Update Bay: New Bay Number Already in Use');
+			}).catch((error: Error & { response: { status: number } }) => {
+				if (error.response.status === 404 || error.response.status === 400) {
 					Bay.updateOne({ aisle: aisle._id, bay: req.params.bay }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
 						if (docs.n === 0) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
 						else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 						else respond(req, res, 200, 'Bay Updated Successfully');
-					}, (error: Error & { code: number } | null) => {
-						if (error) generate500(req, res, error);
+					}, (error: Error) => {
+						generate500(req, res, error);
 					});
 				}
-				else if (error) generate500(req, res, error);
+				else generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code or Bay Number Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code or Bay Number Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -262,18 +254,17 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 
 export const deleteBay = async (req: Request & { params: { bay: number } }, res: Response): Promise<void> => {
 	try {
-		if (!req.params.code || !req.params.aisle || !req.params.bay) respond(req, res, 400, 'Cannot Delete Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
-		else axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
 			const aisle = response.data.data;
 			Bay.deleteOne({ aisle: aisle._id, bay: req.params.bay }).then((doc: { deletedCount: number }) => {
 				if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Delete Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
 				else respond(req, res, 200, 'Aisle Deleted Successfully');
-			}, (error: Error & { code: number } | null) => {
-				if (error) generate500(req, res, error);
+			}, (error: Error) => {
+				generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } } | null) => {
-			if (error && error.response && (error.response.status === 404 || error.response.status === 400)) respond(req, res, 400, 'Cannot Delete Bay: Invalid Site Code or Bay Number Provided');
-			else if (error) generate500(req, res, error);
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Delete Bay: Invalid Site Code or Bay Number Provided');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
