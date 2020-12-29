@@ -57,17 +57,15 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const update = new UserUpdate();
-		let site, username;
 		if (req.body.firstName) update.firstName = req.body.firstName;
 		if (req.body.lastName) update.lastName = req.body.lastName;
 		if (req.body.userType) update.userType = req.body.userType;
 		if (req.body.password) update.password = await hash(req.body.password, 10);
-		if (req.body.code) site = await axios.get(`${config.base}/site/${req.body.code}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return []; });
-		if (req.body.username) username = await axios.get(`${config.base}/user/${req.body.username}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return []; });
-		if (site && site._id) update.site = site._id;
-		if (username && !username.username) update.username = req.body.username;
-		if (typeof update.site !== 'string') respond(req, res, 400, 'Cannot Update User: Invalid Site Code Provided');
-		else if (typeof update.username !== 'string') respond(req, res, 409, 'Cannot Update User: New Username Already in Use');
+		if (req.body.code) update.site = await axios.get(`${config.base}/site/${req.body.code}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return null; });
+		if (req.body.username) update.username = await axios.get(`${config.base}/user/${req.body.username}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return req.body.username; });
+		if (Object.keys(update).length === 0) respond(req, res, 400, 'Cannot Update User: Invalid Request Body');
+		else if (req.body.code && !update.site) respond(req, res, 400, 'Cannot Update User: Invalid Site Code Provided');
+		else if (req.body.username && typeof update.username !== 'string') respond(req, res, 409, 'Cannot Update User: New Username Already in Use');
 		else User.updateOne({ username: req.params.username }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
 			if (docs.n === 0) respond(req, res, 400, 'Cannot Update User: Invalid Username Provided');
 			else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');

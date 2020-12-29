@@ -50,7 +50,8 @@ export const updateSite = async (req: Request, res: Response): Promise<void> => 
 	try {
 		const update = new SiteUpdate();
 		if (req.body.name) update.name = req.body.name;
-		Site.updateOne({ code: req.params.code }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {
+		if (Object.keys(update).length === 0) respond(req, res, 400, 'Cannot Update Site: Invalid Request Body');
+		else Site.updateOne({ code: req.params.code }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {
 			if (docs.n === 0) respond(req, res, 400, 'Cannot Update Site: Site Code Not Found');
 			else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 			else respond(req, res, 200, 'Site Updated Successfully');

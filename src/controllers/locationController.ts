@@ -75,33 +75,19 @@ export const getAllAislesAtSite = async (req: Request, res: Response): Promise<v
 
 export const updateAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/site/${req.params.code}`).then(async (response: AxiosResponse) => {
 			const site = response.data.data;
 			const update = new AisleUpdate();
-			if (req.body.aisle) update.aisle = req.body.aisle;
 			if (req.body.name) update.name = req.body.name;
-			if (!req.body.aisle) {
-				Aisle.updateOne({ site: site._id, aisle: req.params.aisle }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
-					if (docs.n === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Site Code or Aisle Number Provided');
-					else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
-					else respond(req, res, 200, 'Aisle Updated Successfully');
-				}, (error: Error) => {
-					generate500(req, res, error);
-				});
-			}
-			else axios.get(`${config.base}/aisle/${req.params.code}/${req.body.aisle}`).then((response: AxiosResponse) => {
-				if (response.data.data) respond(req, res, 409, 'Cannot Update Aisle: New Aisle Number Already in Use');
-			}).catch((error: Error & { response: { status: number } }) => {
-				if (error.response.status === 404 || error.response.status === 400) {
-					Aisle.updateOne({ site: site._id, aisle: req.params.aisle }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
-						if (docs.n === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Site Code or Aisle Number Provided');
-						else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
-						else respond(req, res, 200, 'Aisle Updated Successfully');
-					}, (error: Error) => {
-						generate500(req, res, error);
-					});
-				}
-				else generate500(req, res, error);
+			if (req.body.aisle) update.aisle = await axios.get(`${config.base}/aisle/${req.params.code}/${req.body.aisle}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return req.body.aisle; });
+			if (Object.keys(update).length === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Request Body');
+			else if (req.body.aisle && typeof update.aisle !== 'number') respond(req, res, 409, 'Cannot Update Aisle: New Aisle Number Already in Use');
+			else Aisle.updateOne({ site: site._id, aisle: req.params.aisle }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
+				if (docs.n === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Site Code or Aisle Number Provided');
+				else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
+				else respond(req, res, 200, 'Aisle Updated Successfully');
+			}, (error: Error) => {
+				generate500(req, res, error);
 			});
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Aisle: Invalid Site Code Provided');
@@ -209,10 +195,9 @@ export const getAllBaysInAisle = async (req: Request, res: Response): Promise<vo
 
 export const updateBay = async (req: Request & { params: { bay: number } }, res: Response): Promise<void> => {
 	try {
-		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then(async (response: AxiosResponse) => {
 			const aisle = response.data.data;
 			const update = new BayUpdate();
-			if (req.body.bay) update.bay = req.body.bay;
 			if (req.body.moduleLimit) update.moduleLimit = req.body.moduleLimit;
 			if (typeof req.body.allowsMultiLocation !== 'undefined') update.allowsMultiLocation = req.body.allowsMultiLocation;
 			if (typeof req.body.allowsClearance !== 'undefined') update.allowsClearance = req.body.allowsClearance;
@@ -220,28 +205,15 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 			if (typeof req.body.allowsOverstock !== 'undefined') update.allowsOverstock = req.body.allowsOverstock;
 			if (typeof req.body.allowsTopstock !== 'undefined') update.allowsTopstock = req.body.allowsTopstock;
 			if (typeof req.body.allowsStockroom !== 'undefined') update.allowsStockroom = req.body.allowsStockroom;
-			if (!update.bay) {
-				Bay.updateOne({ aisle: aisle._id, bay: req.params.bay }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
-					if (docs.n === 0) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
-					else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
-					else respond(req, res, 200, 'Bay Updated Successfully');
-				}, (error: Error) => {
-					generate500(req, res, error);
-				});
-			}
-			else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${update.bay}`).then(() => {
-				respond(req, res, 409, 'Cannot Update Bay: New Bay Number Already in Use');
-			}).catch((error: Error & { response: { status: number } }) => {
-				if (error.response.status === 404 || error.response.status === 400) {
-					Bay.updateOne({ aisle: aisle._id, bay: req.params.bay }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
-						if (docs.n === 0) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
-						else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
-						else respond(req, res, 200, 'Bay Updated Successfully');
-					}, (error: Error) => {
-						generate500(req, res, error);
-					});
-				}
-				else generate500(req, res, error);
+			if (req.body.bay) update.bay = await axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.body.bay}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return req.body.bay; });
+			if (Object.keys(update).length === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Request Body');
+			else if (req.body.bay && typeof update.bay !== 'number') respond(req, res, 409, 'Cannot Update Bay: New Aisle Bay Already in Use');
+			else Bay.updateOne({ aisle: aisle._id, bay: req.params.bay }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
+				if (docs.n === 0) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
+				else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
+				else respond(req, res, 200, 'Bay Updated Successfully');
+			}, (error: Error) => {
+				generate500(req, res, error);
 			});
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code or Bay Number Provided');
