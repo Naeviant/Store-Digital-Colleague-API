@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from 'express';
 import { config } from './helpers/config';
 import { makeConnection } from './helpers/makeConnection';
-import { generate404 } from './helpers/httpErrors';
+import { respond } from './helpers/respond';
 import { productRoutes } from './routes/productRoutes';
 import { productQuantityRoutes } from './routes/productQuantityRoutes';
 import { siteRoutes } from './routes/siteRoutes';
@@ -18,9 +18,7 @@ app.use('/api', router);
 makeConnection();
 
 router.get('/', (req: Request, res: Response) => {
-	res.json({
-		status: 200
-	});
+	respond(req, res, 200, 'API Online');
 });
 
 router.use(productQuantityRoutes);
@@ -31,7 +29,10 @@ router.use(assignmentRoutes);
 router.use(userRoutes);
 router.use(moduleInstanceRoutes);
 router.use(moduleRoutes);
-router.route('*').all(generate404);
+
+router.all('*', (req: Request, res: Response) => {
+	respond(req, res, 404, `Cannot ${req.method} ${req.path}`);
+});
 
 app.listen(config.port, () => {
 	console.log(`Listening on Port ${config.port}`);

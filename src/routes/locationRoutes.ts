@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as locationController from '../controllers/locationController';
 import { isManager } from '../middleware/auth';
-import { generate405 } from '../helpers/httpErrors';
+import { generate405 } from '../helpers/respond';
 
 const router = Router();
 

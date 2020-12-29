@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as siteController from '../controllers/siteController';
 import { isAdmin } from '../middleware/auth';
-import { generate405 } from '../helpers/httpErrors';
+import { generate405 } from '../helpers/respond';
 
 const router = Router();
 
