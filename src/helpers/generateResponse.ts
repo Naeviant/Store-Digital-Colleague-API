@@ -34,6 +34,16 @@ export class ProductResponse extends ResponseBody {
 	}
 }
 
+import { IProductQuantity } from '../entities/ProductQuantity';
+export class ProductQuantityResponse extends ResponseBody {
+	data!: IProductQuantity | IProductQuantity[] | null;
+
+	constructor(code: number, description: string, data?: IProductQuantity | IProductQuantity[] | null) {
+		super(code, description);
+		this.data = data ?? [];
+	}
+}
+
 import { ISite } from '../entities/Site';
 export class SiteResponse extends ResponseBody {
 	data!: ISite | ISite[] | null;

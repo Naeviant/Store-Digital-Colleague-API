@@ -3,6 +3,7 @@ import { config } from './helpers/config';
 import { makeConnection } from './helpers/makeConnection';
 import { generate404 } from './helpers/httpErrors';
 import { productRoutes } from './routes/productRoutes';
+import { productQuantityRoutes } from './routes/productQuantityRoutes';
 import { siteRoutes } from './routes/siteRoutes';
 import { locationRoutes } from './routes/locationRoutes';
 import { assignmentRoutes } from './routes/assignmentRoutes';
@@ -22,6 +23,7 @@ router.get('/', (req: Request, res: Response) => {
 	});
 });
 
+router.use(productQuantityRoutes);
 router.use(productRoutes);
 router.use(siteRoutes);
 router.use(locationRoutes);
