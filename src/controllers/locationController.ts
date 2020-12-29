@@ -167,7 +167,7 @@ export const getBay = async (req: Request & { params: { bay: number } }, res: Re
 				generate500(req, res, error);
 			});
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Bay: Invalid Site Code or Bay Number Provided');
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Bay: Invalid Site Code or Aisle Number Provided');
 			else generate500(req, res, error);
 		});
 	} catch (error) {
@@ -216,7 +216,7 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 				generate500(req, res, error);
 			});
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code or Bay Number Provided');
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code or Aisle Number Provided');
 			else generate500(req, res, error);
 		});
 	} catch (error) {

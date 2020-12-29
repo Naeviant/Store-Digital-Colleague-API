@@ -186,7 +186,7 @@ export const deleteModuleFromBay = async (req: Request, res: Response): Promise<
 				else generate500(req, res, error);
 			}); 
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Unassign Module: Invalid Site Code ');
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Unassign Module: Invalid Site Code Provided');
 			else generate500(req, res, error);
 		}); 
 	} catch (error) {
