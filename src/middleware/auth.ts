@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verify } from 'jsonwebtoken';
 import { config } from '../helpers/config';
-import { respond } from '../helpers/respond';
-import { generate500 } from '../helpers/httpErrors';
+import { respond, generate500 } from '../helpers/respond';
 
 interface UserPermissions {
 	userType: string;

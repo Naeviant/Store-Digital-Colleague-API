@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import { config } from '../helpers/config';
 import axios, { AxiosResponse } from 'axios';
 import { Aisle, IAisle, Bay, IBay } from '../entities/Location';
-import { respond } from '../helpers/respond';
-import { generate500 } from '../helpers/httpErrors';
+import { respond, generate500 } from '../helpers/respond';
 
 class AisleUpdate {
 	name?: string;
@@ -14,7 +13,7 @@ export const addAisle = async (req: Request, res: Response): Promise<void> => {
 	try {
 		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
 			const site = response.data.data;
-			axios.get(`${config.base}/aisle/${req.params.code}/${req.body.aisle}`).then((response: AxiosResponse) => {
+			axios.get(`${config.base}/aisle/${req.params.code}/${req.body.aisle}`).then(() => {
 				respond(req, res, 409, 'Cannot Add Aisle: Aisle Number Already in Use');
 			}).catch((error: Error & { response: { status: number } }) => {
 				if (error.response.status === 404 || error.response.status === 400) {
@@ -147,7 +146,7 @@ export const addBay = async (req: Request, res: Response): Promise<void> => {
 	try {
 		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
 			const aisle = response.data.data;
-			axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.body.bay}/`).then((response: AxiosResponse) => {
+			axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.body.bay}/`).then(() => {
 				respond(req, res, 409, 'Cannot Add Bay: Bay Number Already in Use');
 			}).catch((error: Error & { response: { status: number } }) => {
 				if (error.response.status === 404 || error.response.status === 400) {
@@ -155,8 +154,9 @@ export const addBay = async (req: Request, res: Response): Promise<void> => {
 					const newBay = new Bay(req.body);
 					newBay.save().then(() => {
 						respond(req, res, 201, 'Bay Added Successfully');
-					}, (error: Error) => {
-						respond(req, res, 400, 'Cannot Add Bay: Invalid Request Body');
+					}, (error: Error & { name: string }) => {
+						if (error.name === 'ValidationError') respond(req, res, 400, 'Cannot Add Bay: Invalid Request Body');
+						else generate500(req, res, error);
 					});
 				}
 				else generate500(req, res, error);
@@ -229,7 +229,7 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 					generate500(req, res, error);
 				});
 			}
-			else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${update.bay}`).then((response: AxiosResponse) => {
+			else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${update.bay}`).then(() => {
 				respond(req, res, 409, 'Cannot Update Bay: New Bay Number Already in Use');
 			}).catch((error: Error & { response: { status: number } }) => {
 				if (error.response.status === 404 || error.response.status === 400) {

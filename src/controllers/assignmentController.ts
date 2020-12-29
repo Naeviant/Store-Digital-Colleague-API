@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import { config } from '../helpers/config';
 import axios, { AxiosResponse } from 'axios';
 import { Assignment, IAssignment } from '../entities/Assignment';
-import { respond } from '../helpers/respond';
-import { generate500 } from '../helpers/httpErrors';
+import { respond, generate500 } from '../helpers/respond';
 
 export const addAssignment = async (req: Request, res: Response): Promise<void> => {
 	try {

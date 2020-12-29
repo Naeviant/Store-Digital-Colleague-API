@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Product, IProduct } from '../entities/Product';
-import { generate500 } from '../helpers/httpErrors';
-import { respond } from '../helpers/respond';
+import { respond, generate500 } from '../helpers/respond';
 
 class ProductUpdate {
 	name?: string;

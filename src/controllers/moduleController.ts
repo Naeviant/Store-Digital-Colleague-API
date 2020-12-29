@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import { config } from '../helpers/config';
 import axios, { AxiosResponse } from 'axios';
 import { Module, IModule } from '../entities/Module';
-import { respond } from '../helpers/respond';
-import { generate500 } from '../helpers/httpErrors';
+import { respond, generate500 } from '../helpers/respond';
 
 class ModuleUpdate {
 	name?: string;
@@ -110,7 +109,7 @@ export const addModuleProduct = async (req: Request, res: Response): Promise<voi
 export const deleteModuleProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const key = `products.${parseInt(req.params.sequence) - 1}`;
-			Module.updateOne({ discriminator: req.params.discriminator }, { '$unset': { [key]: 1 } }).then((docs: { n: number, nModified: number }) => {
+		Module.updateOne({ discriminator: req.params.discriminator }, { '$unset': { [key]: 1 } }).then((docs: { n: number, nModified: number }) => {
 			if (docs.n === 0) respond(req, res, 400, 'Cannot Delete Product from Module: Invalid Discriminator Provided');
 			else if (docs.nModified === 0) respond(req, res, 400, 'Cannot Delete Product from Module: Invalid Sequence Provided');
 			else Module.updateOne({ discriminator: req.params.discriminator }, { '$pull': { products: null } }).then((docs: { n: number, nModified: number }) => {

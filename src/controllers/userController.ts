@@ -4,8 +4,7 @@ import { hash, compare } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { config } from '../helpers/config';
 import { User, IUser } from '../entities/User';
-import { respond } from '../helpers/respond';
-import { generate500 } from '../helpers/httpErrors';
+import { respond, generate500 } from '../helpers/respond';
 
 class UserUpdate {
 	firstName?: string;

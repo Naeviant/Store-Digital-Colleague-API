@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Site, ISite } from '../entities/Site';
-import { respond } from '../helpers/respond';
-import { generate500 } from '../helpers/httpErrors';
+import { respond, generate500 } from '../helpers/respond';
 
 class SiteUpdate {
 	name?: string;

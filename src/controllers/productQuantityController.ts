@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import { config } from '../helpers/config';
 import axios, { AxiosResponse } from 'axios';
 import { ProductQuantity, IProductQuantity } from '../entities/ProductQuantity';
-import { generate500 } from '../helpers/httpErrors';
-import { respond } from '../helpers/respond';
+import { respond, generate500 } from '../helpers/respond';
 
 export const getQuantity = async (req: Request, res: Response): Promise<void> => {
 	try {
