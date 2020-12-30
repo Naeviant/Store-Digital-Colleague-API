@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "watch-ts": "tsc -w",
-    "watch-node": "nodemon dist/app.js",
+    "watch-node": "nodemon dist/src/app.js",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yello.bold, cyan.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
     "lint": "./node_modules/.bin/eslint src --ext .ts",
     "lint:config": "./node_modules/.bin/eslint --init",

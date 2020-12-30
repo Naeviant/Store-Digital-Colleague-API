@@ -100,14 +100,14 @@ export const updateAisle = async (req: Request & { params: { aisle: number } }, 
 
 export const deleteAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/site/${req.params.code}`).then(async (response: AxiosResponse) => {
 			const site = response.data.data;
-			Aisle.deleteOne({ site: site._id, aisle: req.params.aisle }).then((doc: { deletedCount: number }) => {
-				if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Delete Aisle: Invalid Site Code or Aisle Number Provided');
-				else respond(req, res, 200, 'Aisle Deleted Successfully');
-			}, (error: Error) => {
-				generate500(req, res, error);
-			});
+			const doc = await Aisle.findOne({ site: site._id, aisle: req.params.aisle });
+			if (doc) {
+				await doc.remove();
+				respond(req, res, 200, 'Aisle Deleted Successfully');
+			}
+			else respond(req, res, 400, 'Cannot Delete Aisle: Invalid Site Code or Aisle Number Provided');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Delete Aisle: Invalid Site Code Provided');
 			else generate500(req, res, error);
@@ -226,14 +226,14 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 
 export const deleteBay = async (req: Request & { params: { bay: number } }, res: Response): Promise<void> => {
 	try {
-		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then((response: AxiosResponse) => {
+		axios.get(`${config.base}/aisle/${req.params.code}/${req.params.aisle}`).then(async (response: AxiosResponse) => {
 			const aisle = response.data.data;
-			Bay.deleteOne({ aisle: aisle._id, bay: req.params.bay }).then((doc: { deletedCount: number }) => {
-				if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Delete Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
-				else respond(req, res, 200, 'Aisle Deleted Successfully');
-			}, (error: Error) => {
-				generate500(req, res, error);
-			});
+			const doc = await Bay.findOne({ aisle: aisle._id });
+			if (doc) {
+				await doc.remove();
+				respond(req, res, 200, 'Aisle Deleted Successfully');
+			}
+			else respond(req, res, 400, 'Cannot Delete Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Delete Bay: Invalid Site Code or Bay Number Provided');
 			else generate500(req, res, error);

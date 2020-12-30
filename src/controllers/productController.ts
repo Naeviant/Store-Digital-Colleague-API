@@ -70,12 +70,12 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
 
 export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
-		Product.deleteOne({ ean: req.params.ean }).then((doc: { deletedCount: number }) => {
-			if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Delete Product: Invalid EAN Provided');
-			else respond(req, res, 200, 'Product Deleted Successfully');
-		}, (error: Error) => {
-			generate500(req, res, error);
-		});
+		const doc = await Product.findOne({ ean: req.params.ean });
+		if (doc) {
+			await doc.remove();
+			respond(req, res, 200, 'Product Deleted Successfully');
+		}
+		else respond(req, res, 400, 'Cannot Delete Product: Invalid EAN Provided');
 	} catch (error) {
 		generate500(req, res, error);
 	}

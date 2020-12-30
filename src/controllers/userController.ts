@@ -80,12 +80,12 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
 	try {
-		User.deleteOne({ username: req.params.username }).then((doc: { deletedCount: number }) => {
-			if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Delete User: Invalid Username Provided');
-			else respond(req, res, 200, 'User Deleted Successfully');
-		}, (error: Error) => {
-			generate500(req, res, error);
-		});
+		const doc = await User.findOne({ username: req.params.username });
+		if (doc) {
+			await doc.remove();
+			respond(req, res, 200, 'User Deleted Successfully');
+		}
+		else respond(req, res, 400, 'Cannot Delete User: Invalid Username Provided');
 	} catch (error) {
 		generate500(req, res, error);
 	}

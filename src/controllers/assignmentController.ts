@@ -81,14 +81,14 @@ export const deleteAssignment = async (req: Request, res: Response): Promise<voi
 	try {
 		axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.params.bay}`).then((response: AxiosResponse) => {
 			const bay = response.data.data;
-			axios.get(`${config.base}/product/${req.params.ean}`).then((response: AxiosResponse) => {
+			axios.get(`${config.base}/product/${req.params.ean}`).then(async (response: AxiosResponse) => {
 				const product = response.data.data;
-				Assignment.deleteOne({ bay: bay._id, product: product._id, type: req.params.type }).then((doc: { deletedCount: number }) => {
-					if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Unassign Product: Invalid Site Code, Aisle Number, Bay Number, Assignment Type or EAN Provided');
-					else respond(req, res, 200, 'Assignment Deleted Successfully');
-				}, (error: Error) => {
-					generate500(req, res, error);
-				});
+				const doc = await Assignment.findOne({ bay: bay._id, product: product._id, type: req.params.type });
+				if (doc) {
+					await doc.remove();
+					respond(req, res, 200, 'Assignment Deleted Successfully');
+				}
+				else respond(req, res, 400, 'Cannot Unassign Product: Invalid Site Code, Aisle Number, Bay Number, Assignment Type or EAN Provided');
 			}).catch((error: Error & { response: { status: number } }) => {
 				if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Unassign Product: Invalid EAN Provided');
 				else generate500(req, res, error);

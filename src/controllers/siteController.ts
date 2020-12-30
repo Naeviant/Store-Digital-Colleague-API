@@ -66,12 +66,12 @@ export const updateSite = async (req: Request, res: Response): Promise<void> => 
 
 export const deleteSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		Site.deleteOne({ code: req.params.code }).then((doc: { deletedCount: number }) => {
-			if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Delete Site: Invalid Site Code Provided');
-			else respond(req, res, 200, 'Site Deleted Successfully');
-		}, (error: Error) => {
-			generate500(req, res, error);
-		});
+		const doc = await Site.findOne({ code: req.params.code });
+		if (doc) {
+			await doc.remove();
+			respond(req, res, 200, 'Site Deleted Successfully');
+		}
+		else respond(req, res, 400, 'Cannot Delete Site: Invalid Site Code Provided');
 	} catch (error) {
 		generate500(req, res, error);
 	}

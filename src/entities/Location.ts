@@ -1,5 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import { ISite } from './Site';
+import { Assignment } from './Assignment';
+import { ModuleInstance } from './ModuleInstance';
 
 export interface IAisle extends	Document {
 	name: string;
@@ -11,6 +13,14 @@ const aisleSchema = new Schema({
 	name: { type: String, required: true },
 	aisle: { type: Number, required: true },
 	site: { type: Schema.Types.ObjectId, required: true, ref: 'Site' }
+});
+
+aisleSchema.post('remove', (doc) => {
+	Bay.find({ aisle: doc._id }, async (err, bays) => {
+		bays.forEach(async bay => {
+			bay.remove();
+		});
+	});
 });
 
 export const Aisle = model<IAisle>('Aisle', aisleSchema);
@@ -37,6 +47,19 @@ const baySchema = new Schema({
 	allowsOverstock: { type: Boolean, required: true },
 	allowsTopstock: { type: Boolean, required: true },
 	allowsStockroom: { type: Boolean, required: true }
+});
+
+baySchema.post('remove', (doc) => {
+	Assignment.find({ bay: doc._id }, async (err, assignments) => {
+		assignments.forEach(async assignment => {
+			assignment.remove();
+		});
+	});
+	ModuleInstance.find({ bay: doc._id }, async (err, instances) => {
+		instances.forEach(async instance => {
+			instance.remove();
+		});
+	});
 });
 
 export const Bay = model<IBay>('Bay', baySchema);

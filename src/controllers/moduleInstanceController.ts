@@ -91,14 +91,14 @@ export const deleteModuleFromSite = async (req: Request, res: Response): Promise
 	try {
 		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
 			const site = response.data.data;
-			axios.get(`${config.base}/module/${req.params.discriminator}`).then((response: AxiosResponse) => {
+			axios.get(`${config.base}/module/${req.params.discriminator}`).then(async (response: AxiosResponse) => {
 				const module = response.data.data;
-				ModuleInstance.deleteOne({ module: module._id, site: site._id }).then((doc: { deletedCount: number }) => {
-					if (doc.deletedCount === 0) respond(req, res, 404, 'Cannot Delete Module from Site: Module Not at Site');
-					else respond(req, res, 200, 'Module Deleted from Site Successfully');
-				}, (error: Error) => {
-					generate500(req, res, error);
-				});
+				const doc = await ModuleInstance.findOne({ module: module._id, site: site._id });
+				if (doc) {
+					await doc.remove();
+					respond(req, res, 200, 'Module Deleted from Site Successfully');
+				}
+				else respond(req, res, 404, 'Cannot Delete Module from Site: Module Not at Site');
 			}).catch((error: Error & { response: { status: number } }) => {
 				if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Delete Module from Site: Invalid Discriminator Provided');
 				else generate500(req, res, error);

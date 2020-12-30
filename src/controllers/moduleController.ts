@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { config } from '../helpers/config';
 import axios, { AxiosResponse } from 'axios';
-import { Module, IModule } from '../entities/Module';
+import { Module, IModule, ModuleProduct } from '../entities/Module';
 import { respond, generate500 } from '../helpers/respond';
 
 class ModuleUpdate {
@@ -73,12 +73,12 @@ export const updateModule = async (req: Request, res: Response): Promise<void> =
 
 export const deleteModule = async (req: Request, res: Response): Promise<void> => {
 	try {
-		Module.deleteOne({ discriminator: req.params.discriminator }).then((doc: { deletedCount: number }) => {
-			if (doc.deletedCount === 0) respond(req, res, 400, 'Cannot Delete Module: Invalid Discriminator Provided');
-			else respond(req, res, 200, 'Module Deleted Successfully');
-		}, (error: Error) => {
-			generate500(req, res, error);
-		});
+		const doc = await Module.findOne({ discriminator: req.params.discriminator });
+		if (doc) {
+			await doc.remove();
+			respond(req, res, 200, 'Module Deleted Successfully');
+		}
+		else respond(req, res, 400, 'Cannot Delete Module: Invalid Discriminator Provided');
 	} catch (error) {
 		generate500(req, res, error);
 	}
@@ -89,7 +89,7 @@ export const addModuleProduct = async (req: Request, res: Response): Promise<voi
 		if (!req.body.ean || !req.body.facings) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Request Body');
 		else axios.get(`${config.base}/product/${req.body.ean}`).then((response: AxiosResponse) => {
 			const product = response.data.data;
-			const newModuleProduct = { product: product._id, facings: req.body.facings };
+			const newModuleProduct = new ModuleProduct({ product: product._id, facings: req.body.facings });
 			if (req.body.sequence) req.body.sequence -= 1;
 			Module.updateOne({ discriminator: req.params.discriminator }, { '$push': { products: { '$each': [newModuleProduct], '$position': req.body.sequence } } }).then((docs: { n: number, nModified: number }) => {
 				if (docs.n === 0) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Discriminator Provided');

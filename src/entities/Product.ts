@@ -1,5 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import { Site } from './Site';
+import { Assignment } from './Assignment';
+import { Module, IModuleProduct } from './Module';
 import { ProductQuantity } from './ProductQuantity';
 
 export interface IProduct extends Document {
@@ -25,6 +27,27 @@ productSchema.post('save', (doc) => {
 				quantity: 0
 			});
 			await newProductQuantity.save();
+		});
+	});
+});
+
+productSchema.post('remove', (doc) => {
+	Assignment.find({ product: doc._id }, async (err, assignments) => {
+		assignments.forEach(async assignment => {
+			assignment.remove();
+		});
+	});
+	Module.find({ 'products.product': doc._id }, async (err, modules) => {
+		modules.forEach(async module => {
+			if (module.products) {
+				module.products = module.products.filter((x: IModuleProduct) => x.product.toString() !== doc._id.toString());
+				module.save();
+			}
+		});
+	});
+	ProductQuantity.find({ product: doc._id }, async (err, quantities) => {
+		quantities.forEach(async quantity => {
+			quantity.remove();
 		});
 	});
 });

@@ -1,7 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import { IProduct } from './Product';
 
-interface IModuleProduct extends Document {
+export interface IModuleProduct extends Document {
 	product: IProduct['_id'],
 	facings: number;
 }
@@ -9,7 +9,7 @@ interface IModuleProduct extends Document {
 export interface IModule extends Document {
 	discriminator: string;
 	name: string;
-	parts: IModuleProduct[];
+	products: IModuleProduct[] | null;
 	startDate: Date;
 	endDate: Date;
 }
