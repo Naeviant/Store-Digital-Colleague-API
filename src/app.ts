@@ -17,7 +17,7 @@ app.use(express.json());
 app.use('/api', router);
 makeConnection();
 
-router.get('/', (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
 	respond(req, res, 200, 'API Online');
 });
 

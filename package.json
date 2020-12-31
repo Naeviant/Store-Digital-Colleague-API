@@ -1,6 +1,6 @@
 {
   "name": "store-digital-colleague-api",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "An API to provide information about products in a store.",
   "main": "app.js",
   "scripts": {
@@ -11,6 +11,7 @@
     "lint:config": "./node_modules/.bin/eslint --init",
     "lint:fix": "./node_modules/.bin/eslint src --ext .ts --fix",
     "build": "tsc",
+    "test": "ts-node tests",
     "docs": "apidoc -i docs"
   },
   "apidoc": {
