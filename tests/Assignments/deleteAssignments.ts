@@ -34,7 +34,7 @@ export const deleteAssignments = async (token: string) => {
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Delete Assignment: Invalid Assignment Type', '\x1b[0m');
 			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Delete Assignment: Invalid Assignment Type', '\x1b[0m');
-			else console.log('\x1b[31m', '[FAIL] Delete Assignment: Invalid Bay Number', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Delete Assignment: Invalid Assignment Type', '\x1b[0m');
 		});
 
 		await axios.delete(`${config.base}/assignment/-1/1/2/Multi-Location/A/`, headers).then(() => {
@@ -47,7 +47,7 @@ export const deleteAssignments = async (token: string) => {
 
 		await axios.delete(`${config.base}/assignment/-1/1/2/Multi-Location/0/`, headers).then(() => {
 			console.log('\x1b[32m', '[PASS] Delete Assignment: Valid Request', '\x1b[0m');
-		}).catch(() => {
+		}).catch((error) => {
 			console.log('\x1b[31m', '[FAIL] Delete Assignment: Valid Request', '\x1b[0m');
 		});
 

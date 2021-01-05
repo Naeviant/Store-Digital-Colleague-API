@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import { config } from '../helpers/config';
-import axios, { AxiosResponse } from 'axios';
 import { Module, IModule, ModuleProduct } from '../entities/Module';
 import { respond, generate500 } from '../helpers/respond';
 
@@ -88,9 +86,8 @@ export const addModuleProduct = async (req: Request, res: Response): Promise<voi
 	try {
 		if (!req.body.ean || !req.body.facings || !Number.isInteger(req.body.facings) || req.body.facings < 1) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Request Body');
 		else if (req.body.sequence && (!Number.isInteger(req.body.sequence) || req.body.sequence < 1)) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Request Body');
-		else axios.get(`${config.base}/product/${req.body.ean}`).then((response: AxiosResponse) => {
-			const product = response.data.data;
-			const newModuleProduct = new ModuleProduct({ product: product._id, facings: req.body.facings });
+		else {
+			const newModuleProduct = new ModuleProduct({ product: res.locals.product._id, facings: req.body.facings });
 			if (req.body.sequence) req.body.sequence -= 1;
 			Module.updateOne({ discriminator: req.params.discriminator }, { '$push': { products: { '$each': [newModuleProduct], '$position': req.body.sequence } } }).then((docs: { n: number, nModified: number }) => {
 				if (docs.n === 0) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Discriminator Provided');
@@ -98,10 +95,7 @@ export const addModuleProduct = async (req: Request, res: Response): Promise<voi
 			}, (error: Error) => {
 				generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Discriminator Provided');
-			else generate500(req, res, error);
-		});
+		}
 	} catch (error) {
 		generate500(req, res, error);
 	}

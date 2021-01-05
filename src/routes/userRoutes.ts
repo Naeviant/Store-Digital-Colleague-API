@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import * as userController from '../controllers/userController';
 import { isAdmin } from '../middleware/auth';
+import { getSite } from '../middleware/getSite';
 import { generate405 } from '../helpers/respond';
 
 const router = Router();
 
 router.route('/user')
-	.post(isAdmin, userController.addUser)
+	.post(isAdmin, getSite, userController.addUser)
 	.all(generate405);
 
 router.route('/user/:username')

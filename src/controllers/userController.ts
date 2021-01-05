@@ -17,24 +17,17 @@ class UserUpdate {
 
 export const addUser = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.body.code) respond(req, res, 400, 'Cannot Add User: Invalid Request Body');
-		else axios.get(`${config.base}/site/${req.body.code}`).then((response: AxiosResponse) => {
-			const site = response.data.data;
-			req.body.site = site._id;
-			hash(req.body.password, 10, (error: Error, hashedPassword: string) => {
-				req.body.password = hashedPassword;
-				const newUser = new User(req.body);
-				newUser.save().then(() => {
-					respond(req, res, 201, 'User Added Successfully');
-				}, (error: Error & { name: string, code: number }) => {
-					if (error.code === 11000) respond(req, res, 409, 'Cannot Add User: Username Already in Use');
-					else if (error.name === 'ValidationError') respond(req, res, 400, 'Cannot Add User: Invalid Request Body');
-					else generate500(req, res, error);
-				});
+		req.body.site = res.locals.site._id;
+		hash(req.body.password, 10, (error: Error, hashedPassword: string) => {
+			req.body.password = hashedPassword;
+			const newUser = new User(req.body);
+			newUser.save().then(() => {
+				respond(req, res, 201, 'User Added Successfully');
+			}, (error: Error & { name: string, code: number }) => {
+				if (error.code === 11000) respond(req, res, 409, 'Cannot Add User: Username Already in Use');
+				else if (error.name === 'ValidationError') respond(req, res, 400, 'Cannot Add User: Invalid Request Body');
+				else generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Add User: Invalid Site Code Provided');
-			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
