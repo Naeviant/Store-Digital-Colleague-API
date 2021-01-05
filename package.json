@@ -1,6 +1,6 @@
 {
   "name": "store-digital-colleague-api",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "An API to provide information about products in a store.",
   "main": "app.js",
   "scripts": {
@@ -35,7 +35,8 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.8",
-    "typescript": "^4.1.3"
+    "typescript": "^4.1.3",
+    "validator": "^13.5.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.11.0",

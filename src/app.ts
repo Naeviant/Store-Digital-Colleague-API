@@ -10,6 +10,7 @@ import { assignmentRoutes } from './routes/assignmentRoutes';
 import { userRoutes } from './routes/userRoutes';
 import { moduleRoutes } from './routes/moduleRoutes';
 import { moduleInstanceRoutes } from './routes/moduleInstanceRoutes';
+import { customerRoutes } from './routes/customerRoutes';
 
 const app = express();
 const router = Router();
@@ -29,6 +30,7 @@ router.use(assignmentRoutes);
 router.use(userRoutes);
 router.use(moduleInstanceRoutes);
 router.use(moduleRoutes);
+router.use(customerRoutes);
 
 router.all('*', (req: Request, res: Response) => {
 	respond(req, res, 404, `Cannot ${req.method} ${req.path}`);
