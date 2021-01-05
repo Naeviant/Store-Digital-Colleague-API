@@ -55,8 +55,8 @@ export const updateModule = async (req: Request, res: Response): Promise<void> =
 	try {
 		const update = new ModuleUpdate();
 		if (req.body.name) update.name = req.body.name;
-		if (req.body.startDate) update.startDate = req.body.startDate;
-		if (req.body.endDate) update.endDate = req.body.endDate;
+		if (!isNaN(Date.parse(req.body.startDate))) update.startDate = req.body.startDate;
+		if (!isNaN(Date.parse(req.body.endDate))) update.endDate = req.body.endDate;
 		if (Object.keys(update).length === 0) respond(req, res, 400, 'Cannot Update Module: Invalid Request Body');
 		else Module.updateOne({ discriminator: req.params.discriminator }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {
 			if (docs.n === 0) respond(req, res, 400, 'Cannot Update Module: Invalid Discriminator Provided');
@@ -86,7 +86,8 @@ export const deleteModule = async (req: Request, res: Response): Promise<void> =
 
 export const addModuleProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.body.ean || !req.body.facings) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Request Body');
+		if (!req.body.ean || !req.body.facings || !Number.isInteger(req.body.facings) || req.body.facings < 1) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Request Body');
+		else if (req.body.sequence && (!Number.isInteger(req.body.sequence) || req.body.sequence < 1)) respond(req, res, 400, 'Cannot Add Product to Module: Invalid Request Body');
 		else axios.get(`${config.base}/product/${req.body.ean}`).then((response: AxiosResponse) => {
 			const product = response.data.data;
 			const newModuleProduct = new ModuleProduct({ product: product._id, facings: req.body.facings });

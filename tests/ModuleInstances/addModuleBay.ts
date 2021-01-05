@@ -11,7 +11,7 @@ export const addModuleBay = async (token: string) => {
 			console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Module Discriminator', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Module Discriminator', '\x1b[0m');
-			else if (error.response.status === 409) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Invalid Module Discriminator', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Invalid Module Discriminator', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Module Discriminator', '\x1b[0m');
 		});
 
@@ -21,7 +21,7 @@ export const addModuleBay = async (token: string) => {
 			console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Site Code', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Site Code', '\x1b[0m');
-			else if (error.response.status === 409) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Invalid Site Code', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Invalid Site Code', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Site Code', '\x1b[0m');
 		});
 
@@ -31,7 +31,7 @@ export const addModuleBay = async (token: string) => {
 			console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Aisle Number', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Aisle Number', '\x1b[0m');
-			else if (error.response.status === 409) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Invalid Aisle Number', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Invalid Aisle Number', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Aisle Number', '\x1b[0m');
 		});
 
@@ -41,7 +41,7 @@ export const addModuleBay = async (token: string) => {
 			console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Bay Number', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Bay Number', '\x1b[0m');
-			else if (error.response.status === 409) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Invalid Bay Number', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Invalid Bay Number', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Invalid Bay Number', '\x1b[0m');
 		});
 
@@ -54,13 +54,13 @@ export const addModuleBay = async (token: string) => {
 		});
 
 		await axios.post(`${config.base}/module/site/-1/1/1`, {
-			'discriminator': 'APIMODULE'
+			'discriminator': 'SECONDAPIMODULE'
 		}, headers).then(() => {
-			console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Duplicate Instance', '\x1b[0m');
+			console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Bay Full', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (!error.response) console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Duplicate Instance', '\x1b[0m');
-			else if (error.response.status === 409) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Duplicate Instance', '\x1b[0m');
-			else console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Duplicate Instance', '\x1b[0m');
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Bay Full', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Assign Module to Bay: Bay Full', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Assign Module to Bay: Bay Full', '\x1b[0m');
 		});
 
 		resolve();

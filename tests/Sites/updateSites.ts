@@ -5,7 +5,7 @@ export const updateSites = async (token: string) => {
 	return new Promise<void>(async (resolve, reject) => {
 		const headers = { headers: { 'Authorization': token }, timeout: 3000 };
 
-		await axios.patch(`${config.base}/site/-1`, headers).then(() => {
+		await axios.patch(`${config.base}/site/-1`, {}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Update Site: Missing Request Body', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Site: Missing Request Body', '\x1b[0m');

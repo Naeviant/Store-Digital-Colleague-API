@@ -5,7 +5,7 @@ export const setProductQuantities = async (token: string) => {
 	return new Promise<void>(async (resolve, reject) => {
 		const headers = { headers: { 'Authorization': token }, timeout: 3000 };
 
-		await axios.patch(`${config.base}/product/quantity/-1/0`, headers).then(() => {
+		await axios.patch(`${config.base}/product/quantity/-1/0`, {}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Set Product Quantities: Missing Request Body', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Set Product Quantities: Missing Request Body', '\x1b[0m');
@@ -14,7 +14,7 @@ export const setProductQuantities = async (token: string) => {
 		});
 
 		await axios.patch(`${config.base}/product/quantity/-1/0`, {
-			'quantity': '1'
+			'quantity': 'A'
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Set Product Quantities: Invalid Quantity', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {

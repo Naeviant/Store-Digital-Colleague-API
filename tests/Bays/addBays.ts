@@ -5,7 +5,7 @@ export const addBays = async (token: string) => {
 	return new Promise<void>(async (resolve, reject) => {
 		const headers = { headers: { 'Authorization': token }, timeout: 3000 };
 
-		await axios.post(`${config.base}/bay/-1/1`, headers).then(() => {
+		await axios.post(`${config.base}/bay/-1/1`, {}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Bay: Missing Request Body', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Add Bay: Missing Request Body', '\x1b[0m');
@@ -14,7 +14,7 @@ export const addBays = async (token: string) => {
 		});
 
 		await axios.post(`${config.base}/bay/-1/1`, {
-			'bay': '1',
+			'bay': 'A',
 			'moduleLimit': 1,
 			'allowsMultiLocation': true,
 			'allowsClearance': false,
@@ -32,7 +32,7 @@ export const addBays = async (token: string) => {
 
 		await axios.post(`${config.base}/bay/-1/1`, {
 			'bay': 3,
-			'moduleLimit': '1',
+			'moduleLimit': 'A',
 			'allowsMultiLocation': true,
 			'allowsClearance': false,
 			'allowsDisplay': false,
@@ -50,12 +50,12 @@ export const addBays = async (token: string) => {
 		await axios.post(`${config.base}/bay/-1/1`, {
 			'bay': 4,
 			'moduleLimit': 1,
-			'allowsMultiLocation': 'true',
-			'allowsClearance': 'false',
-			'allowsDisplay': 'false',
-			'allowsOverstock': 'true',
-			'allowsTopstock': 'true',
-			'allowsStockroom': 'false'
+			'allowsMultiLocation': 'invalid',
+			'allowsClearance': 'invalid',
+			'allowsDisplay': 'invalid',
+			'allowsOverstock': 'invalid',
+			'allowsTopstock': 'invalid',
+			'allowsStockroom': 'invalid'
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Bay: Invalid Location Types', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {

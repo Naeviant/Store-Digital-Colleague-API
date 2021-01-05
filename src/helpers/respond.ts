@@ -36,7 +36,7 @@ export const respond = async (req: Request, res: Response, code: number, descrip
 };
 
 export const generate405 = async (req: Request, res: Response): Promise<void> => {
-	res.json({
+	res.status(405).json({
 		code: 405,
 		status: 'Method Not Allowed',
 		description: `Cannot ${req.method} ${req.path}`,
@@ -45,7 +45,7 @@ export const generate405 = async (req: Request, res: Response): Promise<void> =>
 };
 
 export const generate500 = async (req: Request, res: Response, error: Error): Promise<void> => {
-	res.json({
+	res.status(500).json({
 		code: 500,
 		status: 'Internal Server Error',
 		description: 'Something Went Wrong',

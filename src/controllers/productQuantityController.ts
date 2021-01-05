@@ -34,7 +34,7 @@ export const getQuantity = async (req: Request, res: Response): Promise<void> =>
 
 export const setQuantity = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.body.quantity) respond(req, res, 400, 'Cannot Set Product Quantity: Invalid Request Body'); 
+		if (!Number.isInteger(parseInt(req.body.quantity))) respond(req, res, 400, 'Cannot Set Product Quantity: Invalid Request Body'); 
 		else axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
 			const site = response.data.data;
 			axios.get(`${config.base}/product/${req.params.ean}`).then((response: AxiosResponse) => {

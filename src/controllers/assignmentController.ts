@@ -9,7 +9,8 @@ export const addAssignment = async (req: Request, res: Response): Promise<void> 
 		if (!req.body.ean || !req.body.type) respond(req, res, 400, 'Cannot Assign Product: Invalid Request Body');
 		else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.params.bay}`).then((response: AxiosResponse) => {
 			const bay = response.data.data;
-			if (
+			if (Array.isArray(bay)) respond(req, res, 400, 'Cannot Assign Product: Invalid Site Code, Aisle Number or Bay Number');
+			else if (
 				(!bay.allowsMultiLocation && req.body.type === 'Multi-Location') ||
 				(!bay.allowsClearance && req.body.type === 'Clearance') ||
 				(!bay.allowsDisplay && req.body.type === 'Display') ||
@@ -41,7 +42,8 @@ export const addAssignment = async (req: Request, res: Response): Promise<void> 
 
 export const getAssignmentsByLocation = async (req: Request, res: Response): Promise<void> => {
 	try {
-		axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.params.bay}`).then((response: AxiosResponse) => {
+		if (['Multi-Location', 'Display', 'Clearance', 'Topstock', 'Overstock', 'Stockroom'].indexOf(req.params.type) === -1) respond(req, res, 400, 'Cannot Get Assignments: Invalid Location Type Provided');
+		else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.params.bay}`).then((response: AxiosResponse) => {
 			const bay = response.data.data;
 			Assignment.find({ bay: bay._id, type: req.params.type }, { _id: 0, __v: 0 }).populate({ path: 'bay product', select: '-_id -__v', populate: { path: 'aisle', select: '-_id -__v', populate: { path: 'site', select: '-_id -__v' } } }).then((docs: IAssignment[] | null) => {
 				if (docs) respond(req, res, 200, 'Assignments Retrieved Successfully', docs);
@@ -50,7 +52,7 @@ export const getAssignmentsByLocation = async (req: Request, res: Response): Pro
 				generate500(req, res, error);
 			});
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Assign Product: Invalid Site Code, Aisle Number or Bay Number Provided');
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Assignments: Invalid Site Code, Aisle Number or Bay Number Provided');
 			else generate500(req, res, error);
 		}); 
 	} catch (error) {
@@ -60,18 +62,24 @@ export const getAssignmentsByLocation = async (req: Request, res: Response): Pro
 
 export const getAssignmentsByProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
-		axios.get(`${config.base}/product/${req.params.ean}`).then((response: AxiosResponse) => {
-			const product = response.data.data;
-			Assignment.find({ product: product._id }, { _id: 0, __v: 0 }).populate({ path: 'bay product', select: '-_id -__v', populate: { path: 'aisle', select: '-_id -__v', populate: { path: 'site', select: '-_id -__v' } } }).then((docs: IAssignment[] | null) => {
-				if (docs) respond(req, res, 200, 'Assignments Retrieved Successfully', docs.filter(x => x.bay.aisle.site.code == req.params.code));
-				else respond(req, res, 404, 'Cannot Get Assignments: No Assignments Found');
-			}, (error: Error) => {
-				generate500(req, res, error);
-			});
+		axios.get(`${config.base}/site/${req.params.code}`).then((response: AxiosResponse) => {
+			const site = response.data.data;
+			axios.get(`${config.base}/product/${req.params.ean}`).then((response: AxiosResponse) => {
+				const product = response.data.data;
+				Assignment.find({ product: product._id }, { _id: 0, __v: 0 }).populate({ path: 'bay product', select: '-_id -__v', populate: { path: 'aisle', select: '-_id -__v', populate: { path: 'site', select: '-_id -__v', match: { _id: site._id } } } }).then((docs: IAssignment[] | null) => {
+					if (docs) respond(req, res, 200, 'Assignments Retrieved Successfully', docs.filter(x => x.bay.aisle.site.code == req.params.code));
+					else respond(req, res, 404, 'Cannot Get Assignments: No Assignments Found');
+				}, (error: Error) => {
+					generate500(req, res, error);
+				});
+			}).catch((error: Error & { response: { status: number } }) => {
+				if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Assignments: Invalid EAN Provided');
+				else generate500(req, res, error);
+			}); 
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Assignments: Invalid EAN Provided');
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Get Assignments Invalid Site Code Provided');
 			else generate500(req, res, error);
-		}); 
+		});
 	} catch (error) {
 		generate500(req, res, error);
 	}

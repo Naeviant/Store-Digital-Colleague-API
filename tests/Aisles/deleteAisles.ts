@@ -5,7 +5,7 @@ export const deleteAisles = async (token: string) => {
 	return new Promise<void>(async (resolve, reject) => {
 		const headers = { headers: { 'Authorization': token }, timeout: 3000 };
 
-		await axios.delete(`${config.base}/aisle/-1/A`, headers).then(() => {
+		await axios.delete(`${config.base}/aisle/-1/A`, headers).then((resp) => {
 			console.log('\x1b[31m', '[FAIL] Delete Aisle: Invalid Aisle Number', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Delete Aisle: Invalid Aisle Number', '\x1b[0m');

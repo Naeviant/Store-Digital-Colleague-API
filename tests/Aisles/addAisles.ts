@@ -13,8 +13,8 @@ export const addAisles = async (token: string) => {
 			else console.log('\x1b[31m', '[FAIL] Add Aisle: Missing Request Body', '\x1b[0m');
 		});
 
-		await axios.post(`${config.base}/-1`, {
-			'aisle': '-'
+		await axios.post(`${config.base}/aisle/-1`, {
+			'aisle': '99'
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Aisle: Invalid Aisle Number', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {

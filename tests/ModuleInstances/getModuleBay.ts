@@ -9,7 +9,7 @@ export const getModuleBay = async (token: string) => {
 			console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Site Code', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Site Code', '\x1b[0m');
-			else if (error.response.status === 409) console.log('\x1b[32m', '[PASS] Get Modules in Bay: Invalid Site Code', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Modules in Bay: Invalid Site Code', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Site Code', '\x1b[0m');
 		});
 
@@ -17,7 +17,7 @@ export const getModuleBay = async (token: string) => {
 			console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Aisle Number', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Aisle Number', '\x1b[0m');
-			else if (error.response.status === 409) console.log('\x1b[32m', '[PASS] Get Modules in Bay: Invalid Aisle Number', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Modules in Bay: Invalid Aisle Number', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Aisle Number', '\x1b[0m');
 		});
 
@@ -25,7 +25,7 @@ export const getModuleBay = async (token: string) => {
 			console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Bay Number', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Bay Number', '\x1b[0m');
-			else if (error.response.status === 409) console.log('\x1b[32m', '[PASS] Get Modules in Bay: Invalid Bay Number', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Modules in Bay: Invalid Bay Number', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Get Modules in Bay: Invalid Bay Number', '\x1b[0m');
 		});
 

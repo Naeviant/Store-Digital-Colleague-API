@@ -17,67 +17,15 @@ export const updateBays = async (token: string) => {
 		}, headers).then(() => {
 			console.log('\x1b[32m', '[PASS] Update Bay: Valid Request', '\x1b[0m');
 		}).catch((error) => {
-			console.log(error)
 			console.log('\x1b[31m', '[FAIL] Update Bay: Valid Request', '\x1b[0m');
 		});
 
-		await axios.patch(`${config.base}/bay/-1/2`, headers).then(() => {
+		await axios.patch(`${config.base}/bay/-1/2/2`, {}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Update Bay: Missing Request Body', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Bay: Missing Request Body', '\x1b[0m');
 			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Bay: Missing Request Body', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Update Bay: Missing Request Body', '\x1b[0m');
-		});
-
-		await axios.patch(`${config.base}/bay/-1/1/2`, {
-			'bay': '1',
-			'moduleLimit': 1,
-			'allowsMultiLocation': true,
-			'allowsClearance': false,
-			'allowsDisplay': false,
-			'allowsOverstock': true,
-			'allowsTopstock': true,
-			'allowsStockroom': false
-		}, headers).then(() => {
-			console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Bay Number', '\x1b[0m');
-		}).catch((error: Error & { response: { status: number } }) => {
-			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Bay Number', '\x1b[0m');
-			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Bay: Invalid Bay Number', '\x1b[0m');
-			else console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Bay Number', '\x1b[0m');
-		});
-
-		await axios.patch(`${config.base}/bay/-1/1/2`, {
-			'bay': 1,
-			'moduleLimit': '1',
-			'allowsMultiLocation': true,
-			'allowsClearance': false,
-			'allowsDisplay': false,
-			'allowsOverstock': true,
-			'allowsTopstock': true,
-			'allowsStockroom': false
-		}, headers).then(() => {
-			console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Module Limit', '\x1b[0m');
-		}).catch((error: Error & { response: { status: number } }) => {
-			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Module Limit', '\x1b[0m');
-			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Bay: Invalid Module Limit', '\x1b[0m');
-			else console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Module Limit', '\x1b[0m');
-		});
-
-		await axios.patch(`${config.base}/bay/-1/1/2`, {
-			'bay': 1,
-			'moduleLimit': 1,
-			'allowsMultiLocation': 'true',
-			'allowsClearance': 'false',
-			'allowsDisplay': 'false',
-			'allowsOverstock': 'true',
-			'allowsTopstock': 'true',
-			'allowsStockroom': 'false'
-		}, headers).then(() => {
-			console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Location Types', '\x1b[0m');
-		}).catch((error: Error & { response: { status: number } }) => {
-			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Location Types', '\x1b[0m');
-			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Bay: Invalid Location Types', '\x1b[0m');
-			else console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Location Types', '\x1b[0m');
 		});
 
 		await axios.patch(`${config.base}/bay/A/1/2`, {
@@ -124,11 +72,11 @@ export const updateBays = async (token: string) => {
 			'allowsTopstock': true,
 			'allowsStockroom': false
 		}, headers).then(() => {
-			console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Aisle Number', '\x1b[0m');
+			console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Bay Number', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Aisle Number', '\x1b[0m');
-			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Bay: Invalid Aisle Number', '\x1b[0m');
-			else console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Aisle Number', '\x1b[0m');
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Bay Number', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Bay: Invalid Bay Number', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Update Bay: Invalid Bay Number', '\x1b[0m');
 		});
 
 		resolve();

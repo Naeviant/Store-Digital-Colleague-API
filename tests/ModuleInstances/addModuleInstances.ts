@@ -5,7 +5,7 @@ export const addModuleInstances = async (token: string) => {
 	return new Promise<void>(async (resolve, reject) => {
 		const headers = { headers: { 'Authorization': token }, timeout: 3000 };
 
-		await axios.post(`${config.base}/module/site`, headers).then(() => {
+		await axios.post(`${config.base}/module/site`, {}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Module Instance: Missing Request Body', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Add Module Instance: Missing Request Body', '\x1b[0m');

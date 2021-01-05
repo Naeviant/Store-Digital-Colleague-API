@@ -16,7 +16,7 @@ export const addProducts = async (token: string) => {
 		await axios.post(`${config.base}/product`, {
 			'ean': '1',
 			'name': 'TEST PRODUCT',
-			'price': '10',
+			'price': 'A',
 			'status': 'Live'
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Product: Invalid Price', '\x1b[0m');
