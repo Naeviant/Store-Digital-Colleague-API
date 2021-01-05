@@ -17,24 +17,17 @@ class UserUpdate {
 
 export const addUser = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.body.code) respond(req, res, 400, 'Cannot Add User: Invalid Request Body');
-		else axios.get(`${config.base}/site/${req.body.code}`).then((response: AxiosResponse) => {
-			const site = response.data.data;
-			req.body.site = site._id;
-			hash(req.body.password, 10, (error: Error, hashedPassword: string) => {
-				req.body.password = hashedPassword;
-				const newUser = new User(req.body);
-				newUser.save().then(() => {
-					respond(req, res, 201, 'User Added Successfully');
-				}, (error: Error & { name: string, code: number }) => {
-					if (error.code === 11000) respond(req, res, 409, 'Cannot Add User: Username Already in Use');
-					else if (error.name === 'ValidationError') respond(req, res, 400, 'Cannot Add User: Invalid Request Body');
-					else generate500(req, res, error);
-				});
+		req.body.site = res.locals.site._id;
+		hash(req.body.password, 10, (error: Error, hashedPassword: string) => {
+			req.body.password = hashedPassword;
+			const newUser = new User(req.body);
+			newUser.save().then(() => {
+				respond(req, res, 201, 'User Added Successfully');
+			}, (error: Error & { name: string, code: number }) => {
+				if (error.code === 11000) respond(req, res, 409, 'Username Already in Use');
+				else if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
+				else generate500(req, res, error);
 			});
-		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Add User: Invalid Site Code Provided');
-			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -44,7 +37,7 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
 export const getUser = async (req: Request, res: Response): Promise<void> => {
 	try {
 		User.findOne({ username: req.params.username }, { password: 0, __v: 0 }).populate('site', '-__v').then((doc: IUser | null) => {
-			if (!doc) respond(req, res, 404, 'Cannot Get User: User Not Found');
+			if (!doc) respond(req, res, 404, 'User Not Found');
 			else respond(req, res, 200, 'User Retrieved Successfully', doc);
 		}, (error: Error) => {
 			generate500(req, res, error);
@@ -63,11 +56,11 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 		if (req.body.password) update.password = await hash(req.body.password, 10);
 		if (req.body.code) update.site = await axios.get(`${config.base}/site/${req.body.code}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return null; });
 		if (req.body.username) update.username = await axios.get(`${config.base}/user/${req.body.username}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return req.body.username; });
-		if (Object.keys(update).length === 0) respond(req, res, 400, 'Cannot Update User: Invalid Request Body');
-		else if (req.body.code && !update.site) respond(req, res, 400, 'Cannot Update User: Invalid Site Code Provided');
-		else if (req.body.username && typeof update.username !== 'string') respond(req, res, 409, 'Cannot Update User: New Username Already in Use');
+		if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
+		else if (req.body.code && !update.site) respond(req, res, 400, 'Invalid Site Code Provided');
+		else if (req.body.username && typeof update.username !== 'string') respond(req, res, 409, 'New Username Already in Use');
 		else User.updateOne({ username: req.params.username }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
-			if (docs.n === 0) respond(req, res, 400, 'Cannot Update User: Invalid Username Provided');
+			if (docs.n === 0) respond(req, res, 400, 'Invalid Username Provided');
 			else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 			else respond(req, res, 200, 'User Updated Successfully');
 		}, (error: Error) => {
@@ -85,7 +78,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
 			await doc.remove();
 			respond(req, res, 200, 'User Deleted Successfully');
 		}
-		else respond(req, res, 400, 'Cannot Delete User: Invalid Username Provided');
+		else respond(req, res, 400, 'Invalid Username Provided');
 	} catch (error) {
 		generate500(req, res, error);
 	}

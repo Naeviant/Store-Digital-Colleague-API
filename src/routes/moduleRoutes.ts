@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as moduleController from '../controllers/moduleController';
 import { isAdmin } from '../middleware/auth';
+import { getProduct } from '../middleware/getProduct';
 import { generate405 } from '../helpers/respond';
 
 const router = Router();
@@ -10,7 +11,7 @@ router.route('/module')
 	.get(moduleController.getAllModules)
 	.all(generate405);
 router.route('/module/:discriminator')
-	.post(isAdmin, moduleController.addModuleProduct)
+	.post(isAdmin, getProduct, moduleController.addModuleProduct)
 	.get(moduleController.getModule)
 	.patch(moduleController.updateModule)
 	.delete(isAdmin, moduleController.deleteModule)
