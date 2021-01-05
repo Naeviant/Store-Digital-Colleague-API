@@ -6,15 +6,15 @@ import { respond, generate500 } from '../helpers/respond';
 
 export const addModuleToSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.body.code || !req.body.discriminator) respond(req, res, 400, 'Cannot Add Module to Site: Invalid Request Body'); 
+		if (!req.body.code || !req.body.discriminator) respond(req, res, 400, 'Invalid Request Body'); 
 		else {
 			const newModuleInstance = new ModuleInstance({ module: res.locals.module._id, site: res.locals.site._id, bay: null });
 			ModuleInstance.findOne({ module: res.locals.module._id, site: res.locals.site._id }).then((doc: IModuleInstance | null) => {
-				if (doc) respond(req, res, 409, 'Cannot Add Module to Site: Module Already Exists at Site');
+				if (doc) respond(req, res, 409, 'Module Already Exists at Site');
 				else newModuleInstance.save().then(() => {
 					respond(req, res, 201, 'Module Added to Site Successfully');
 				}, (error: Error & { name: string }) => {
-					if (error.name === 'ValidationError') respond(req, res, 400, 'Cannot Add Module to Site: Invalid Request Body');
+					if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
 					else generate500(req, res, error);
 				});
 			}, (error: Error) => {
@@ -33,7 +33,7 @@ export const getModuleAtSite = async (req: Request, res: Response): Promise<void
 			.populate({ path: 'module', select: '-__v', populate: { path: 'products.product', model: 'Product', select: '-__v' }})
 			.populate({ path: 'bay', select: '-__v', populate: { path: 'aisle', select: '-__v', populate: { path: 'site', select: '-__v' } } })
 			.then((doc: IModuleInstance | null) => {
-				if (!doc) respond(req, res, 404, 'Cannot Get Module at Site: Module Not at Site');
+				if (!doc) respond(req, res, 404, 'Module Not at Site');
 				else respond(req, res, 200, 'Module at Site Retrieved Successfully', doc);
 			}, (error: Error) => {
 				generate500(req, res, error);
@@ -66,7 +66,7 @@ export const deleteModuleFromSite = async (req: Request, res: Response): Promise
 			await doc.remove();
 			respond(req, res, 200, 'Module Deleted from Site Successfully');
 		}
-		else respond(req, res, 404, 'Cannot Delete Module from Site: Module Not at Site');
+		else respond(req, res, 404, 'Module Not at Site');
 	} catch (error) {
 		generate500(req, res, error);
 	}
@@ -74,18 +74,18 @@ export const deleteModuleFromSite = async (req: Request, res: Response): Promise
 
 export const addModuleToBay = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.body.discriminator) respond(req, res, 400, 'Cannot Assign Module: Invalid Discriminator');
+		if (!req.body.discriminator) respond(req, res, 400, 'Invalid Module Discriminator Provided');
 		else axios.get(`${config.base}/module/site/${req.params.code}/${req.params.aisle}/${req.params.bay}`).then((response: AxiosResponse) => {
 			const bayModules = response.data.data;
-			if (bayModules.length >= res.locals.bay.moduleLimit) respond(req, res, 400, 'Cannot Assign Module: Bay is Full');
+			if (bayModules.length >= res.locals.bay.moduleLimit) respond(req, res, 400, 'Bay is Full');
 			else ModuleInstance.updateOne({ site: res.locals.bay.aisle.site._id, module: res.locals.module._id }, { '$set': { bay: res.locals.bay._id } }).then((docs: { n: number, nModified: number }) => {
-				if (docs.n === 0) respond(req, res, 400, 'Cannot Assign Module: Invalid Site Code, Aisle Number, Bay Number or Discriminator Provided');
+				if (docs.n === 0) respond(req, res, 400, 'Invalid Site Code, Aisle Number, Bay Number or Module Discriminator Provided');
 				else respond(req, res, 200, 'Module Assigned Successfully');
 			}, (error: Error) => {
 				generate500(req, res, error);
 			});
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Cannot Assign Module: Invalid Site Code, Aisle Number or Bay Number Provided');
+			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Invalid Site Code, Aisle Number or Bay Number Provided');
 			else generate500(req, res, error);
 		}); 
 	} catch (error) {
@@ -113,8 +113,8 @@ export const getModulesInBay = async (req: Request, res: Response): Promise<void
 export const deleteModuleFromBay = async (req: Request, res: Response): Promise<void> => {
 	try {
 		ModuleInstance.updateOne({ site: res.locals.site._id, module: res.locals.module._id }, { '$set': { bay: null } }).then((docs: { n: number, nModified: number }) => {
-			if (docs.n === 0) respond(req, res, 400, 'Cannot Unassign Module: Invalid Site Code or Discriminator Provided');
-			else if (docs.nModified === 0) respond(req, res, 404, 'Cannot Unassign Module: Module Not Assigned to Bay');
+			if (docs.n === 0) respond(req, res, 400, 'Invalid Site Code or Module Discriminator Provided');
+			else if (docs.nModified === 0) respond(req, res, 404, 'Module Not Assigned to Bay');
 			else respond(req, res, 200, 'Module Unassigned Successfully');
 		}, (error: Error) => {
 			generate500(req, res, error);

@@ -11,16 +11,16 @@ class AisleUpdate {
 
 export const addAisle = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (Object.keys(req.body).length === 0 || !Number.isInteger(req.body.aisle)) respond(req, res, 400, 'Cannot Add Aisle: Invalid Request Body');
+		if (Object.keys(req.body).length === 0 || !Number.isInteger(req.body.aisle)) respond(req, res, 400, 'Invalid Request Body');
 		else axios.get(`${config.base}/aisle/${req.params.code}/${req.body.aisle}`).then(() => {
-			respond(req, res, 409, 'Cannot Add Aisle: Aisle Number Already in Use');
+			respond(req, res, 409, 'Aisle Number Already in Use');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (error.response.status === 404 || error.response.status === 400) {
 				const newAisle = new Aisle({ name: req.body.name, aisle: req.body.aisle, site: res.locals.site._id });
 				newAisle.save().then(() => {
 					respond(req, res, 201, 'Aisle Added Successfully');
 				}, (error: Error & { name: string }) => {
-					if (error.name === 'ValidationError') respond(req, res, 400, 'Cannot Add Aisle: Invalid Request Body');
+					if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
 					else generate500(req, res, error);
 				});
 			}
@@ -33,9 +33,9 @@ export const addAisle = async (req: Request, res: Response): Promise<void> => {
 
 export const getAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(Number(req.params.aisle))) respond(req, res, 404, 'Cannot Get Aisle: Aisle Not Found');
+		if (!Number.isInteger(Number(req.params.aisle))) respond(req, res, 404, 'Aisle Not Found');
 		else Aisle.findOne({ site: res.locals.site._id, aisle: req.params.aisle }, { __v: 0 }).populate('site', '-__v').then((doc: IAisle | null) => {
-			if (!doc) respond(req, res, 404, 'Cannot Get Aisle: Aisle Not Found');
+			if (!doc) respond(req, res, 404, 'Aisle Not Found');
 			else respond(req, res, 200, 'Aisle Retrieved Successfully', doc);
 		}, (error: Error) => {
 			generate500(req, res, error);
@@ -59,15 +59,15 @@ export const getAllAislesAtSite = async (req: Request, res: Response): Promise<v
 
 export const updateAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(Number(req.params.aisle))) respond(req, res, 400, 'Cannot Update Aisle: Invalid Aisle Number Provided');
+		if (!Number.isInteger(Number(req.params.aisle))) respond(req, res, 400, 'Invalid Aisle Number Provided');
 		else {
 			const update = new AisleUpdate();
 			if (req.body.name) update.name = req.body.name;
 			if (Number.isInteger(Number(req.body.aisle))) update.aisle = await axios.get(`${config.base}/aisle/${req.params.code}/${req.body.aisle}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return req.body.aisle; });
-			if (Object.keys(update).length === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Request Body');
-			else if (req.body.aisle && typeof update.aisle !== 'number') respond(req, res, 409, 'Cannot Update Aisle: New Aisle Number Already in Use');
+			if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
+			else if (req.body.aisle && typeof update.aisle !== 'number') respond(req, res, 409, 'New Aisle Number Already in Use');
 			else Aisle.updateOne({ site: res.locals.site._id, aisle: req.params.aisle }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
-				if (docs.n === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Site Code or Aisle Number Provided');
+				if (docs.n === 0) respond(req, res, 400, 'Invalid Site Code or Aisle Number Provided');
 				else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 				else respond(req, res, 200, 'Aisle Updated Successfully');
 			}, (error: Error) => {
@@ -81,14 +81,14 @@ export const updateAisle = async (req: Request & { params: { aisle: number } }, 
 
 export const deleteAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(Number(req.params.aisle))) respond(req, res, 400, 'Cannot Delete Aisle: Invalid Aisle Number Provided');
+		if (!Number.isInteger(Number(req.params.aisle))) respond(req, res, 400, 'Invalid Aisle Number Provided');
 		else {
 			const doc = await Aisle.findOne({ site: res.locals.site._id, aisle: req.params.aisle });
 			if (doc) {
 				await doc.remove();
 				respond(req, res, 200, 'Aisle Deleted Successfully');
 			}
-			else respond(req, res, 400, 'Cannot Delete Aisle: Invalid Site Code or Aisle Number Provided');
+			else respond(req, res, 400, 'Invalid Site Code or Aisle Number Provided');
 		}
 	} catch (error) {
 		generate500(req, res, error);
@@ -108,9 +108,9 @@ class BayUpdate {
 
 export const addBay = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (Object.keys(req.body).length === 0 || !Number.isInteger(req.body.bay)) respond(req, res, 400, 'Cannot Add Aisle: Invalid Request Body');
+		if (Object.keys(req.body).length === 0 || !Number.isInteger(req.body.bay)) respond(req, res, 400, 'Invalid Request Body');
 		else axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.body.bay}/`).then(() => {
-			respond(req, res, 409, 'Cannot Add Bay: Bay Number Already in Use');
+			respond(req, res, 409, 'Bay Number Already in Use');
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (error.response.status === 404 || error.response.status === 400) {
 				req.body.aisle = res.locals.aisle._id;
@@ -118,7 +118,7 @@ export const addBay = async (req: Request, res: Response): Promise<void> => {
 				newBay.save().then(() => {
 					respond(req, res, 201, 'Bay Added Successfully');
 				}, (error: Error & { name: string }) => {
-					if (error.name === 'ValidationError') respond(req, res, 400, 'Cannot Add Bay: Invalid Request Body');
+					if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
 					else generate500(req, res, error);
 				});
 			}
@@ -131,9 +131,9 @@ export const addBay = async (req: Request, res: Response): Promise<void> => {
 
 export const getBay = async (req: Request & { params: { bay: number } }, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(Number(req.params.bay))) respond(req, res, 404, 'Cannot Get Bay: Bay Not Found');
+		if (!Number.isInteger(Number(req.params.bay))) respond(req, res, 404, 'Bay Not Found');
 		else Bay.findOne({ aisle: res.locals.aisle._id, bay: req.params.bay }, { __v: 0 }).populate({ path: 'aisle', select: '-__v', populate: { path: 'site', select: '-__v' } }).then((doc: IBay | null) => {
-			if (!doc) respond(req, res, 404, 'Cannot Get Bay: Bay Not Found');
+			if (!doc) respond(req, res, 404, 'Bay Not Found');
 			else respond(req, res, 200, 'Bay Retrieved Successfully', doc);
 		}, (error: Error) => {
 			generate500(req, res, error);
@@ -157,7 +157,7 @@ export const getAllBaysInAisle = async (req: Request, res: Response): Promise<vo
 
 export const updateBay = async (req: Request & { params: { bay: number } }, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(Number(req.params.bay))) respond(req, res, 400, 'Cannot Update Bay: Invalid Bay Number Provided');
+		if (!Number.isInteger(Number(req.params.bay))) respond(req, res, 400, 'Invalid Bay Number Provided');
 		else {
 			const update = new BayUpdate();
 			if (Number.isInteger(Number(req.body.moduleLimit))) update.moduleLimit = req.body.moduleLimit;
@@ -168,10 +168,10 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 			if (typeof req.body.allowsTopstock !== 'undefined') update.allowsTopstock = req.body.allowsTopstock;
 			if (typeof req.body.allowsStockroom !== 'undefined') update.allowsStockroom = req.body.allowsStockroom;
 			if (Number.isInteger(Number(req.body.bay))) update.bay = await axios.get(`${config.base}/bay/${req.params.code}/${req.params.aisle}/${req.body.bay}`).then((response: AxiosResponse) => { return response.data.data; }).catch(() => { return req.body.bay; });
-			if (Object.keys(update).length === 0) respond(req, res, 400, 'Cannot Update Aisle: Invalid Request Body');
-			else if (req.body.bay && typeof update.bay !== 'number') respond(req, res, 409, 'Cannot Update Bay: New Aisle Bay Already in Use');
+			if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
+			else if (req.body.bay && typeof update.bay !== 'number') respond(req, res, 409, 'New Aisle Bay Already in Use');
 			else Bay.updateOne({ aisle: res.locals.aisle._id, bay: req.params.bay }, { '$set': update }).then((docs: { n: number, nModified: number }) => {
-				if (docs.n === 0) respond(req, res, 400, 'Cannot Update Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
+				if (docs.n === 0) respond(req, res, 400, 'Invalid Site Code, Aisle Number or Bay Number Provided');
 				else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 				else respond(req, res, 200, 'Bay Updated Successfully');
 			}, (error: Error) => {
@@ -185,14 +185,14 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 
 export const deleteBay = async (req: Request & { params: { bay: number } }, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(Number(req.params.bay))) respond(req, res, 400, 'Cannot Delete Bay: Invalid Bay Number Provided');
+		if (!Number.isInteger(Number(req.params.bay))) respond(req, res, 400, 'Invalid Bay Number Provided');
 		else {
 			const doc = await Bay.findOne({ aisle: res.locals.aisle._id });
 			if (doc) {
 				await doc.remove();
 				respond(req, res, 200, 'Aisle Deleted Successfully');
 			}
-			else respond(req, res, 400, 'Cannot Delete Bay: Invalid Site Code, Aisle Number or Bay Number Provided');
+			else respond(req, res, 400, 'Invalid Site Code, Aisle Number or Bay Number Provided');
 		}
 	} catch (error) {
 		generate500(req, res, error);
