@@ -23,12 +23,12 @@ export const addSite = async (req: Request, res: Response): Promise<void> => {
 
 export const getSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(parseInt(req.params.code))) respond(req, res, 404, 'Site Code Not Found');
-		else Site.findOne({ code: req.params.code }, { __v: 0 }).then((doc: ISite | null) => {
+		Site.findOne({ code: req.params.code }, { __v: 0 }).then((doc: ISite | null) => {
 			if (!doc) respond(req, res, 404, 'Site Code Not Found');
 			else respond(req, res, 200, 'Site Retrieved Successfully', doc);
-		}, (error: Error) => {
-			generate500(req, res, error);
+		}, (error: Error & { name: string }) => {
+			if (error.name === 'CastError') respond(req, res, 404, 'Site Code Not Found');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -49,20 +49,17 @@ export const getAllSites = async (req: Request, res: Response): Promise<void> =>
 
 export const updateSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(parseInt(req.params.code))) respond(req, res, 400, 'Invalid Site Code Provided');
-		else {
-			const update = new SiteUpdate();
-			if (req.body.name) update.name = req.body.name;
-			if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
-			else Site.updateOne({ code: req.params.code }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {
-				if (docs.n === 0) respond(req, res, 400, 'Invalid Site Code Provided');
-				else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
-				else respond(req, res, 200, 'Site Updated Successfully');
-			}, (error: Error & { name: string }) => {
-				if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
-				else generate500(req, res, error);
-			});
-		}
+		const update = new SiteUpdate();
+		if (req.body.name) update.name = req.body.name;
+		if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
+		else Site.updateOne({ code: req.params.code }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {
+			if (docs.n === 0) respond(req, res, 400, 'Invalid Site Code Provided');
+			else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
+			else respond(req, res, 200, 'Site Updated Successfully');
+		}, (error: Error & { name: string }) => {
+			if (error.name === 'ValidationError' || error.name === 'CastError') respond(req, res, 400, 'Invalid Request Body');
+			else generate500(req, res, error);
+		});
 	} catch (error) {
 		generate500(req, res, error);
 	}
@@ -70,15 +67,16 @@ export const updateSite = async (req: Request, res: Response): Promise<void> => 
 
 export const deleteSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(parseInt(req.params.code))) respond(req, res, 400, 'Invalid Site Code Provided');
-		else {
-			const doc = await Site.findOne({ code: req.params.code });
+		Site.findOne({ code: req.params.code }).then(async (doc: ISite | null) => {
 			if (doc) {
 				await doc.remove();
 				respond(req, res, 200, 'Site Deleted Successfully');
 			}
 			else respond(req, res, 400, 'Invalid Site Code Provided');
-		}
+		}, (error: Error & { name: string }) => {
+			if (error.name === 'CastError') respond(req, res, 400, 'Invalid Site Code Provided');
+			else generate500(req, res, error);
+		});
 	} catch (error) {
 		generate500(req, res, error);
 	}

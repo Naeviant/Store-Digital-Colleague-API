@@ -2,6 +2,7 @@ import { config } from '../src/helpers/config';
 import { makeConnection } from '../src/helpers/makeConnection';
 import axios, { AxiosResponse } from 'axios';
 import { hash } from 'bcrypt';
+import { Counter, ICounter } from '../src/entities/Counter';
 import { Site } from '../src/entities/Site';
 import { User } from '../src/entities/User';
 import { addProducts, getProducts, updateProducts, deleteProducts, getProductQuantities, setProductQuantities } from './Products';
@@ -12,6 +13,8 @@ import { addBays, getBays, updateBays, deleteBays } from './Bays';
 import { addAssignments, getAssignments, deleteAssignments } from './Assignments';
 import { addModules, getModules, updateModules, deleteModules, addModuleProducts, deleteModuleProducts } from './Modules';
 import { addModuleInstances, getModuleInstances, deleteModuleInstances, addModuleBay, getModuleBay, deleteModuleBay } from './ModuleInstances';
+import { addCustomers, getCustomers, updateCustomers, deleteCustomers } from './Customers';
+import { addCollections, getCollections, updateCollections, deleteCollections } from './Collections';
 
 async function main() {
 	await makeConnection();
@@ -21,6 +24,12 @@ async function main() {
 			await Site.deleteOne({ code: 0 });
 			await Site.deleteOne({ code: -1 });
 			await User.deleteOne({ username: 'APITEST' });
+
+			const customerCounter = await Counter.findOne({ _id: config.customerCounter }) as ICounter;
+			const customerNumber = customerCounter.seq;
+
+			const collectionCounter = await Counter.findOne({ _id: config.collectionCounter }) as ICounter;
+			const collectionNumber = collectionCounter.seq;
 
 			const testSite = new Site({
 				name: 'TESTSITE',
@@ -59,6 +68,8 @@ async function main() {
 			await addModuleProducts(token);
 			await addModuleInstances(token);
 			await addModuleBay(token);
+			await addCustomers(token);
+			await addCollections(token, customerNumber);
 
 			await getProducts(token);
 			await getSites(token);
@@ -71,6 +82,8 @@ async function main() {
 			await getProductQuantities(token);
 			await getModuleInstances(token);
 			await getModuleBay(token);
+			await getCustomers(token, customerNumber);
+			await getCollections(token, customerNumber, collectionNumber);
 
 			await updateProducts(token);
 			await updateSites(token);
@@ -79,7 +92,11 @@ async function main() {
 			await updateBays(token);
 			await updateModules(token);
 			await setProductQuantities(token);
+			await updateCustomers(token, customerNumber);
+			await updateCollections(token, collectionNumber);
 
+			await deleteCollections(token, collectionNumber);
+			await deleteCustomers(token, customerNumber);
 			await deleteModuleBay(token);
 			await deleteModuleInstances(token);
 			await deleteModuleProducts(token);

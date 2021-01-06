@@ -4,6 +4,7 @@ import { config } from './config';
 export function makeConnection(): void {
 	connect(config.dbURI, {
 		useNewUrlParser: true,
+		useFindAndModify: false,
 		useUnifiedTopology: true,
 		useCreateIndex: true
 	}, (error: Error | null) => {

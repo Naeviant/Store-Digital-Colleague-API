@@ -1,6 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import { Product } from './Product';
 import { Aisle } from './Location';
+import { Collection } from './Collection';
 import { ModuleInstance } from './ModuleInstance';
 import { ProductQuantity } from './ProductQuantity';
 import { User } from './User';
@@ -32,6 +33,11 @@ siteSchema.post('remove', (doc) => {
 	Aisle.find({ site: doc._id }, async (err, aisles) => {
 		aisles.forEach(async aisle => {
 			aisle.remove();
+		});
+	});
+	Collection.find({ site: doc._id }, async (err, collections) => {
+		collections.forEach(async collection => {
+			collection.remove();
 		});
 	});
 	ModuleInstance.find({ site: doc._id }, async (err, instances) => {
