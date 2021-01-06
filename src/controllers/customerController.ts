@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import axios, { AxiosResponse } from 'axios';
 import { hash } from 'bcrypt';
 import validator from 'validator';
 import { config } from '../helpers/config';
@@ -32,7 +31,7 @@ export const addCustomer = async (req: Request, res: Response): Promise<void> =>
 			newCustomer.save().then(() => {
 				respond(req, res, 201, 'Customer Added Successfully');
 			}, async (error: Error & { name: string, code: number }) => {
-				await Counter.findByIdAndUpdate(config.customerCounter, { $inc: { seq: -1 } })
+				await Counter.findByIdAndUpdate(config.customerCounter, { $inc: { seq: -1 } });
 				if (error.code === 11000) respond(req, res, 409, 'Customer Number Already in Use');
 				else if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
 				else generate500(req, res, error);
@@ -71,7 +70,6 @@ export const updateCustomer = async (req: Request & { params: { customer: number
 		if (req.body.mobilePhone && validator.isMobilePhone(req.body.mobilePhone, 'en-GB')) update.mobilePhone = req.body.mobilePhone;
 		if (req.body.addressPostcode && validator.isPostalCode(req.body.addressPostcode, 'GB')) update.addressPostcode = req.body.addressPostcode;
 		if (req.body.password) update.password = await hash(req.body.password, 10);
-		console.log(update)
 		if (!Number.isInteger(Number(req.params.customer))) respond(req, res, 400, 'Invalid Customer Number Provided');
 		else if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
 		else Customer.updateOne({ customerNumber: req.params.customer }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {

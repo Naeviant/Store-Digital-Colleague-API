@@ -34,9 +34,9 @@ const customerSchema = new Schema({
 
 customerSchema.pre('validate', async function() {
 	if (this.isNew) {
-	    const doc = this as ICustomer;
-	    const counter = await Counter.findByIdAndUpdate(config.customerCounter, { $inc: { seq: 1 } }) as ICounter;
-	    doc.customerNumber = counter.seq;
+		const doc = this as ICustomer;
+		const counter = await Counter.findByIdAndUpdate(config.customerCounter, { $inc: { seq: 1 } }) as ICounter;
+		doc.customerNumber = counter.seq;
 	}
 });
 

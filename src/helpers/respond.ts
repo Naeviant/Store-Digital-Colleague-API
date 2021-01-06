@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { IAssignment } from '../entities/Assignment';
 import { IAisle, IBay } from '../entities/Location';
+import { ICollection } from '../entities/Collection';
 import { ICustomer } from '../entities/Customer';
 import { IModule } from '../entities/Module';
 import { IModuleInstance } from '../entities/ModuleInstance';
@@ -9,7 +10,7 @@ import { IProductQuantity } from '../entities/ProductQuantity';
 import { ISite } from '../entities/Site';
 import { IUser } from '../entities/User';
 
-type Payload = string | null | IAssignment | IAssignment[] | IAisle | IAisle[] | IBay | IBay[] | ICustomer | IModule | IModule[] | IModuleInstance | IModuleInstance[] | IProduct | IProduct[] | IProductQuantity | ISite | ISite[] | IUser;
+type Payload = string | null | IAssignment | IAssignment[] | IAisle | IAisle[] | IBay | IBay[] | ICollection | ICollection[] |ICustomer | IModule | IModule[] | IModuleInstance | IModuleInstance[] | IProduct | IProduct[] | IProductQuantity | ISite | ISite[] | IUser;
 
 export const respond = async (req: Request, res: Response, code: number, description: string, data?: Payload): Promise<void> => { 
 	let status;

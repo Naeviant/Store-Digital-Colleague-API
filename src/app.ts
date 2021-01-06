@@ -11,6 +11,7 @@ import { userRoutes } from './routes/userRoutes';
 import { moduleRoutes } from './routes/moduleRoutes';
 import { moduleInstanceRoutes } from './routes/moduleInstanceRoutes';
 import { customerRoutes } from './routes/customerRoutes';
+import { collectionRoutes } from './routes/collectionRoutes';
 
 const app = express();
 const router = Router();
@@ -31,6 +32,7 @@ router.use(userRoutes);
 router.use(moduleInstanceRoutes);
 router.use(moduleRoutes);
 router.use(customerRoutes);
+router.use(collectionRoutes);
 
 router.all('*', (req: Request, res: Response) => {
 	respond(req, res, 404, `Cannot ${req.method} ${req.path}`);

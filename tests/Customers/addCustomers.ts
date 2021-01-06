@@ -18,7 +18,7 @@ export const addCustomers = async (token: string) => {
 			mobilePhone: '07123456789'
 		}, headers).then(() => {
 			console.log('\x1b[32m', '[PASS] Add Customer: Valid Request', '\x1b[0m');
-		}).catch(() => {
+		}).catch((error) => {
 			console.log('\x1b[31m', '[FAIL] Add Customer: Valid Request', '\x1b[0m');
 		});
 

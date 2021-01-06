@@ -16,7 +16,7 @@
 *	@apiParam (Body Parameters) {String} password Customer's Password for Online Account
 *	@apiParam (Body Parameters) {String} addressNumberName House Number of Name of Customer's Address
 *	@apiParam (Body Parameters) {String} addressStreet1 Address Line 1 of Customer's Address
-*	@apiParam (Body Parameters) {String} [addressStreet2] Address Line 1 of Customer's Address
+*	@apiParam (Body Parameters) {String} [addressStreet2] Address Line 2 of Customer's Address
 *	@apiParam (Body Parameters) {String} addressCity City of Customer's Address
 *	@apiParam (Body Parameters) {String} addressPostcode Postcode of Customer's Address
 *	@apiParam (Body Parameters) {String} mobilePhone UK Mobile Phone Number of Customer
@@ -132,7 +132,7 @@
 *	@apiParam (Body Parameters) {String} [password] Customer's Password for Online Account
 *	@apiParam (Body Parameters) {String} [addressNumberName] House Number of Name of Customer's Address
 *	@apiParam (Body Parameters) {String} [addressStreet1] Address Line 1 of Customer's Address
-*	@apiParam (Body Parameters) {String} [addressStreet2] Address Line 1 of Customer's Address
+*	@apiParam (Body Parameters) {String} [addressStreet2] Address Line 2 of Customer's Address
 *	@apiParam (Body Parameters) {String} [addressCity] City of Customer's Address
 *	@apiParam (Body Parameters) {String} [addressPostcode] Postcode of Customer's Address
 *	@apiParam (Body Parameters) {String} [mobilePhone] UK Mobile Phone Number of Customer
