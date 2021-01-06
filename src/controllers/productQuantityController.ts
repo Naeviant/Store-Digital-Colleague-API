@@ -20,12 +20,13 @@ export const getQuantity = async (req: Request, res: Response): Promise<void> =>
 
 export const setQuantity = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(parseInt(req.body.quantity))) respond(req, res, 400, 'Invalid Request Body'); 
+		if (Object.keys(req.body).length === 0) respond(req, res, 400, 'Invalid Request Body');
 		else ProductQuantity.updateOne({ site: res.locals.site._id, product: res.locals.product._id }, { '$set': { quantity: req.body.quantity } }).then((docs: { n: number, nModified: number }) => {
 			if (docs.n === 0) respond(req, res, 400, 'Invalid Site Code or EAN Provided');
 			else respond(req, res, 200, 'Product Quantity Updated Successfully');
-		}, (error: Error) => {
-			generate500(req, res, error);
+		}, (error: Error & { name: string }) => {
+			if (error.name === 'CastError') respond(req, res, 400, 'Invalid Request Body');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);

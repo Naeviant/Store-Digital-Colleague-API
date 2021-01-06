@@ -44,12 +44,12 @@ export const addCustomer = async (req: Request, res: Response): Promise<void> =>
 
 export const getCustomer = async (req: Request & { params: { customer: number } }, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(Number(req.params.customer))) respond(req, res, 404, 'Customer Not Found');
-		else Customer.findOne({ customerNumber: req.params.customer }, { password: 0, __v: 0 }).then((doc: ICustomer | null) => {
+		Customer.findOne({ customerNumber: req.params.customer }, { password: 0, __v: 0 }).then((doc: ICustomer | null) => {
 			if (!doc) respond(req, res, 404, 'Customer Not Found');
 			else respond(req, res, 200, 'Customer Retrieved Successfully', doc);
-		}, (error: Error) => {
-			generate500(req, res, error);
+		}, (error: Error & { name: string }) => {
+			if (error.name === 'CastError') respond(req, res, 404, 'Customer Not Found');
+			else generate500(req, res, error);
 		});
 	} catch (error) {
 		generate500(req, res, error);
@@ -70,14 +70,14 @@ export const updateCustomer = async (req: Request & { params: { customer: number
 		if (req.body.mobilePhone && validator.isMobilePhone(req.body.mobilePhone, 'en-GB')) update.mobilePhone = req.body.mobilePhone;
 		if (req.body.addressPostcode && validator.isPostalCode(req.body.addressPostcode, 'GB')) update.addressPostcode = req.body.addressPostcode;
 		if (req.body.password) update.password = await hash(req.body.password, 10);
-		if (!Number.isInteger(Number(req.params.customer))) respond(req, res, 400, 'Invalid Customer Number Provided');
-		else if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
+		if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
 		else Customer.updateOne({ customerNumber: req.params.customer }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {
 			if (docs.n === 0) respond(req, res, 400, 'Invalid Customer Number Provided');
 			else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
 			else respond(req, res, 200, 'Customer Updated Successfully');
 		}, (error: Error & { name: string }) => {
 			if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
+			else if (error.name === 'CastError') respond(req, res, 400, 'Invalid Customer Number Provided');
 			else generate500(req, res, error);
 		});
 	} catch (error) {
@@ -87,15 +87,16 @@ export const updateCustomer = async (req: Request & { params: { customer: number
 
 export const deleteCustomer = async (req: Request & { params: { customer: number } }, res: Response): Promise<void> => {
 	try {
-		if (!Number.isInteger(Number(req.params.customer))) respond(req, res, 400, 'Invalid Customer Number Provided');
-		else {
-			const doc = await Customer.findOne({ customerNumber: req.params.customer });
+		Customer.findOne({ customerNumber: req.params.customer }).then(async (doc: ICustomer | null) => {
 			if (doc) {
 				await doc.remove();
 				respond(req, res, 200, 'Customer Deleted Successfully');
 			}
 			else respond(req, res, 400, 'Invalid Customer Number Provided');
-		}
+		}, (error: Error & { name: string }) => {
+			if (error.name === 'CastError') respond(req, res, 400, 'Invalid Customer Number Provided');
+			else generate500(req, res, error);
+		});
 	} catch (error) {
 		generate500(req, res, error);
 	}
