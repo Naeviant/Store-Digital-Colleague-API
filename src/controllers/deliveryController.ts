@@ -8,7 +8,7 @@ import { respond, generate500 } from '../helpers/respond';
 class DeliveryQuery {
 	inbound?: number;
 	outbound?: number;
-};
+}
 
 export const addDelivery = async (req: Request, res: Response): Promise<void> => {
 	try {
