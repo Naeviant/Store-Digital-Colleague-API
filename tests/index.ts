@@ -15,6 +15,7 @@ import { addModules, getModules, updateModules, deleteModules, addModuleProducts
 import { addModuleInstances, getModuleInstances, deleteModuleInstances, addModuleBay, getModuleBay, deleteModuleBay } from './ModuleInstances';
 import { addCustomers, getCustomers, updateCustomers, deleteCustomers } from './Customers';
 import { addCollections, getCollections, updateCollections, deleteCollections } from './Collections';
+import { addDeliveries, getDeliveries, updateDeliveries, deleteDeliveries } from './Deliveries';
 
 async function main() {
 	await makeConnection();
@@ -30,6 +31,9 @@ async function main() {
 
 			const collectionCounter = await Counter.findOne({ _id: config.collectionCounter }) as ICounter;
 			const collectionNumber = collectionCounter.seq;
+
+			const deliveryCounter = await Counter.findOne({ _id: config.deliveryCounter }) as ICounter;
+			const deliveryNumber = deliveryCounter.seq;
 
 			const testSite = new Site({
 				name: 'TESTSITE',
@@ -71,6 +75,7 @@ async function main() {
 			await addModuleBay(token);
 			await addCustomers(token);
 			await addCollections(token, customerNumber);
+			await addDeliveries(token);
 
 			await getProducts(token);
 			await getSites(token);
@@ -85,6 +90,7 @@ async function main() {
 			await getModuleBay(token);
 			await getCustomers(token, customerNumber);
 			await getCollections(token, customerNumber, collectionNumber);
+			await getDeliveries(token, deliveryNumber);
 
 			await updateProducts(token);
 			await updateSites(token);
@@ -95,7 +101,9 @@ async function main() {
 			await setProductQuantities(token);
 			await updateCustomers(token, customerNumber);
 			await updateCollections(token, collectionNumber);
+			await updateDeliveries(token, deliveryNumber);
 
+			await deleteDeliveries(token, deliveryNumber);
 			await deleteCollections(token, collectionNumber);
 			await deleteCustomers(token, customerNumber);
 			await deleteModuleBay(token);

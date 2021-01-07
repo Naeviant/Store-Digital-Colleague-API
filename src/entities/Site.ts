@@ -2,6 +2,7 @@ import { Document, Schema, model } from 'mongoose';
 import { Product } from './Product';
 import { Aisle } from './Location';
 import { Collection } from './Collection';
+import { Delivery } from './Delivery';
 import { ModuleInstance } from './ModuleInstance';
 import { ProductQuantity } from './ProductQuantity';
 import { User } from './User';
@@ -39,6 +40,11 @@ siteSchema.post('remove', (doc) => {
 	Collection.find({ site: doc._id }, async (err, collections) => {
 		collections.forEach(async collection => {
 			collection.remove();
+		});
+	});
+	Delivery.find({ '$or': [ { inbound: doc._id }, { outbound: doc._id } ] }, async (err, deliveries) => {
+		deliveries.forEach(async delivery => {
+			delivery.remove();
 		});
 	});
 	ModuleInstance.find({ site: doc._id }, async (err, instances) => {
