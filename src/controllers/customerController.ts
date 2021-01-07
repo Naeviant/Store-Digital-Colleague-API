@@ -28,8 +28,8 @@ export const addCustomer = async (req: Request, res: Response): Promise<void> =>
 		else hash(req.body.password, 10, (error: Error, hashedPassword: string) => {
 			req.body.password = hashedPassword;
 			const newCustomer = new Customer(req.body);
-			newCustomer.save().then(() => {
-				respond(req, res, 201, 'Customer Added Successfully');
+			newCustomer.save().then((doc: ICustomer) => {
+				respond(req, res, 201, 'Customer Added Successfully', doc.customerNumber);
 			}, async (error: Error & { name: string, code: number }) => {
 				await Counter.findByIdAndUpdate(config.customerCounter, { $inc: { seq: -1 } });
 				if (error.code === 11000) respond(req, res, 409, 'Customer Number Already in Use');

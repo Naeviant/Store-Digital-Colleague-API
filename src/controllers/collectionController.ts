@@ -26,8 +26,8 @@ export const addCollection = async (req: Request, res: Response): Promise<void> 
 			}
 		}
 		if (newCollection.products.length === 0) respond(req, res, 400, 'Invalid Request Body');
-		else newCollection.save().then(() => {
-			respond(req, res, 201, 'Collection Added Successfully');
+		else newCollection.save().then((doc: ICollection) => {
+			respond(req, res, 201, 'Collection Added Successfully', doc.collectionNumber);
 		}, async (error: Error & { name: string, code: number }) => {
 			await Counter.findByIdAndUpdate(config.collectionCounter, { $inc: { seq: -1 } });
 			if (error.code === 11000) respond(req, res, 409, 'Collection Number Already in Use');

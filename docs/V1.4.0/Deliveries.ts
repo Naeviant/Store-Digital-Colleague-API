@@ -1,5 +1,5 @@
 /**
-*	@api {post} /delivery Create New Collection
+*	@api {post} /delivery Create New Delivery
 *	@apiVersion 1.4.0
 *	@apiDescription Creates a new delivery.
 *	@apiName AddDelivery
@@ -231,7 +231,7 @@
 *		{
 *		    "code": 200,
 *		    "status": "OK",
-*		    "description": "Collection Retrieved Successfully",
+*		    "description": "Delivery Retrieved Successfully",
 *		    "data": {
 *				"_id": "5ff4c610d77f4f42ac1ec82a",
 *				"inbound": {
@@ -299,7 +299,7 @@
 *	@apiHeader {String} Authorization Authorization Token
 *
 *	@apiParam (URL Parameters) {Number} delivery Delivery Number 
-*	@apiParam (Body Parameters) {String="Booked","In Transit","Completed"} status Status of the Collection
+*	@apiParam (Body Parameters) {String="Booked","In Transit","Completed"} status Status of the Delivery
 *
 *	@apiParamExample {json} Request Example:
 *		PATCH /delivery/3000000000
