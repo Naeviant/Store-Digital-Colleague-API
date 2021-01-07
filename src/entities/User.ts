@@ -1,5 +1,6 @@
 import { Document, Schema, model } from 'mongoose';
 import { ISite } from './Site';
+import { AuditLog } from './AuditLog';
 
 export interface IUser extends Document {
 	firstName: string;
@@ -17,6 +18,14 @@ const userSchema = new Schema({
 	password: { type: String, required: true },
 	userType: { type: String, required: true, enum: ['Admin', 'Manager', 'Salesperson'] },
 	site: { type: Schema.Types.ObjectId, required: true, ref: 'Site' }
+});
+
+userSchema.post('remove', (doc) => {
+	AuditLog.find({ user: doc._id }, async (err, logs) => {
+		logs.forEach(async log => {
+			log.remove();
+		});
+	});
 });
 
 export const User = model<IUser>('User', userSchema);
