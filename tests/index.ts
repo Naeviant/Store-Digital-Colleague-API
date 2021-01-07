@@ -33,7 +33,8 @@ async function main() {
 
 			const testSite = new Site({
 				name: 'TESTSITE',
-				code: 0
+				code: 0,
+				type: 'Store'
 			});
 			await testSite.save();
 

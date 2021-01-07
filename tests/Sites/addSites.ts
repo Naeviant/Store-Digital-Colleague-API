@@ -13,9 +13,10 @@ export const addSites = async (token: string) => {
 			else console.log('\x1b[31m', '[FAIL] Add Site: Missing Request Body', '\x1b[0m');
 		});
 
-		await axios.post(`${config.base}/product`, {
+		await axios.post(`${config.base}/site`, {
 			'code': 'A',
-			'name': 'TESTSITE'
+			'name': 'TESTSITE',
+			'type': 'Store'
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Site: Invalid Site Code', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
@@ -25,8 +26,21 @@ export const addSites = async (token: string) => {
 		});
 
 		await axios.post(`${config.base}/site`, {
+			'code': 'A',
+			'name': 'TESTSITE',
+			'type': 'INVALID'
+		}, headers).then(() => {
+			console.log('\x1b[31m', '[FAIL] Add Site: Invalid Site Type', '\x1b[0m');
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Add Site: Invalid Site Type', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Add Site: Invalid Site Type', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Add Site: Invalid Site Type', '\x1b[0m');
+		});
+
+		await axios.post(`${config.base}/site`, {
 			'code': -1,
-			'name': 'TESTSITE'
+			'name': 'TESTSITE',
+			'type': 'Store'
 		}, headers).then(() => {
 			console.log('\x1b[32m', '[PASS] Add Site: Valid Request', '\x1b[0m');
 		}).catch(() => {
@@ -35,7 +49,8 @@ export const addSites = async (token: string) => {
 
 		await axios.post(`${config.base}/site`, {
 			'code': -1,
-			'name': 'TESTSITE'
+			'name': 'TESTSITE',
+			'type': 'Store'
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Site: Duplicate Site Code', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
