@@ -7,5 +7,6 @@ export const config = {
 	dbURI: process.env.DB_URI ?? '',
 	jwtSecret: process.env.JWT_SECRET ?? '',
 	customerCounter: process.env.CUSTOMER_COUNTER,
-	collectionCounter: process.env.COLLECTION_COUNTER
+	collectionCounter: process.env.COLLECTION_COUNTER,
+	deliveryCounter: process.env.DELIVERY_COUNTER
 };

@@ -2,6 +2,7 @@ import { Document, Schema, model } from 'mongoose';
 import { Site } from './Site';
 import { Assignment } from './Assignment';
 import { Collection, ICollectionProduct } from './Collection';
+import { Delivery, IDeliveryProduct } from './Delivery';
 import { Module, IModuleProduct } from './Module';
 import { ProductQuantity } from './ProductQuantity';
 
@@ -43,6 +44,14 @@ productSchema.post('remove', (doc) => {
 			if (collection.products) {
 				collection.products = collection.products.filter((x: ICollectionProduct) => x.product.toString() !== doc._id.toString());
 				collection.save();
+			}
+		});
+	});
+	Delivery.find({ 'products.product': doc._id }, async (err, deliveries) => {
+		deliveries.forEach(async delivery => {
+			if (delivery.products) {
+				delivery.products = delivery.products.filter((x: IDeliveryProduct) => x.product.toString() !== doc._id.toString());
+				delivery.save();
 			}
 		});
 	});

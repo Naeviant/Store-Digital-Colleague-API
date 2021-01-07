@@ -8,7 +8,7 @@ export const getCustomer = async (req: Request, res: Response, next: NextFunctio
 		res.locals.customer = response.data.data;
 		next();
 	}).catch((error: Error & { response: { status: number } }) => {
-		if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Invalid Customer Number Provided Provided');
+		if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Invalid Customer Number Provided');
 		else generate500(req, res, error);
 	});
 };
