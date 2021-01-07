@@ -1,5 +1,6 @@
 import { connect } from 'mongoose';
 import { config } from './config';
+import { init } from './init';
 
 export function makeConnection(): void {
 	connect(config.dbURI, {
@@ -9,6 +10,7 @@ export function makeConnection(): void {
 		useCreateIndex: true
 	}, (error: Error | null) => {
 		if (error) throw error;
+		init();
 		console.log('Successfully Connected to Database');
 	});
 }
