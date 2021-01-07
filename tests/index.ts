@@ -16,6 +16,7 @@ import { addModuleInstances, getModuleInstances, deleteModuleInstances, addModul
 import { addCustomers, getCustomers, updateCustomers, deleteCustomers } from './Customers';
 import { addCollections, getCollections, updateCollections, deleteCollections } from './Collections';
 import { addDeliveries, getDeliveries, updateDeliveries, deleteDeliveries } from './Deliveries';
+import { addLogs, getLogs } from './AuditLogs';
 
 async function main() {
 	await makeConnection();
@@ -76,6 +77,7 @@ async function main() {
 			await addCustomers(token);
 			await addCollections(token, customerNumber);
 			await addDeliveries(token);
+			await addLogs(token);
 
 			await getProducts(token);
 			await getSites(token);
@@ -91,6 +93,7 @@ async function main() {
 			await getCustomers(token, customerNumber);
 			await getCollections(token, customerNumber, collectionNumber);
 			await getDeliveries(token, deliveryNumber);
+			await getLogs(token);
 
 			await updateProducts(token);
 			await updateSites(token);

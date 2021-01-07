@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { IAssignment } from '../entities/Assignment';
 import { IAisle, IBay } from '../entities/Location';
+import { IAuditLog } from '../entities/AuditLog';
 import { ICollection } from '../entities/Collection';
 import { ICustomer } from '../entities/Customer';
 import { IDelivery } from '../entities/Delivery';
@@ -11,7 +12,7 @@ import { IProductQuantity } from '../entities/ProductQuantity';
 import { ISite } from '../entities/Site';
 import { IUser } from '../entities/User';
 
-type Payload = string | null | IAssignment | IAssignment[] | IAisle | IAisle[] | IBay | IBay[] | ICollection | ICollection[] | ICustomer | IDelivery | IDelivery[] | IModule | IModule[] | IModuleInstance | IModuleInstance[] | IProduct | IProduct[] | IProductQuantity | ISite | ISite[] | IUser;
+type Payload = string | null | IAssignment | IAssignment[] | IAisle | IAisle[] | IAuditLog[] | IBay | IBay[] | ICollection | ICollection[] | ICustomer | IDelivery | IDelivery[] | IModule | IModule[] | IModuleInstance | IModuleInstance[] | IProduct | IProduct[] | IProductQuantity | ISite | ISite[] | IUser;
 
 export const respond = async (req: Request, res: Response, code: number, description: string, data?: Payload): Promise<void> => { 
 	let status;
