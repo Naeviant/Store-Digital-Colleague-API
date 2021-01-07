@@ -34,8 +34,8 @@ export const addDelivery = async (req: Request, res: Response): Promise<void> =>
 					}
 				}
 				if (newDelivery.products.length === 0) respond(req, res, 400, 'Invalid Request Body');
-				else newDelivery.save().then(() => {
-					respond(req, res, 201, 'Delivery Added Successfully');
+				else newDelivery.save().then((doc: IDelivery) => {
+					respond(req, res, 201, 'Delivery Added Successfully', doc.deliveryNumber);
 				}, async (error: Error & { name: string, code: number }) => {
 					await Counter.findByIdAndUpdate(config.deliveryCounter, { $inc: { seq: -1 } });
 					if (error.code === 11000) respond(req, res, 409, 'Delivery Number Already in Use');

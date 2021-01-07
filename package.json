@@ -1,6 +1,6 @@
 {
   "name": "store-digital-colleague-api",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "An API to provide information about products in a store.",
   "main": "app.js",
   "scripts": {
