@@ -1,4 +1,5 @@
 import { hash } from 'bcrypt';
+import { Counter } from '../entities/Counter';
 import { Site } from '../entities/Site';
 import { User } from '../entities/User';
 
@@ -23,5 +24,6 @@ export const init = async (): Promise<void> => {
 			});
 			await newUser.save();
 		});	
+		Counter.insertMany([ { seq: 1000000000 }, { seq: 2000000000 }, { seq: 3000000000 } ]);
 	}
 };
