@@ -2,12 +2,16 @@ import { Router } from 'express';
 import * as deliveryController from '../controllers/deliveryController';
 import { isUser } from '../middleware/auth';
 import { getSite } from '../middleware/getSite';
+import { getProduct } from '../middleware/getProduct';
 import { generate405 } from '../helpers/respond';
 
 const router = Router();
 
 router.route('/delivery')
 	.post(isUser, deliveryController.addDelivery)
+	.all(generate405);
+router.route('/delivery/product/:code/:ean')
+	.get(getSite, getProduct, deliveryController.getProductDeliveriesForSite)
 	.all(generate405);
 router.route('/delivery/:type(inbound|outbound)/:code')
 	.get(isUser, getSite, deliveryController.getDeliveriesForSite)

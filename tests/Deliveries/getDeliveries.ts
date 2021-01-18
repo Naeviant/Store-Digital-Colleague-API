@@ -26,11 +26,11 @@ export const getDeliveries = async (token: string, delivery: number) => {
 		});
 
 		await axios.get(`${config.base}/delivery/inbound/INVALID`, headers).then(() => {
-			console.log('\x1b[31m', '[FAIL] Get Inbound Deliveries for Site: Invalid Delivery Number', '\x1b[0m');
+			console.log('\x1b[31m', '[FAIL] Get Inbound Deliveries for Site: Invalid Site Code', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Inbound Deliveries for Site: Invalid Delivery Number', '\x1b[0m');
-			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Inbound Deliveries for Site: Invalid Delivery Number', '\x1b[0m');
-			else console.log('\x1b[31m', '[FAIL] Get Inbound Deliveries for Site: Invalid Delivery Number', '\x1b[0m');
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Inbound Deliveries for Site: Invalid Site Code', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Inbound Deliveries for Site: Invalid Site Code', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Get Inbound Deliveries for Site: Invalid Site Code', '\x1b[0m');
 		});
 
 		await axios.get(`${config.base}/delivery/outbound/0`, headers).then(() => {
@@ -40,11 +40,33 @@ export const getDeliveries = async (token: string, delivery: number) => {
 		});
 
 		await axios.get(`${config.base}/delivery/outbound/INVALID`, headers).then(() => {
-			console.log('\x1b[31m', '[FAIL] Get Outbound Deliveries for Site: Invalid Delivery Number', '\x1b[0m');
+			console.log('\x1b[31m', '[FAIL] Get Outbound Deliveries for Site: Invalid Site Code', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Outbound Deliveries for Site: Invalid Delivery Number', '\x1b[0m');
-			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Outbound Deliveries for Site: Invalid Delivery Number', '\x1b[0m');
-			else console.log('\x1b[31m', '[FAIL] Get Outbound Deliveries for Site: Invalid Delivery Number', '\x1b[0m');
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Outbound Deliveries for Site: Invalid Site Code', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Outbound Deliveries for Site: Invalid Site Code', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Get Outbound Deliveries for Site: Invalid Site Code', '\x1b[0m');
+		});
+
+		await axios.get(`${config.base}/delivery/product/-1/0`, headers).then(() => {
+			console.log('\x1b[32m', '[PASS] Get Product Deliveries for Site: Valid Request', '\x1b[0m');
+		}).catch(() => {
+			console.log('\x1b[31m', '[FAIL] Get Product Deliveries for Site: Valid Request', '\x1b[0m');
+		});
+
+		await axios.get(`${config.base}/delivery/product/INVALID/0`, headers).then(() => {
+			console.log('\x1b[31m', '[FAIL] Get Product Deliveries for Site: Invalid Site Code', '\x1b[0m');
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Product Deliveries for Site: Invalid Site Code', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Product Deliveries for Site: Invalid Site Code', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Get Product Deliveries for Site: Invalid Site Code', '\x1b[0m');
+		});
+
+		await axios.get(`${config.base}/delivery/product/-1/INVALID`, headers).then(() => {
+			console.log('\x1b[31m', '[FAIL] Get Product Deliveries for Site: Invalid EAN', '\x1b[0m');
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Get Product Deliveries for Site: Invalid EAN', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Get Product Deliveries for Site: Invalid EAN', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Get Product Deliveries for Site: Invalid EAN', '\x1b[0m');
 		});
 
 		resolve();

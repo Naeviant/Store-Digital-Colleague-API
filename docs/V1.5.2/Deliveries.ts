@@ -300,3 +300,114 @@
 *		    "data": []
 *		}
 */
+
+/**
+*	@api {get} /delivery/product/:code/:ean Get Product Deliveries
+*	@apiVersion 1.5.2
+*	@apiDescription Gets all existing deliveries that are expected to arrive at a site which contain a product.
+*	@apiName GetProductDeliveries
+*	@apiGroup Deliveries
+*
+*	@apiHeader {String} Authorization Authorization Token
+*
+*	@apiPermission Any Authenticated User
+*
+*	@apiParam (URL Parameters) {Number} code ID Code of Site 
+*	@apiParam (URL Parameters) {Number} ean EAN/Barcode of Product 
+*
+*	@apiParamExample {json} Request Example:
+*		GET /delivery/product/1111/1234567890123
+*	
+*	@apiSuccessExample Success Example:
+*		HTTP/1.1 200 OK
+*		{
+*		    "code": 200,
+*		    "status": "OK",
+*		    "description": "Deliveries Retrieved Successfully",
+*		    "data": [
+*				{
+*			        "inbound": {
+*			            "name": "My Store",
+*			            "code": 1111,
+*						"type": "Store"
+*			        },
+*					"outbound": {
+*			            "name": "My Other Store",
+*			            "code": 1112,
+*						"type": "Store"
+*			        },
+*			        "status": "Booked",
+*			        "arriveAt": "2021-12-31T12:00:00.000Z",
+*			        "products": [
+*			            {
+*			                "product": {
+*		                        "status": "Live",
+*		                        "ean": "1234567890123",
+*		                        "name": "My Product",
+*		                        "price": 10,
+*		                        "description": "My Test Product",
+*		                        "ageRestricted": false,
+*		                        "info": [
+*		                            {
+*		                                "_id": "5fe748cf43ac916074cb0d85",
+*		                                "name": "Weight",
+*		                                "value": "1kg"
+*		                            },
+*		                            {
+*		                                "_id": "5fe748cf43ac916074cb0d86",
+*		                                "name": "Material",
+*		                                "value": "Wood"
+*		                            }
+*		                        ]
+*			                },
+*			                "quantity": 2
+*			            },
+*			            {
+*			                "product": {
+*		                        "status": "Discontinued",
+*		                        "ean": "1234567890124",
+*		                        "name": "My Other Product",
+*		                        "price": 12.5,
+*		                        "description": "My Other Test Product",
+*		                        "ageRestricted": true,
+*		                        "info": [
+*		                            {
+*		                                "_id": "5fe748cf43ac916074cb0d89",
+*		                                "name": "Weight",
+*		                                "value": "2kg"
+*		                            },
+*		                            {
+*		                                "_id": "5fe748cf43ac916074cb0d90",
+*		                                "name": "Material",
+*		                                "value": "Metal"
+*		                            }
+*		                        ]
+*			                },
+*			                "quantity": 3
+*			            }
+*			        ],
+*			        "deliveryNumber": 3000000000
+*			    },
+*				...
+*			]
+*		}
+*
+*	@apiErrorExample {json} Error Example 1:
+*		// Returned when the provided site code was invalid
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Invalid Site Code Provided",
+*		    "data": []
+*		}
+*	@apiErrorExample {json} Error Example 2:
+*		// Returned when the provided EAN was invalid
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Invalid EAN Provided",
+*		    "data": []
+*		}
+*/
