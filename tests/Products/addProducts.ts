@@ -17,7 +17,15 @@ export const addProducts = async (token: string) => {
 			'ean': '1',
 			'name': 'TEST PRODUCT',
 			'price': 'A',
-			'status': 'Live'
+			'status': 'Live',
+			'description': 'TEST PRODUCT',
+			'ageRestricted': false,
+			'info': [
+				{
+					'name': 'Weight',
+					'value': '1kg'
+				}
+			]
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Product: Invalid Price', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
@@ -30,7 +38,15 @@ export const addProducts = async (token: string) => {
 			'ean': '2',
 			'name': 'TEST PRODUCT',
 			'price': 10,
-			'status': 'Invalid'
+			'status': 'Invalid',
+			'description': 'TEST PRODUCT',
+			'ageRestricted': false,
+			'info': [
+				{
+					'name': 'Weight',
+					'value': '1kg'
+				}
+			]
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Product: Invalid Status', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
@@ -40,10 +56,59 @@ export const addProducts = async (token: string) => {
 		});
 
 		await axios.post(`${config.base}/product`, {
+			'ean': '2',
+			'name': 'TEST PRODUCT',
+			'price': 10,
+			'status': 'Live',
+			'description': 'TEST PRODUCT',
+			'ageRestricted': 'Invalid',
+			'info': [
+				{
+					'name': 'Weight',
+					'value': '1kg'
+				}
+			]
+		}, headers).then(() => {
+			console.log('\x1b[31m', '[FAIL] Add Product: Invalid Age Restriction', '\x1b[0m');
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Add Product: Invalid Age Restriction', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Add Product: Invalid Age Restriction', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Add Product: Invalid Age Restriction', '\x1b[0m');
+		});
+
+		await axios.post(`${config.base}/product`, {
+			'ean': '2',
+			'name': 'TEST PRODUCT',
+			'price': 10,
+			'status': 'Live',
+			'description': 'TEST PRODUCT',
+			'ageRestricted': false,
+			'info': [
+				{
+					'name': 'Weight'
+				}
+			]
+		}, headers).then(() => {
+			console.log('\x1b[31m', '[FAIL] Add Product: Invalid Info', '\x1b[0m');
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Add Product: Invalid Info', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Add Product: Invalid Info', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Add Product: Invalid Info', '\x1b[0m');
+		});
+
+		await axios.post(`${config.base}/product`, {
 			'ean': '0',
 			'name': 'TEST PRODUCT',
 			'price': 10,
-			'status': 'Live'
+			'status': 'Live',
+			'description': 'TEST PRODUCT',
+			'ageRestricted': false,
+			'info': [
+				{
+					'name': 'Weight',
+					'value': '1kg'
+				}
+			]
 		}, headers).then(() => {
 			console.log('\x1b[32m', '[PASS] Add Product: Valid Request', '\x1b[0m');
 		}).catch(() => {
@@ -54,7 +119,15 @@ export const addProducts = async (token: string) => {
 			'ean': '0',
 			'name': 'TEST PRODUCT',
 			'price': 10,
-			'status': 'Live'
+			'status': 'Live',
+			'description': 'TEST PRODUCT',
+			'ageRestricted': false,
+			'info': [
+				{
+					'name': 'Weight',
+					'value': '1kg'
+				}
+			]
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Add Product: Duplicate EAN', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {

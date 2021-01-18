@@ -132,7 +132,7 @@ async function main() {
 			process.exit();
 		}
 
-	}).catch(() => {
+	}).catch((error) => {
 		console.log('Cannot Run Tests: API Offline');
 		process.exit();
 	});
