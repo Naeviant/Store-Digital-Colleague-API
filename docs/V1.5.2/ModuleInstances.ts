@@ -437,3 +437,161 @@
 *		    "data": []
 *		}
 */
+
+/**
+*	@api {get} /module/site/:code/product/:ean Get Product Modules
+*	@apiVersion 1.5.2
+*	@apiDescription Gets all modules which contain a given product.
+*	@apiName GetProductModules
+*	@apiGroup Modules
+*
+*	@apiPermission None
+*
+*	@apiParam (URL Parameters) {Number{4}} code ID Code of Site 
+*	@apiParam (URL Parameters) {Number} ean EAN/Barcode of Product 
+*
+*	@apiParamExample {json} Request Example:
+*		GET /module/site/1111/product/1234567890123
+*
+*	@apiSuccessExample {json} Success Example:
+*		HTTP/1.1 200 OK
+*		{
+*		    "code": 200,
+*		    "status": "OK",
+*		    "description": "Product Modules Retrieved Successfully",
+*		    "data": [
+*				{
+*			        "module": {
+*			            "discriminator": "MYMODULE",
+*			            "name": "First Module",
+*			            "startDate": "2020-01-01T00:00:00.000Z",
+*			            "endDate": "2020-12-31T00:00:00.000Z",
+*			            "products": [
+*		             	 	{
+*		                        "product": {
+*		                            "status": "Live",
+*		                            "ean": "1234567890123",
+*		                            "name": "My Product",
+*		                            "price": 10,
+*		                            "description": "My Test Product",
+*		                            "ageRestricted": false,
+*		                            "info": [
+*		                                {
+*		                                    "name": "Weight",
+*		                                    "value": "1kg"
+*		                                },
+*		                                {
+*		                                    "name": "Material",
+*		                                    "value": "Wood"
+*		                                }
+*		                            ]
+*		                        },
+*			                    "facings": 2
+*			                },
+*							...
+*			            ]
+*			        },
+*			        "site": {
+*			            "name": "My Store",
+*			            "code": 1111,
+*						"type": "Store"
+*			        },
+*			        "bay": {
+*			            "bay": 1,
+*			            "moduleLimit": 2,
+*			            "allowsOverstock": true,
+*			            "allowsTopstock": true,
+*			            "allowsStockroom": false,
+*			            "allowsMultiLocation": true,
+*			            "allowsDisplay": false,
+*			            "allowsClearance": false,
+*			            "aisle": {
+*			                "name": "Food",
+*			                "aisle": 1,
+*			                "site": {
+*			                    "name": "My Store",
+*		        	            "code": 1111,
+*								"type": "Store"
+*		    	            }
+*			            }
+*			        }
+*			    },
+*				{
+*			        "module": {
+*			            "discriminator": "MYOTHERMODULE",
+*			            "name": "Second Module",
+*			            "startDate": "2020-01-01T00:00:00.000Z",
+*			            "endDate": "2020-12-31T00:00:00.000Z",
+*			            "products": [
+*		             	 	{
+*		                        "product": {
+*		                            "status": "Live",
+*		                            "ean": "1234567890123",
+*		                            "name": "My Product",
+*		                            "price": 10,
+*		                            "description": "My Test Product",
+*		                            "ageRestricted": false,
+*		                            "info": [
+*		                                {
+*		                                    "name": "Weight",
+*		                                    "value": "1kg"
+*		                                },
+*		                                {
+*		                                    "name": "Material",
+*		                                    "value": "Wood"
+*		                                }
+*		                            ]
+*		                        },
+*			                    "facings": 1
+*			                },
+*							...
+*			            ]
+*			        },
+*			        "site": {
+*			            "name": "My Store",
+*			            "code": 1111,
+*						"type": "Store"
+*			        },
+*			        "bay": {
+*			            "bay": 1,
+*			            "moduleLimit": 2,
+*			            "allowsOverstock": true,
+*			            "allowsTopstock": true,
+*			            "allowsStockroom": false,
+*			            "allowsMultiLocation": true,
+*			            "allowsDisplay": false,
+*			            "allowsClearance": false,
+*			            "aisle": {
+*			                "name": "Food",
+*			                "aisle": 1,
+*			                "site": {
+*			                    "name": "My Store",
+*		        	            "code": 1111,
+*								"type": "Store"
+*		    	            }
+*			            }
+*			        }
+*			    },
+*				...
+*			]
+*		}
+*
+*	@apiErrorExample {json} Error Example 1:
+*		// Returned when the provided site code is invalid
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Invalid Site Code Provided",
+*		    "data": []
+*		}
+*	@apiErrorExample {json} Error Example 2:
+*		// Returned when the provided EAN is invalid
+*		HTTP/1.1 400 Bad Request
+*		{
+*		    "code": 400,
+*		    "status": "Bad Request",
+*		    "description": "Invalid EAN Provided",
+*		    "data": []
+*		}
+*/

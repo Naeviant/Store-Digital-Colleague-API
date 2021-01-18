@@ -12,7 +12,7 @@ import { addAisles, getAisles, updateAisles, deleteAisles } from './Aisles';
 import { addBays, getBays, updateBays, deleteBays } from './Bays';
 import { addAssignments, getAssignments, deleteAssignments } from './Assignments';
 import { addModules, getModules, updateModules, deleteModules, addModuleProducts, deleteModuleProducts } from './Modules';
-import { addModuleInstances, getModuleInstances, deleteModuleInstances, addModuleBay, getModuleBay, deleteModuleBay } from './ModuleInstances';
+import { addModuleInstances, getModuleInstances, deleteModuleInstances, addModuleBay, getModuleBay, deleteModuleBay, getProductModuleInstances } from './ModuleInstances';
 import { addCustomers, getCustomers, updateCustomers, deleteCustomers } from './Customers';
 import { addCollections, getCollections, updateCollections, deleteCollections } from './Collections';
 import { addDeliveries, getDeliveries, updateDeliveries, deleteDeliveries } from './Deliveries';
@@ -90,6 +90,7 @@ async function main() {
 			await getProductQuantities(token);
 			await getModuleInstances(token);
 			await getModuleBay(token);
+			await getProductModuleInstances(token);
 			await getCustomers(token, customerNumber);
 			await getCollections(token, customerNumber, collectionNumber);
 			await getDeliveries(token, deliveryNumber);
