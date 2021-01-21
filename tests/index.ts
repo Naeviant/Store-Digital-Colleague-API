@@ -17,6 +17,7 @@ import { addCustomers, getCustomers, updateCustomers, deleteCustomers } from './
 import { addCollections, getCollections, updateCollections, deleteCollections } from './Collections';
 import { addDeliveries, getDeliveries, updateDeliveries, deleteDeliveries } from './Deliveries';
 import { addLogs, getLogs } from './AuditLogs';
+import { addReviews, getReviews, deleteReviews } from './Reviews';
 
 async function main() {
 	await makeConnection();
@@ -78,6 +79,7 @@ async function main() {
 			await addCollections(token, customerNumber);
 			await addDeliveries(token);
 			await addLogs(token);
+			await addReviews(token, customerNumber);
 
 			await getProducts(token);
 			await getSites(token);
@@ -94,6 +96,7 @@ async function main() {
 			await getCollections(token, customerNumber, collectionNumber);
 			await getDeliveries(token, deliveryNumber);
 			await getLogs(token);
+			await getReviews(token, customerNumber);
 
 			await updateProducts(token);
 			await updateSites(token);
@@ -106,6 +109,7 @@ async function main() {
 			await updateCollections(token, collectionNumber);
 			await updateDeliveries(token, deliveryNumber);
 
+			await deleteReviews(token, customerNumber);
 			await deleteDeliveries(token, deliveryNumber);
 			await deleteCollections(token, collectionNumber);
 			await deleteCustomers(token, customerNumber);
