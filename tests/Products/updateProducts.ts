@@ -23,8 +23,8 @@ export const updateProducts = async (token: string) => {
 			else console.log('\x1b[31m', '[FAIL] Update Product: Invalid EAN', '\x1b[0m');
 		});
 
-		await axios.patch(`${config.base}/product/-`, {
-			'price': '10'
+		await axios.patch(`${config.base}/product/0`, {
+			'price': 'A'
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Update Product: Invalid Price', '\x1b[0m');
 		}).catch((error: Error & { response: { status: number } }) => {
@@ -33,7 +33,7 @@ export const updateProducts = async (token: string) => {
 			else console.log('\x1b[31m', '[FAIL] Update Product: Invalid Price', '\x1b[0m');
 		});
 
-		await axios.patch(`${config.base}/product/-`, {
+		await axios.patch(`${config.base}/product/0`, {
 			'status': 'Invalid'
 		}, headers).then(() => {
 			console.log('\x1b[31m', '[FAIL] Update Product: Invalid Status', '\x1b[0m');
@@ -41,6 +41,28 @@ export const updateProducts = async (token: string) => {
 			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Product: Invalid Status', '\x1b[0m');
 			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Product: Invalid Status', '\x1b[0m');
 			else console.log('\x1b[31m', '[FAIL] Update Product: Invalid Status', '\x1b[0m');
+		});
+
+		await axios.patch(`${config.base}/product/0`, {
+			'ageRestricted': 'Invalid'
+		}, headers).then(() => {
+			console.log('\x1b[31m', '[FAIL] Update Product: Invalid Age Restriction', '\x1b[0m');
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Product: Invalid Age Restriction', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Product: Invalid Age Restriction', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Update Product: Invalid Age Restriction', '\x1b[0m');
+		});
+
+		await axios.patch(`${config.base}/product/0`, {
+			'info': {
+				'name': 'Weight'
+			}
+		}, headers).then(() => {
+			console.log('\x1b[31m', '[FAIL] Update Product: Invalid Product Info', '\x1b[0m');
+		}).catch((error: Error & { response: { status: number } }) => {
+			if (!error.response) console.log('\x1b[31m', '[FAIL] Update Product: Invalid Product Info', '\x1b[0m');
+			else if (error.response.status === 400) console.log('\x1b[32m', '[PASS] Update Product: Invalid Product Info', '\x1b[0m');
+			else console.log('\x1b[31m', '[FAIL] Update Product: Invalid Product Info', '\x1b[0m');
 		});
 
 		await axios.patch(`${config.base}/product/0`, {

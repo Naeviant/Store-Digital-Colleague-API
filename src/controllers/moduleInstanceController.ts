@@ -102,7 +102,6 @@ export const getModulesInBay = async (req: Request, res: Response): Promise<void
 	}
 };
 
-
 export const deleteModuleFromBay = async (req: Request, res: Response): Promise<void> => {
 	try {
 		ModuleInstance.updateOne({ site: res.locals.site._id, module: res.locals.module._id }, { '$set': { bay: null } }).then((docs: { n: number, nModified: number }) => {
@@ -112,6 +111,23 @@ export const deleteModuleFromBay = async (req: Request, res: Response): Promise<
 		}, (error: Error) => {
 			generate500(req, res, error);
 		});
+	} catch (error) {
+		generate500(req, res, error);
+	}
+};
+
+export const getProductModulesAtSite = async (req: Request, res: Response): Promise<void> => {
+	try {
+		ModuleInstance.find({ site: res.locals.site._id }, { _id: 0, __v: 0 })
+			.populate({ path: 'site', select: '-_id -__v'})
+			.populate({ path: 'module', select: '-_id -__v -products._id', populate: { path: 'products.product', model: 'Product', select: '-_id -__v' }})
+			.populate({ path: 'bay', select: '-_id -__v', populate: { path: 'aisle', select: '-_id -__v', populate: { path: 'site', select: '-_id -__v' } } })
+			.then((docs: IModuleInstance[] | null) => {
+				docs = (docs ?? []).filter(x => { return x.module.products.map((y: & { product: { ean: string } }) => { return y.product.ean; } ).indexOf(req.params.ean) > -1; });
+				respond(req, res, 200, 'Product Modules Retrieved Successfully', docs);
+			}, (error: Error) => {
+				generate500(req, res, error);
+			});
 	} catch (error) {
 		generate500(req, res, error);
 	}

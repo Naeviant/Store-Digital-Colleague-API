@@ -7,18 +7,32 @@ import { Module, IModuleProduct } from './Module';
 import { ProductQuantity } from './ProductQuantity';
 import { Review } from './Review';
 
+export interface IProductInfo {
+	name: string;
+	value: string;
+}
+
 export interface IProduct extends Document {
 	name: string;
 	ean: string;
 	price: number;
 	status: string;
+	description: string;
+	ageRestricted: boolean;
+	info: Array<IProductInfo>;
 }
 
 const productSchema = new Schema({
 	name: { type: String, required: true },
 	ean: { type: String, required: true, unique: true },
 	price: { type: Number, required: true, min: 0 },
-	status: { type: String, required: true, enum: ['Live', 'Orders Blocked', 'Discontinued'], default: 'Live' }
+	status: { type: String, required: true, enum: ['Live', 'Orders Blocked', 'Discontinued'], default: 'Live' },
+	description: { type: String },
+	ageRestricted: { type: Boolean, required: true },
+	info: [{
+		name: { type: String, required: true },
+		value: { type: String, required: true } 
+	}]
 });
 
 productSchema.post('save', (doc) => {

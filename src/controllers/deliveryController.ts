@@ -90,6 +90,21 @@ export const getDeliveriesForSite = async (req: Request, res: Response): Promise
 	}
 };
 
+export const getProductDeliveriesForSite = async (req: Request, res: Response): Promise<void> => {
+	try {
+		Delivery.find({ inbound: res.locals.site._id }, { _id: 0, __v: 0, 'products._id': 0 })
+			.populate('inbound', '-__v')
+			.populate('outbound', '-__v')
+			.populate('products.product', '-__v')
+			.then((docs: IDelivery[]) => {
+				docs = (docs ?? []).filter(x => { return x.products.map((y: & { product: { ean: string } }) => { return y.product.ean; }).indexOf(req.params.ean) > -1; });
+				respond(req, res, 200, 'Deliveries Retrieved Successfully', docs);
+			});
+	} catch (error) {
+		generate500(req, res, error);
+	}
+};
+
 export const updateDelivery = async (req: Request & { params: { delivery: number } }, res: Response): Promise<void> => {
 	try {
 		Delivery.updateOne({ deliveryNumber: req.params.delivery }, { '$set': { status: req.body.status } }).then((docs: { n: number, nModified: number }) => {
