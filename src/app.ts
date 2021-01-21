@@ -14,6 +14,7 @@ import { customerRoutes } from './routes/customerRoutes';
 import { collectionRoutes } from './routes/collectionRoutes';
 import { deliveryRoutes } from './routes/deliveryRoutes';
 import { auditLogRoutes } from './routes/auditLogRoutes';
+import { reviewRoutes } from './routes/reviewRoutes';
 
 const app = express();
 const router = Router();
@@ -37,6 +38,7 @@ router.use(customerRoutes);
 router.use(collectionRoutes);
 router.use(deliveryRoutes);
 router.use(auditLogRoutes);
+router.use(reviewRoutes);
 
 router.all('*', (req: Request, res: Response) => {
 	respond(req, res, 404, `Cannot ${req.method} ${req.path}`);

@@ -2,6 +2,7 @@ import { Document, Schema, model } from 'mongoose';
 import { config } from '../helpers/config';
 import { Counter, ICounter } from './Counter';
 import { Collection } from './Collection';
+import { Review } from './Review';
 
 export interface ICustomer extends Document {
 	customerNumber: ICounter['seq'];
@@ -45,6 +46,11 @@ customerSchema.post('remove', (doc) => {
 	Collection.find({ customer: doc._id }, async (err, collections) => {
 		collections.forEach(async collection => {
 			collection.remove();
+		});
+	});
+	Review.find({ customer: doc._id }, async (err, reviews) => {
+		reviews.forEach(async review => {
+			review.remove();
 		});
 	});
 });

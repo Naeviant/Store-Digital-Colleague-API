@@ -9,10 +9,11 @@ import { IModule } from '../entities/Module';
 import { IModuleInstance } from '../entities/ModuleInstance';
 import { IProduct } from '../entities/Product';
 import { IProductQuantity } from '../entities/ProductQuantity';
+import { IReview } from '../entities/Review';
 import { ISite } from '../entities/Site';
 import { IUser } from '../entities/User';
 
-type Payload = string | number | null | IAssignment | IAssignment[] | IAisle | IAisle[] | IAuditLog[] | IBay | IBay[] | ICollection | ICollection[] | ICustomer | IDelivery | IDelivery[] | IModule | IModule[] | IModuleInstance | IModuleInstance[] | IProduct | IProduct[] | IProductQuantity | ISite | ISite[] | IUser;
+type Payload = string | number | null | IAssignment | IAssignment[] | IAisle | IAisle[] | IAuditLog[] | IBay | IBay[] | ICollection | ICollection[] | ICustomer | IDelivery | IDelivery[] | IModule | IModule[] | IModuleInstance | IModuleInstance[] | IProduct | IProduct[] | IProductQuantity | IReview | IReview[] | ISite | ISite[] | IUser;
 
 export const respond = async (req: Request, res: Response, code: number, description: string, data?: Payload): Promise<void> => { 
 	let status;
