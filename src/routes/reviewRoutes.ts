@@ -8,16 +8,16 @@ import { generate405 } from '../helpers/respond';
 const router = Router();
 
 router.route('/review')
-.post(getCustomer, getProduct, reviewController.addReview)
-.all(generate405);
+	.post(getCustomer, getProduct, reviewController.addReview)
+	.all(generate405);
 router.route('/review/product/:ean')
-.get(getProduct, reviewController.getProductReviews)
-.all(generate405);
+	.get(getProduct, reviewController.getProductReviews)
+	.all(generate405);
 router.route('/review/customer/:customer')
-.get(getCustomer, reviewController.getCustomerReviews)
-.all(generate405);
+	.get(getCustomer, reviewController.getCustomerReviews)
+	.all(generate405);
 router.route('/review/:customer/:ean')
-.delete(isAdmin, getCustomer, getProduct, reviewController.deleteReviews)
-.all(generate405);
+	.delete(isAdmin, getCustomer, getProduct, reviewController.deleteReviews)
+	.all(generate405);
 
 export const reviewRoutes = router;

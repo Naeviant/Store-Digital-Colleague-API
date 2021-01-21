@@ -33,7 +33,7 @@ export const getProductReviews = async (req: Request, res: Response): Promise<vo
 	} catch (error) {
 		generate500(req, res, error);
 	}
-}
+};
 
 export const getCustomerReviews = async (req: Request, res: Response): Promise<void> => {
 	try {
@@ -46,7 +46,7 @@ export const getCustomerReviews = async (req: Request, res: Response): Promise<v
 	} catch (error) {
 		generate500(req, res, error);
 	}
-}
+};
 
 export const deleteReviews = async (req: Request, res: Response): Promise<void> => {
 	try {
@@ -57,4 +57,4 @@ export const deleteReviews = async (req: Request, res: Response): Promise<void> 
 	catch (error) {
 		generate500(req, res, error);
 	}
-}
+};
