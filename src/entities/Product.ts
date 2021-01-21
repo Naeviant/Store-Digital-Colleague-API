@@ -5,6 +5,7 @@ import { Collection, ICollectionProduct } from './Collection';
 import { Delivery, IDeliveryProduct } from './Delivery';
 import { Module, IModuleProduct } from './Module';
 import { ProductQuantity } from './ProductQuantity';
+import { Review } from './Review';
 
 export interface IProduct extends Document {
 	name: string;
@@ -66,6 +67,11 @@ productSchema.post('remove', (doc) => {
 	ProductQuantity.find({ product: doc._id }, async (err, quantities) => {
 		quantities.forEach(async quantity => {
 			quantity.remove();
+		});
+	});
+	Review.find({ product: doc._id }, async (err, reviews) => {
+		reviews.forEach(async review => {
+			review.remove();
 		});
 	});
 });
