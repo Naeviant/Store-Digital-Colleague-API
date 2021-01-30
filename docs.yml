@@ -1,0 +1,3349 @@
+openapi: 3.0.1
+info:
+  title: Store Digital Colleague API
+  description: An API to provide information about products in a store.
+  version: 2.0.0
+paths:
+  /:
+    head:
+      tags:
+      - API Status
+      summary: Test API Status
+      operationId: test
+      responses:
+        204:
+          description: API is Online
+  /authenticate:
+    post:
+      tags:
+      - Authentication
+      summary: Authenticate
+      operationId: auth
+      requestBody:
+        description: Login credentials.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: Login Username
+                  example: admin
+                password:
+                  type: string
+                  description: Login Password
+                  example: password
+      responses:
+        200:
+          description: Authentication Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: API Token
+                    example: xxxxx.yyyyy.zzzzz
+        401:
+          description: Credentials Invalid
+  /user:
+    get:
+      tags:
+      - Authentication
+      summary: Get Authenticated User
+      operationId: getAuthUser
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        200:
+          description: User Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        403:
+          description: Authorization Token Invalid
+  /collections:
+    post:
+      tags:
+      - Collections
+      summary: Add New Collection Order
+      operationId: addCollection
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The collection to create.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - status
+              - site
+              - customer
+              - products
+              properties:
+                status:
+                  type: string
+                  description: Status of Collection
+                  example: In Progress
+                  enum:
+                  - Not Started
+                  - In Progress
+                  - Awaiting Collection
+                  - Collected
+                site:
+                  type: number
+                  description: Site Code for Collection
+                  example: 1000
+                customer:
+                  type: number
+                  description: Customer Number for Collection
+                  example: 1000000000
+                products:
+                  type: array
+                  description: Products in Collection
+                  items:
+                    type: object
+                    properties:
+                      product:
+                        type: string
+                        description: EAN of Product in Collection
+                        example: '1234567890123'
+                      quantity:
+                        type: number
+                        description: Quantity of Product Required in Collection
+                        example: 2
+      responses:
+        201:
+          description: Collection Added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+  /collections/{collection}:
+    get:
+      tags:
+      - Collections
+      summary: Get Collection Order by Order Number
+      operationId: getCollection
+      parameters:
+        - in: path
+          name: collection
+          schema:
+            type: number
+            minimum: 2000000000
+            maximum: 2999999999
+          required: true
+          description: Collection Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        201:
+          description: Collection Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Collection Number Not Found
+    patch:
+      tags:
+      - Collections
+      summary: Update Collection Order
+      operationId: updateCollection
+      parameters:
+        - in: path
+          name: collection
+          schema:
+            type: number
+            minimum: 2000000000
+            maximum: 2999999999
+          required: true
+          description: Collection Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: Status of Collection
+                  example: In Progress
+                  enum:
+                  - Not Started
+                  - In Progress
+                  - Awaiting Collection
+                  - Collected
+                products:
+                  type: array
+                  description: Products in Collection
+                  items:
+                    type: object
+                    properties:
+                      product:
+                        type: string
+                        description: EAN of Product in Collection
+                        example: '1234567890123'
+                      quantity:
+                        type: number
+                        description: Quantity of Product Picked in Collection
+                        example: 2
+      responses:
+        200:
+          description: Collection Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Collection Number Not Found 
+    delete:
+      tags:
+      - Collections
+      summary: Delete Collection Order
+      operationId: deleteCollection
+      parameters:
+        - in: path
+          name: collection
+          schema:
+            type: number
+            minimum: 2000000000
+            maximum: 2999999999
+          required: true
+          description: Collection Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: Collection Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Collection Number Not Found 
+  /customers:
+    post:
+      tags:
+      - Customers
+      summary: Add New Customer
+      operationId: addCustomer
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:  
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - title
+              - firstName
+              - lastName
+              - email
+              - addressNumberName
+              - addressStreet1
+              - addressCity
+              - addressPostcode
+              - mobilePhone
+              properties:
+                title:
+                  type: string
+                  description: Customer's Title
+                  enum:
+                  - Mr
+                  - Mrs
+                  - Miss
+                  - Ms
+                  - Mx
+                firstName:
+                  type: string
+                  description: Customer's First Name
+                  example: John
+                lastName:
+                  type: string
+                  description: Customer's Last Name
+                  example: Smith
+                email:
+                  type: string
+                  format: EmailAddress
+                  description: Customer's Email Address
+                  example: example@example.com
+                addressNumberName:
+                  type: string
+                  description: House Number/Name of Customer's Address
+                  example: 1
+                addressStreet1:
+                  type: string
+                  description: Line 1 of Customer's Address
+                  example: Test Street
+                addressStreet2:
+                  type: string
+                  description: Line 2 of Customer's Address
+                  example: Test Street Continued
+                addressCity:
+                  type: string
+                  description: City of Customer's Address
+                  example: Test City
+                addressPostcode:
+                  type: string
+                  description: Postcode of Customer's Address
+                  example: AB12 3CD
+                mobilePhone:
+                  type: string
+                  format: MobileNumber
+                  description: Customer's Mobile Phone Number
+                  example: 07123456789
+      responses:
+        201:
+          description: Customer Created Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Customer Number Not Found
+  /customers/{customer}:
+    get:
+      tags:
+      - Customers
+      summary: Get Customer by Customer Number
+      operationId: getCustomer
+      parameters:
+        - in: path
+          name: customer
+          schema:
+            type: number
+            minimum: 1000000000
+            maximum: 1999999999
+          required: true
+          description: Customer Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        200:
+          description: Customer Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Customer Number Not Found
+    patch:
+      tags:
+      - Customers
+      summary: Update Customer
+      operationId: updateCustomer
+      parameters:
+        - in: path
+          name: customer
+          schema:
+            type: number
+            minimum: 1000000000
+            maximum: 1999999999
+          required: true
+          description: Customer Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Customer's Title
+                  enum:
+                  - Mr
+                  - Mrs
+                  - Miss
+                  - Ms
+                  - Mx
+                firstName:
+                  type: string
+                  description: Customer's First Name
+                  example: John
+                lastName:
+                  type: string
+                  description: Customer's Last Name
+                  example: Smith
+                email:
+                  type: string
+                  format: EmailAddress
+                  description: Customer's Email Address
+                  example: example@example.com
+                addressNumberName:
+                  type: string
+                  description: House Number/Name of Customer's Address
+                  example: 1
+                addressStreet1:
+                  type: string
+                  description: Line 1 of Customer's Address
+                  example: Test Street
+                addressStreet2:
+                  type: string
+                  description: Line 2 of Customer's Address
+                  example: Test Street Continued
+                addressCity:
+                  type: string
+                  description: City of Customer's Address
+                  example: Test City
+                addressPostcode:
+                  type: string
+                  description: Postcode of Customer's Address
+                  example: AB12 3CD
+                mobilePhone:
+                  type: string
+                  format: MobileNumber
+                  description: Customer's Mobile Phone Number
+                  example: 07123456789
+      responses:
+        200:
+          description: Customer Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Customer Number Not Found
+    delete:
+      tags:
+      - Customers
+      summary: Delete Customer
+      operationId: deleteCustomer
+      parameters:
+        - in: path
+          name: customer
+          schema:
+            type: number
+            minimum: 1000000000
+            maximum: 1999999999
+          required: true
+          description: Customer Number
+      responses:
+        204:
+          description: Customer Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Customer Number Not Found
+  /customers/{customer}/collections:
+    get:
+      tags:
+      - Customers
+      summary: Get Customer's Collection Orders
+      operationId: getCustomerCollections
+      parameters:
+        - in: path
+          name: customer
+          schema:
+            type: number
+            minimum: 1000000000
+            maximum: 1999999999
+          required: true
+          description: Customer Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        200:
+          description: Collections Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Collection'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Customer Number Not Found
+  /customers/{customer}/reviews:
+    get:
+      tags:
+      - Customers
+      summary: Get Customer's Product Reviews
+      operationId: getCustomerReviews
+      parameters:
+        - in: path
+          name: customer
+          schema:
+            type: number
+            minimum: 1000000000
+            maximum: 1999999999
+          required: true
+          description: Customer Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        200:
+          description: Reviews Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Review'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Customer Number Not Found
+  /deliveries:
+    post:
+      tags:
+      - Deliveries
+      summary: Create New Delivery
+      operationId: addDelivery
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The delivery to create.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - status
+              properties:
+                inbound:
+                  type: number
+                  description: The Inbound Site Code
+                  example: 1000
+                  minimum: 1000
+                  maximum: 9999
+                outbound:
+                  type: number
+                  description: The Inbound Site Code
+                  example: 1000
+                  minimum: 1000
+                  maximum: 9999
+                arrivesAt:
+                  type: string
+                  format: Date
+                  description: Timestamp of Delivery Due Date
+                  example: '2021-01-01T12:00:00.000Z'
+                products:
+                  type: array
+                  description: Products in Delivery
+                  items:
+                    type: object
+                    properties:
+                      product:
+                        type: string
+                        description: EAN/Barcode of Product
+                        example: '1234567890123'
+                      quantity:
+                        type: number
+                        description: Number of Product to be Delivered
+                        example: 2
+      responses:
+        201:
+          description: Delivery Created Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+  /deliveries/{delivery}:
+    get:
+      tags:
+      - Deliveries
+      summary: Get Delivery by Delivery Number
+      operationId: getDelivery
+      parameters:
+        - in: path
+          name: delivery
+          schema:
+            type: number
+            minimum: 3000000000
+            maximum: 3999999999
+          required: true
+          description: Delivery Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        200:
+          description: Delivery Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Delivery Number Not Found
+    patch:
+      tags:
+      - Deliveries
+      summary: Change Delivery Status
+      operationId: updateDelivery
+      parameters:
+        - in: path
+          name: delivery
+          schema:
+            type: number
+            minimum: 3000000000
+            maximum: 3999999999
+          required: true
+          description: Delivery Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - status
+              properties:
+                status:
+                  type: string
+                  description: Delivery Status
+                  example: In Transit
+                  enum:
+                  - Booked
+                  - In Transit
+                  - Completed
+      responses:
+        200:
+          description: Delivery Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Delivery Number Not Found
+    delete:
+      tags:
+      - Deliveries
+      summary: Delete Delivery
+      operationId: deleteDelivery
+      parameters:
+        - in: path
+          name: delivery
+          schema:
+            type: number
+            minimum: 3000000000
+            maximum: 3999999999
+          required: true
+          description: Delivery Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: Delivery Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Delivery Number Not Found
+  /locations:
+    post:
+      tags:
+      - Locations
+      summary: Add New Site
+      operationId: addSite
+      requestBody:
+        description: The site to create.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - code
+                - type
+              properties:
+                name:
+                  type: string
+                  description: Name of Site
+                  example: My Store
+                code:
+                  type: number
+                  description: ID Code of Site
+                  example: 1000
+                  maximum: 9999
+                  minimum: 1000
+                type:
+                  type: string
+                  description: Type of Site
+                  example: Store
+                  enum:
+                  - Store
+                  - Distribution Centre
+                  - Supplier
+      responses:
+        201:
+          description: Site Added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+        400:
+          description: Request Body Invalid
+        409:
+          description: Site Code Already in Use
+    get:
+      tags:
+      - Locations
+      summary: Get All Sites
+      operationId: getSites
+      responses:
+        200:
+          description: Sites Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Site'
+  /locations/{site}:
+    get:
+      tags:
+      - Locations
+      summary: Get Site by Site Code
+      operationId: getSite
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Site Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+        404:
+          description: Site Not Found
+    patch:
+      tags:
+      - Locations
+      summary: Update Site
+      operationId: updateSite
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of Site
+                  example: My Store
+                type:
+                  type: string
+                  description: Type of Site
+                  example: Store
+                  enum:
+                  - Store
+                  - Distribution Centre
+                  - Supplier
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Site Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+        400:
+          description: Invalid Request Body
+        404:
+          description: Site Not Found
+    delete:
+      tags:
+      - Locations
+      summary: Delete Site
+      operationId: deleteSite
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      responses:
+        204:
+          description: Site Deleted Successfully
+        404:
+          description: Site Not Found
+  /locations/{site}/aisles:
+    post:
+      tags:
+      - Locations
+      summary: Add New Aisle to Site
+      operationId: addAisle
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The aisle to add.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - name
+              - aisle
+              properties:
+                name:
+                  type: string
+                  description: A Name/Title for the Aisle
+                  example: Food
+                aisle:
+                  type: number
+                  description: The Aisle Number
+                  example: 1
+      responses:
+        201:
+          description: Aisle Added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Aisle' 
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site Not Found
+        409:
+          description: Aisle Number Already in Use
+    get:
+      tags:
+      - Locations
+      summary: Get All Aisles at Site
+      operationId: getAisles
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Aisles Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Aisle' 
+        404:
+          description: Site Not Found
+  /locations/{site}/aisles/{aisle}:
+    get:
+      tags:
+      - Locations
+      summary: Get Aisle at Site by Aisle Number
+      operationId: getAisle
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema: 
+            type: number
+          required: true
+          description: Aisle Number
+      responses:
+        200:
+          description: Aisles Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Aisle' 
+        404:
+          description: Site or Aisle Not Found
+    patch:
+      tags:
+      - Locations
+      summary: Update Aisle at Site
+      operationId: updateAisle
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: A Name/Title for the Aisle
+                  example: Food
+                aisle:
+                  type: number
+                  description: The Aisle Number
+                  example: 1
+      responses:
+        200:
+          description: Aisle Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Aisle' 
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site or Aisle Not Found
+        409:
+          description: Aisle Number Already in Use
+    delete:
+      tags:
+      - Locations
+      summary: Delete Aisle at Site
+      operationId: deleteAisle
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: Aisle Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404: 
+          description: Site or Aisle Not Found
+  /locations/{site}/aisles/{aisle}/bays:
+    post:
+      tags:
+      - Locations
+      summary: Add Bay to Aisle
+      operationId: addBay
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The bay to add.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - bay
+              - moduleLimit
+              - allowsMultiLocation
+              - allowsClearance
+              - allowsDisplay
+              - allowsOverstock
+              - allowsTopstock
+              - allowsStockroom
+              properties:
+                bay:
+                  type: number
+                  description: The Bay Number
+                  example: 1
+                moduleLimit:
+                  type: number
+                  description: The Number of Modules which the Bay Can Hold
+                  example: 2
+                allowsMultiLocations:
+                  type: boolean
+                  description: If Bay Accepts Multi-Location Assignments
+                  example: true
+                allowsClearance:
+                  type: boolean
+                  description: If Bay Accepts Clearance Assignments
+                  example: false
+                allowsDisplay:
+                  type: boolean
+                  description: If Bay Accepts Display Assignments
+                  example: false
+                allowsOverstock:
+                  type: boolean
+                  description: If Bay Accepts Overstock Assignments
+                  example: true
+                allowsTopstock:
+                  type: boolean
+                  description: If Bay Accepts Topstock Assignments
+                  example: true
+                allowsStockroom:
+                  type: boolean
+                  description: If Bay Accepts Stockroom Assignments
+                  example: false
+      responses:
+        201:
+          description: Bay Added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bay'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site or Aisle Not Found
+        409:
+          description: Bay Number Already in Use
+    get:
+      tags:
+      - Locations
+      summary: Get All Bays in Aisle
+      operationId: getBays
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+      responses:
+        200:
+          description: Bays Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bay'
+        404:
+          description: Site or Aisle Not Found
+  /locations/{site}/aisles/{aisle}/bays/{bay}:
+    get:
+      tags:
+      - Locations
+      summary: Get Bay in Aisle by Bay Number
+      operationId: getBay
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+      responses:
+        200:
+          description: Bay Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bay'
+        404:
+          description: Site, Aisle or Bay Not Found
+    patch:
+      tags:
+      - Locations
+      summary: Update Bay in Aisle
+      operationId: updateBay
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bay:
+                  type: number
+                  description: The Bay Number
+                  example: 1
+                moduleLimit:
+                  type: number
+                  description: The Number of Modules which the Bay Can Hold
+                  example: 2
+                allowsMultiLocations:
+                  type: boolean
+                  description: If Bay Accepts Multi-Location Assignments
+                  example: true
+                allowsClearance:
+                  type: boolean
+                  description: If Bay Accepts Clearance Assignments
+                  example: false
+                allowsDisplay:
+                  type: boolean
+                  description: If Bay Accepts Display Assignments
+                  example: false
+                allowsOverstock:
+                  type: boolean
+                  description: If Bay Accepts Overstock Assignments
+                  example: true
+                allowsTopstock:
+                  type: boolean
+                  description: If Bay Accepts Topstock Assignments
+                  example: true
+                allowsStockroom:
+                  type: boolean
+                  description: If Bay Accepts Stockroom Assignments
+                  example: false
+      responses:
+        200:
+          description: Bay Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bay'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site, Aisle or Bay Not Found
+        409:
+          description: Bay Number Already in Use
+    delete:
+      tags:
+      - Locations
+      summary: Delete Bay in Aisle
+      operationId: deleteBay
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: Bay Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+  /locations/{site}/aisles/{aisle}/bays/{bay}/assignments:
+    post:
+      tags:
+      - Locations
+      summary: Assign Product to Bay
+      operationId: addAssignment
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The product to assign and the assignment type.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product:
+                  type: string
+                  description: EAN/Barcode of Product
+                  example: '1234567890123'
+                type:
+                  type: string
+                  description: The Type of Assignment
+                  example: 'Multi-Location'
+                  enum:
+                  - Multi-Location
+                  - Display
+                  - Clearance
+                  - Overstock
+                  - Topstock
+                  - Stockroom
+      responses:
+        201:
+          description: Assignment Created Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site, Aisle or Bay Not Found
+        422:
+          description: Assignment Type Not Allowed in Bay
+    get:
+      tags:
+      - Locations
+      summary: Get Products Assigned to Bay
+      operationId: getAssignment
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+      responses:
+        200:
+          description: Assignments Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        404:
+          description: Site, Aisle or Bay Not Found
+  /locations/{site}/aisles/{aisle}/bays/{bay}/assignments/{product}:
+    delete:
+      tags:
+      - Locations
+      summary: Remove Product Assignment from Bay
+      operationId: deleteAssignment
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN/Barcode of Product
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: Assignment Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site, Aisle, Bay or Product Not Found
+        422:
+          description: Product is Not Assigned to Bay
+  /locations/{site}/aisles/{aisle}/bays/{bay}/modules:
+    post:
+      tags:
+      - Locations
+      summary: Assign Module to Bay
+      operationId: addModuleToBay
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The module to assign.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - module
+              properties:
+                module:
+                  type: string
+                  description: ID of Module
+                  example: MYMODULE
+      responses:
+        201:
+          description: Assignment Created Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleAtSite'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site, Aisle, Bay or Module Not Found
+        422:
+          description: Module Limit in Bay Exceeded
+    get:
+      tags:
+      - Locations
+      summary: Get Modules Assigned to Bay
+      operationId: getModulesInBay
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+      responses:
+        200:
+          description: Assignments Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        404:
+          description: Site, Aisle or Bay Not Found
+  /locations/{site}/aisles/{aisle}/bays/{bay}/modules/{module}:
+    delete:
+      tags:
+      - Locations
+      summary: Remove Module Assignment from Bay
+      operationId: deleteModuleFromBay
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: aisle
+          schema:
+            type: number
+          required: true
+          description: Aisle Number
+        - in: path
+          name: bay
+          schema:
+            type: number
+          required: true
+          description: Bay Number
+        - in: path
+          name: module
+          schema:
+            type: string
+          required: true
+          description: Module ID
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: Assignment Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site, Aisle, Bay or Module Not Found
+        422:
+          description: Module is Not Assigned to Bay
+  /locations/{site}/collections:
+    get:
+      tags:
+      - Locations
+      summary: Get Collection Orders at Site
+      operationId: getCollections
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        200:
+          description: Collections Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collection'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site Not Found
+  /locations/{site}/deliveries/inbound:
+    get:
+      tags:
+      - Locations
+      summary: Get Deliveries Arriving at Site
+      operationId: getInboundDeliveries
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Deliveries Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Delivery'
+        404:
+          description: Site Not Found
+  /locations/{site}/deliveries/outbound:
+    get:
+      tags:
+      - Locations
+      summary: Get Deliveries Leaving Site
+      operationId: getOutboundDeliveries
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Deliveries Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Delivery'
+        404:
+          description: Site Not Found
+  /locations/{site}/modules:
+    post:
+      tags:
+      - Locations
+      summary: Add Module to Site
+      operationId: addSiteModule
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The module to add.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - module
+              properties:
+                module:
+                  type: string
+                  description: ID of Module
+                  example: MYMODULE
+      responses:
+        201:
+          description: Module Added to Site Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleAtSite'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site or Module Not Found
+    get:
+      tags:
+      - Locations
+      summary: Get Modules at Site
+      operationId: getSiteModules
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Module Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModuleAtSite'
+        404:
+          description: Site Not Found
+  /locations/{site}/modules/{module}:
+    get:
+      tags:
+      - Locations
+      summary: Get Module at Site by Module ID
+      operationId: getSiteModule
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: module
+          schema:
+            type: string
+          required: true
+          description: Module ID
+      responses:
+        200:
+          description: Module Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleAtSite'
+        404:
+          description: Site or Module Not Found
+    delete:
+      tags:
+      - Locations
+      summary: Delete Module from Site
+      operationId: deleteSiteModule
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+        - in: path
+          name: module
+          schema:
+            type: string
+          required: true
+          description: Module ID
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: Module Deleted from Site Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Site or Module Not Found
+        422:
+          description: Module is Not Assigned to Site
+  /logs/{site}:
+    post:
+      tags:
+      - Logs
+      summary: Log an Action
+      operationId: newLog
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      requestBody:
+        description: The action to log.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - username
+              - action
+              properties:
+                username:
+                  type: string
+                  description: Username of User Whose Action is Being Logged
+                  example: SMITHJ01
+                action:
+                  type: string
+                  description: The Action to Log
+                  example: Changed Quantity of Product '1234567890123'
+      responses:
+        201:
+          description: Action Logged Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Log'
+        400:
+          description: Request Body Invalid
+        404:
+          description: Site Not Found
+    get:
+      tags:
+      - Logs
+      summary: Get Logs for Site
+      operationId: getLogs
+      parameters:
+        - in: path
+          name: site
+          schema:
+            type: number
+            minimum: 1000
+            maximum: 9999
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Logs Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Log'
+        404:
+          description: Site Not Found
+  /modules:
+    post:
+      tags:
+      - Modules
+      summary: Add New Module
+      operationId: newModule
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The module to create.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - id
+              - name
+              - startDate
+              - endDate
+              properties:
+                id:
+                  type: string
+                  description: ID of Module
+                  example: MYMODULE
+                name:
+                  type: string
+                  description: Name of Module
+                  example: My Module
+                startDate: 
+                  type: string
+                  format: Date
+                  description: Start Date of Module
+                  example: '2021-01-01T12:00:00.000Z'
+                endDate: 
+                  type: string
+                  format: Date
+                  description: End Date of Module
+                  example: '2021-12-31T12:00:00.000Z'
+      responses:
+        201:
+          description: Module Added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        409:
+          description: Module ID Already in Use
+    get:
+      tags:
+      - Modules
+      summary: Get All Modules
+      operationId: getModules
+      responses:
+        200:
+          description: Modules Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Module'
+  /modules/{module}:
+    get:
+      tags:
+      - Modules
+      summary: Get Module by Module ID
+      operationId: getModule
+      parameters:
+        - in: path
+          name: module
+          schema:
+            type: string
+          required: true
+          description: Module ID
+      responses:
+        200:
+          description: Module Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+        404:
+          description: Module Not Found
+    patch:
+      tags:
+      - Modules
+      summary: Update Module
+      operationId: updateModule
+      parameters:
+        - in: path
+          name: module
+          schema:
+            type: string
+          required: true
+          description: Module ID
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of Module
+                  example: My Module
+                startDate: 
+                  type: string
+                  format: Date
+                  description: Start Date of Module
+                  example: '2021-01-01T12:00:00.000Z'
+                endDate: 
+                  type: string
+                  format: Date
+                  description: End Date of Module
+                  example: '2021-12-31T12:00:00.000Z'
+      responses:
+        200:
+          description: Module Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Module Not Found
+    delete:
+      tags:
+      - Modules
+      summary: Delete Module
+      operationId: deleteModule
+      parameters:
+        - in: path
+          name: module
+          schema:
+            type: string
+          required: true
+          description: Module ID
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: Module Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Module Not Found
+  /modules/{module}/products:
+    post:
+      tags:
+      - Modules
+      summary: Add Product to Module
+      operationId: addModuleProduct
+      parameters:
+        - in: path
+          name: module
+          schema:
+            type: string
+          required: true
+          description: Module ID
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The product to add to module.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - product
+              - facings
+              properties:
+                product:
+                  type: string
+                  description: EAN/Barcode of Product
+                  example: '1234567890123'
+                facings:
+                  type: number
+                  description: Number of Facings of Product in Module
+                  example: 1
+                  minimum: 1
+                sequence:
+                  type: number
+                  description: Sequence of Product in Module
+                  example: 1
+                  minimum: 1
+      responses:
+        201:
+          description: Product Added to Module Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Module Not Found or Product is Not in Module
+  /modules/{module}/products/{sequence}:
+    delete:
+      tags:
+      - Modules
+      summary: Delete Product from Module
+      operationId: deleteModuleProduct
+      parameters:
+        - in: path
+          name: module
+          schema:
+            type: string
+          required: true
+          description: Module ID
+        - in: path
+          name: sequence
+          schema:
+            type: number
+            minimum: 1
+          required: true
+          description: Sequence of Product to Remove
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        200:
+          description: Product Deleted from Module Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Module Not Found
+        422:
+          description:
+            Product is Not in Module
+  /products:
+    post:
+      tags:
+      - Products
+      summary: Add New Product
+      operationId: addProduct
+      requestBody:
+        description: The product to create.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - ean
+                - price
+                - status
+                - ageRestricted
+              properties:
+                name:
+                  type: string
+                  description: Name of Product
+                  example: My Product
+                ean:
+                  type: string
+                  description: EAN/Barcode of Product
+                  example: '1234567890123'
+                price:
+                  type: number
+                  description: Price of Product
+                  example: 4.99
+                description:
+                  type: string
+                  description: Description of Product
+                  example: A Test Product
+                status:
+                  type: string
+                  description: Status of Product
+                  example: Live
+                  enum:
+                  - Live
+                  - Orders Blocked
+                  - Discontinued
+                ageRestricted:
+                  type: boolean
+                  description: If Product is Age Restricted
+                  example: false
+                info:
+                  type: array
+                  description: Specifications of the Product
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Name of the Specification
+                        example: Weight
+                      value:
+                        type: string
+                        description: Value of the Specification
+                        example: 1kg
+      responses:
+        201:
+          description: Product Added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Request Body Invalid
+        409:
+          description: EAN Already in Use
+    get:
+      tags:
+      - Products
+      summary: Get All Products
+      operationId: getProducts
+      responses:
+        200:
+          description: Products Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /products/{product}:
+    get:
+      tags:
+      - Products
+      summary: Get Product By EAN
+      operationId: getProduct
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+      responses:
+        200:
+          description: Product Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: Product Not Found
+    patch:
+      tags:
+      - Products
+      summary: Update Product
+      operationId: updateProduct
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of Product
+                  example: My Product
+                price:
+                  type: number
+                  description: Price of Product
+                  example: 4.99
+                description:
+                  type: string
+                  description: Description of Product
+                  example: A Test Product
+                status:
+                  type: string
+                  description: Status of Product
+                  example: Live
+                  enum:
+                  - Live
+                  - Orders Blocked
+                  - Discontinued
+                ageRestricted:
+                  type: boolean
+                  description: If Product is Age Restricted
+                  example: false
+                info:
+                  type: array
+                  description: Specifications of the Product
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Name of the Specification
+                        example: Weight
+                      value:
+                        type: string
+                        description: Value of the Specification
+                        example: 1kg
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+      responses:
+        200:
+          description: Product Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Invalid Request Body
+        404:
+          description: Product Not Found
+    delete:
+      tags:
+      - Products
+      summary: Delete Product
+      operationId: deleteProduct
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+      responses:
+        204:
+          description: Product Deleted Successfully
+        404:
+          description: Product Not Found
+  /products/{product}/assignments/{site}:
+    get:
+      tags:
+      - Products
+      summary: Get Locations Assignments of Product At Site
+      operationId: getProductAssignments
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+        - in: path
+          name: site
+          schema:
+            type: string
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Assignments Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        404:
+          description: Product Not Found
+  /products/{product}/deliveries/{site}:
+    get:
+      tags:
+      - Products
+      summary: Get Upcoming Deliveries of Product At Site
+      operationId: getProductDeliveries
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+        - in: path
+          name: site
+          schema:
+            type: string
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Deliveries Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Delivery'
+        404:
+          description: Product Not Found
+  /products/{product}/quantity/{site}:
+    get:
+      tags:
+      - Products
+      summary: Get Product Quantity At Site
+      operationId: getProductQuantity
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+        - in: path
+          name: site
+          schema:
+            type: string
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Product Quantity Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductQuantity'
+        404:
+          description: Product or Site Not Found
+    put:
+      tags:
+      - Products
+      summary: Update Product Quantity At Site
+      operationId: updateProductQuantity
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                method:
+                  type: string
+                  description: Method Used to Change Quantity
+                  example: set
+                  enum:
+                  - set
+                  - increment
+                  - decrement
+                  default: set
+                quantity:
+                  type: number
+                  description: New Product Quantity, or Amount to Change By
+                  example: 24
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+        - in: path
+          name: site
+          schema:
+            type: string
+          required: true
+          description: Site Code
+      responses:
+        200:
+          description: Product Quantity Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductQuantity'
+        400:
+          description: Request Body Invalid
+        404:
+          description: Product or Site Not Found
+  /products/{product}/reviews:
+    post:
+      tags:
+      - Products
+      summary: Add Review of Product
+      operationId: addProductReview
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+      requestBody:
+        description: The review to create.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - customerNumber
+              - rating
+              properties:
+                customerNumber:
+                  type: number
+                  description: Customer Number of Reviewing Customer
+                  example: 1000000000
+                  minimum: 1000000000
+                  maximum: 1999999999
+                rating:
+                  type: number
+                  description: A Star Rating for the Product
+                  example: 5
+                  minimum: 1
+                  maximum: 5
+                review:
+                  type: string
+                  description: A Text Review for the Product
+                  example: Incredible!
+      responses:
+        201:
+          description: Review Added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        400:
+          description: Request Body Invalid
+        404:
+          description: Product Not Found
+    get:
+      tags:
+      - Products
+      summary: Get Reviews of Product
+      operationId: getProductReviews
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+          description: EAN of Product
+      responses:
+        200:
+          description: Reviews Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        404:
+          description: Product Not Found
+  /users:
+    post:
+      tags:
+      - Users
+      summary: Add New User
+      operationId: newUser
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The user to create.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - firstName
+              - lastName
+              - username
+              - password
+              - userType
+              - site
+              properties:
+                firstName:
+                  type: string
+                  description: User's First Name
+                  example: John
+                lastName:
+                  type: string
+                  description: User's Last Name
+                  example: Smith
+                username:
+                  type: string
+                  description: User's Login Username
+                  example: SMITHJ01
+                password:
+                  type: string
+                  description: User's Password
+                  example: S0m3R@nd0mStr!ng
+                userType:
+                  type: string
+                  description: User's Account Type
+                  example: Salesperson
+                  enum:
+                  - Salesperson
+                  - Manager
+                  - Admin
+                site:
+                  type: number
+                  description: Site Code for Collection
+                  example: 1000
+      responses:
+        201:
+          description: User Added Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+  /users/{user}:
+    get:
+      tags:
+      - Users
+      summary: Get User by Username
+      operationId: getUser
+      parameters:
+        - in: path
+          name: user
+          schema:
+            type: string
+          required: true
+          description: Username
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        200:
+          description: User Retrieved Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Username Not Found
+    patch:
+      tags:
+      - Users
+      summary: Update User
+      operationId: updateUser
+      parameters:
+        - in: path
+          name: user
+          schema:
+            type: string
+          required: true
+          description: Username
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      requestBody:
+        description: The attributes to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  description: User's First Name
+                  example: John
+                lastName:
+                  type: string
+                  description: User's Last Name
+                  example: Smith
+                username:
+                  type: string
+                  description: User's Login Username
+                  example: SMITHJ01
+                password:
+                  type: string
+                  description: User's Password
+                  example: S0m3R@nd0mStr!ng
+                userType:
+                  type: string
+                  description: User's Account Type
+                  example: Salesperson
+                  enum:
+                  - Salesperson
+                  - Manager
+                  - Admin
+                site:
+                  type: number
+                  description: Site Code for Collection
+                  example: 1000
+      responses:
+        200:
+          description: User Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Request Body Invalid
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Username Not Found
+    delete:
+      tags:
+      - Users
+      summary: Delete User
+      operationId: deleteUser
+      parameters:
+        - in: path
+          name: user
+          schema:
+            type: string
+          required: true
+          description: Username
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Authorization Token
+      responses:
+        204:
+          description: User Deleted Successfully
+        401:
+          description: Authorization Token Does Not Allow Action
+        403:
+          description: Authorization Token Invalid
+        404:
+          description: Username Not Found
+      
+components:
+  schemas:
+    Aisle:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5fe7482d43ac916074cb0d82'
+        name:
+          type: string
+          description: A Name/Title for the Aisle
+          example: Food
+        aisle:
+          type: number
+          description: The Aisle Number
+          example: 1
+        site:
+          $ref: '#/components/schemas/Site'
+    Assignment:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5fe7482d43ac916074cb0d64'
+        bay:
+          $ref: '#/components/schemas/Bay'
+        product:
+          $ref: '#/components/schemas/Product'
+        type:
+          type: string
+          description: The Type of Assignment
+          example: 'Multi-Location'
+          enum:
+          - Multi-Location
+          - Display
+          - Clearance
+          - Overstock
+          - Topstock
+          - Stockroom
+    Bay:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5fe7807a0c519319c402342c'
+        bay:
+          type: number
+          description: The Bay Number
+          example: 1
+        moduleLimit:
+          type: number
+          description: The Number of Modules which the Bay Can Hold
+          example: 2
+        allowsMultiLocations:
+          type: boolean
+          description: If Bay Accepts Multi-Location Assignments
+          example: true
+        allowsClearance:
+          type: boolean
+          description: If Bay Accepts Clearance Assignments
+          example: false
+        allowsDisplay:
+          type: boolean
+          description: If Bay Accepts Display Assignments
+          example: false
+        allowsOverstock:
+          type: boolean
+          description: If Bay Accepts Overstock Assignments
+          example: true
+        allowsTopstock:
+          type: boolean
+          description: If Bay Accepts Topstock Assignments
+          example: true
+        allowsStockroom:
+          type: boolean
+          description: If Bay Accepts Stockroom Assignments
+          example: false
+        aisle:
+          $ref: '#/components/schemas/Aisle'
+    Customer:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5ff4b2085cec1f06cc316675'
+        customerNumber:
+          type: number
+          description: Customer Number
+          example: 1000000000
+          minimum: 1000000000
+          maximum: 1999999999
+        title:
+          type: string
+          description: Customer's Title
+          enum:
+          - Mr
+          - Mrs
+          - Miss
+          - Ms
+          - Mx
+        firstName:
+          type: string
+          description: Customer's First Name
+          example: John
+        lastName:
+          type: string
+          description: Customer's Last Name
+          example: Smith
+        email:
+          type: string
+          format: EmailAddress
+          description: Customer's Email Address
+          example: example@example.com
+        addressNumberName:
+          type: string
+          description: House Number/Name of Customer's Address
+          example: 1
+        addressStreet1:
+          type: string
+          description: Line 1 of Customer's Address
+          example: Test Street
+        addressStreet2:
+          type: string
+          description: Line 2 of Customer's Address
+          example: Test Street Continued
+        addressCity:
+          type: string
+          description: City of Customer's Address
+          example: Test City
+        addressPostcode:
+          type: string
+          description: Postcode of Customer's Address
+          example: AB12 3CD
+        mobilePhone:
+          type: string
+          format: MobileNumber
+          description: Customer's Mobile Phone Number
+          example: 07123456789
+    CustomerPublic:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5ff4b2085cec1f06cc316675'
+        customerNumber:
+          type: number
+          description: Customer Number
+          example: 1000000000
+          minimum: 1000000000
+          maximum: 1999999999
+        title:
+          type: string
+          description: Customer's Title
+          enum:
+          - Mr
+          - Mrs
+          - Miss
+          - Ms
+          - Mx
+        firstName:
+          type: string
+          description: Customer's First Name
+          example: John
+        lastName:
+          type: string
+          description: Customer's Last Name
+          example: Smith
+    Collection:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5ff4c610d77f4f42ac1ec81a'
+        collectionNumber:
+          type: number
+          description: Collection Number
+          example: 2000000000
+          minimum: 2000000000
+          maximum: 2999999999
+        status:
+          type: string
+          description: Status of Collection
+          example: In Progress
+          enum:
+          - Not Started
+          - In Progress
+          - Awaiting Collection
+          - Collected
+        placedAt:
+          type: string
+          format: Date
+          description: Timestamp of Collection Creation
+          example: '2021-01-01T12:00:00.000Z'
+        site:
+          $ref: '#/components/schemas/Site'
+        customer:
+          $ref: '#/components/schemas/Customer'
+        products:
+          type: array
+          description: Products in the Collection
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+                format: ObjectID
+                example: '5ff4c610d77f4f42ac1ec81c'
+              quantityOrdered:
+                type: number
+                description: The Quantity of the Product Ordered
+                example: 2
+              quantityPicked:
+                type: number
+                description: The Quantity of the Product Picked
+                example: 0
+              product:
+                $ref: '#/components/schemas/Product'
+    Delivery:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          description: Delivery ID
+          example: '5ff4c610d77f4f42ac1ec82a'
+        deliveryNumber:
+          type: number
+          description: Delivery Number
+          example: 3000000000
+          minimum: 3000000000
+          maximum: 3999999999
+        status:
+          type: string
+          description: Status of Delivery
+          example: In Transit
+          enum:
+          - Booked
+          - In Transit
+          - Completed
+        arriveAt:
+          type: string
+          format: Date
+          description: Delivery Due Date
+          example: '2021-01-01T12:00:00.000Z'
+        inbound:
+          $ref: '#/components/schemas/Site'
+        outbound:
+          $ref: '#/components/schemas/Site'
+        products:
+          type: array
+          description: Products in the Delivery
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+                format: ObjectID
+                example: '5ff4c610d77f4f42ac1ec81c'
+              quantity:
+                type: number
+                description: The Quantity of the Product to be Delivered
+                example: 2
+              product:
+                $ref: '#/components/schemas/Product'
+    Log:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '507f1f77bcf86cd79947953'
+        site:
+          $ref: '#/components/schemas/Site'
+        user:
+          $ref: '#/components/schemas/User'
+        action:
+          type: string
+          description: The Logged Action
+          example: Changed Quantity of Product '1234567890123'
+        timestamp:
+          type: string
+          format: Date
+          description: Start Date of Module
+          example: '2021-01-01T12:00:00.000Z'
+    Module:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '507f1f77bcf86cd799439011'
+        id:
+          type: string
+          description: ID of Module
+          example: MYMODULE
+        name:
+          type: string
+          description: Name of Module
+          example: My Module
+        startDate: 
+          type: string
+          format: Date
+          description: Start Date of Module
+          example: '2021-01-01T12:00:00.000Z'
+        endDate: 
+          type: string
+          format: Date
+          description: End Date of Module
+          example: '2021-12-31T12:00:00.000Z'
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              product:
+                $ref: '#/components/schemas/Product'
+              facings:
+                type: number
+                description: Number of Facings of Product in Module
+                example: 1
+                minimum: 1
+    ModuleAtSite:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5fea2c15df105a6b0cfb19f4'
+        module:
+          $ref: '#/components/schemas/Module'
+        site:
+          $ref: '#/components/schemas/Site'
+        bay:
+          $ref: '#/components/schemas/Bay'
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '507f1f77bcf86cd799439011'
+        name:
+          type: string
+          description: Name of Product
+          example: My Product
+        ean:
+          type: string
+          description: EAN/Barcode of Product
+          example: '1234567890123'
+        price:
+          type: number
+          description: Price of Product
+          example: 4.99
+        description:
+          type: string
+          description: Description of Product
+          example: A Test Product
+        status:
+          type: string
+          description: Status of Product
+          example: Live
+          enum:
+          - Live
+          - Orders Blocked
+          - Discontinued
+        ageRestricted:
+          type: boolean
+          description: If Product is Age Restricted
+          example: false
+        info:
+          type: array
+          description: Specifications of the Product
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the Specification
+                example: Weight
+              value:
+                type: string
+                description: Value of the Specification
+                example: 1kg
+    ProductQuantity:
+      type: object
+      properties:
+        product:
+          $ref: '#/components/schemas/Product'
+        site:
+          $ref: '#/components/schemas/Site'
+        quantity:
+          type: number
+          example: 3
+    Review:
+      type: object
+      properties:
+        customer:
+          $ref: '#/components/schemas/CustomerPublic'
+        product:  
+          $ref: '#/components/schemas/Product'
+        rating:
+          type: number
+          description: A Star Rating for the Product
+          example: 5
+          minimum: 1
+          maximum: 5
+        review:
+          type: string
+          description: A Text Review for the Product
+          example: Incredible!
+        timestamp:
+          type: string
+          format: Date
+          description: Timestamp of Review Creation
+          example: '2021-01-01T12:00:00.000Z'
+    Site:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5fe7481543ac916074cb0d81'
+        name:
+          type: string
+          description: Name of Product
+          example: My Store
+        code:
+          type: number
+          description: Site Code
+          example: 1000
+          minimum: 1000
+          maximum: 9999
+        type:
+          type: string
+          description: Type of Site
+          example: Store
+          enum:
+          - Store
+          - Distribution Centre
+          - Supplier
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectID
+          example: '5fe8d377fea6552688abeeb1'
+        firstName:
+          type: string
+          description: User's First Name
+          example: John
+        lastName:
+          type: string
+          description: User's Last Name
+          example: Smith
+        username:
+          type: string
+          description: User's Login Username
+          example: SMITHJ01
+        userType:
+          type: string
+          description: User's Account Type
+          example: Salesperson
+          enum:
+          - Salesperson
+          - Manager
+          - Admin
+        site:
+          $ref: '#/components/schemas/Site'
