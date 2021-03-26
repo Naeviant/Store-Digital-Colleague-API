@@ -27,14 +27,14 @@ export const addReview = async (req: Request, res: Response): Promise<void> => {
 export const getProductReviews = async (req: Request, res: Response): Promise<void> => {
 	try {
 		Review.find({ product: res.locals.product._id }, { _id: 0, __v: 0 })
-		.populate('customer', '_ id title firstName lastName customerNumber')
-		.populate('product')
-		.then((docs: IReview[]) => {
-			res.send(docs);
-		}, (error: Error & { name: string }) => {
-			if (error.name === 'CastError') res.sendStatus(404);
-			else send500(res, error);
-		});
+			.populate('customer', '_ id title firstName lastName customerNumber')
+			.populate('product')
+			.then((docs: IReview[]) => {
+				res.send(docs);
+			}, (error: Error & { name: string }) => {
+				if (error.name === 'CastError') res.sendStatus(404);
+				else send500(res, error);
+			});
 	} catch (error) {
 		send500(res, error);
 	}
@@ -43,14 +43,14 @@ export const getProductReviews = async (req: Request, res: Response): Promise<vo
 export const getCustomerReviews = async (req: Request, res: Response): Promise<void> => {
 	try {
 		Review.find({ customer: res.locals.customer._id })
-		.populate('customer', '_id title firstName lastName customerNumber')
-		.populate('product')
-		.then((docs: IReview[]) => {
-			res.send(docs);
-		}, (error: Error & { name: string }) => {
-			if (error.name === 'CastError') res.sendStatus(404);
-			else send500(res, error);
-		});
+			.populate('customer', '_id title firstName lastName customerNumber')
+			.populate('product')
+			.then((docs: IReview[]) => {
+				res.send(docs);
+			}, (error: Error & { name: string }) => {
+				if (error.name === 'CastError') res.sendStatus(404);
+				else send500(res, error);
+			});
 	} catch (error) {
 		send500(res, error);
 	}

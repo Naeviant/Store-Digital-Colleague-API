@@ -4,6 +4,7 @@ import { hash, compare } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { config } from '../helpers/config';
 import { User, IUser } from '../entities/User';
+import { ISite } from '../entities/Site';
 import { send500 } from '../helpers/responses';
 
 class UserUpdate {
@@ -21,7 +22,7 @@ interface UserResponse {
 	username: string;
 	password: string | undefined;
 	userType: string;
-	site: object;
+	site: ISite;
 }
 
 export const addUser = async (req: Request, res: Response): Promise<void> => {

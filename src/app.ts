@@ -1,4 +1,4 @@
-import express, { Router, Request, Response, NextFunction } from 'express';
+import express, { Router, Request, Response } from 'express';
 import { config } from './helpers/config';
 import { makeConnection } from './helpers/makeConnection';
 

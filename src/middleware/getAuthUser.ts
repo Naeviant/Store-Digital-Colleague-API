@@ -7,18 +7,18 @@ export const getAuthUser = async (req: Request, res: Response, next: NextFunctio
 	try {
 		const auth = req.header('Authorization');
 		if (auth) {			
-			const decoded: object & { password?: string, __v?: number, iat?: number } = verify(auth, config.jwtSecret) as any;
+			const decoded: & { password?: string, __v?: number, iat?: number } = verify(auth, config.jwtSecret) as & { password?: string, __v?: number, iat?: number };
 			if (decoded) {
-                decoded['password'] = undefined;
-                decoded['__v'] = undefined;
-                decoded['iat'] = undefined;
-                res.locals.authUser = decoded;
-                console.log(res.locals);
-                next();
-            }
-			else res.sendStatus(401)
+				decoded['password'] = undefined;
+				decoded['__v'] = undefined;
+				decoded['iat'] = undefined;
+				res.locals.authUser = decoded;
+				console.log(res.locals);
+				next();
+			}
+			else res.sendStatus(401);
 		}
-		else res.sendStatus(401)
+		else res.sendStatus(401);
 	}
 	catch (error) {
 		send500(res, error);
