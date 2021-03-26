@@ -13,7 +13,6 @@ export const getAuthUser = async (req: Request, res: Response, next: NextFunctio
 				decoded['__v'] = undefined;
 				decoded['iat'] = undefined;
 				res.locals.authUser = decoded;
-				console.log(res.locals);
 				next();
 			}
 			else res.sendStatus(401);
