@@ -119,3 +119,12 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
 		send500(res, error);
 	}
 };
+
+export const getAuthUser = async (req: Request, res: Response): Promise<void> => {
+	try {
+		res.send(res.locals.authUser);
+	}
+	catch (error) {
+		send500(res, error);
+	}
+};

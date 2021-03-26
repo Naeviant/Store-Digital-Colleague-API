@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as userController from '../controllers/userController';
 import { isAdmin } from '../middleware/auth';
+import { getAuthUser } from '../middleware/getAuthUser';
 import { getSite } from '../middleware/getSite';
 import { send405 } from '../helpers/responses';
 
@@ -10,7 +11,7 @@ router.route('/authenticate/')
 	.post(userController.authenticate)
 	.all(send405);
 router.route('/user/')
-	// TODO
+	.get(getAuthUser, userController.getAuthUser)
 	.all(send405);
 router.route('/users')
 	.post(isAdmin, getSite, userController.addUser)
