@@ -16,6 +16,6 @@ const reviewSchema = new Schema({
 	rating: { type: Number, required: true, min: 1, max: 5 },
 	review: { type: String },
 	timestamp: { type: Date, required: true }
-});
+}, { versionKey: false });
 
 export const Review = model <IReview>('Review', reviewSchema);

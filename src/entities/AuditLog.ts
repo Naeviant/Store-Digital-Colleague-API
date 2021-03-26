@@ -14,6 +14,6 @@ const auditLogSchema = new Schema({
 	site: { type: Schema.Types.ObjectId, ref: 'Site', required: true },
 	action: { type: String, required: true },
 	timestamp: { type: Date, required: true }
-});
+}, { versionKey: false });
 
 export const AuditLog = model <IAuditLog>('AuditLog', auditLogSchema);

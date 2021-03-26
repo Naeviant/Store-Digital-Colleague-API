@@ -33,7 +33,7 @@ const productSchema = new Schema({
 		name: { type: String, required: true },
 		value: { type: String, required: true } 
 	}]
-});
+}, { versionKey: false });
 
 productSchema.post('save', (doc) => {
 	Site.find({}, async (err, sites) => {

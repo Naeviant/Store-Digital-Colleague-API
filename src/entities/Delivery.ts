@@ -21,7 +21,7 @@ export interface IDelivery extends Document {
 const deliveryProductSchema = new Schema({
 	product: { type: Schema.Types.ObjectId, required: true, ref: 'Product' },
 	quantity: { type: Number, required: true }
-});
+}, { versionKey: false });
 
 const deliverySchema = new Schema({
 	deliveryNumber: { type: Number, min: 3000000000, max: 3999999999, required: true },
@@ -30,7 +30,7 @@ const deliverySchema = new Schema({
 	status: { type: String, required: true, enum: ['Booked', 'In Transit', 'Completed'] },
 	products: [deliveryProductSchema],
 	arrivesAt: { type: Date, required: true }
-});
+}, { versionKey: false });
 
 deliverySchema.pre('validate', async function() {
 	if (this.isNew) {

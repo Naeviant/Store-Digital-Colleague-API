@@ -4,7 +4,7 @@ import validator from 'validator';
 import { config } from '../helpers/config';
 import { Customer, ICustomer } from '../entities/Customer';
 import { Counter } from '../entities/Counter';
-import { respond, generate500 } from '../helpers/respond';
+import { send500 } from '../helpers/responses';
 
 class CustomerUpdate {
 	title?: string;
@@ -20,39 +20,55 @@ class CustomerUpdate {
 	mobilePhone?: string;
 }
 
+interface CustomerResponse {
+	title: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	password?: string | undefined;
+	addressNumberName: string;
+	addressStreet1: string;
+	addressStreet2?: string;
+	addressCity: string;
+	addressPostcode: string;
+	mobilePhone: string;
+	customerNumber: number;
+}
+
 export const addCustomer = async (req: Request, res: Response): Promise<void> => {
 	try {
-		if (!req.body.email || !validator.isEmail(req.body.email)) respond(req, res, 400, 'Invalid Request Body');
-		else if (!req.body.mobilePhone || !validator.isMobilePhone(req.body.mobilePhone, 'en-GB')) respond(req, res, 400, 'Invalid Request Body');
-		else if (!req.body.addressPostcode || !validator.isPostalCode(req.body.addressPostcode, 'GB')) respond(req, res, 400, 'Invalid Request Body');
+		if (!req.body.email || !validator.isEmail(req.body.email)) res.sendStatus(400);
+		else if (!req.body.mobilePhone || !validator.isMobilePhone(req.body.mobilePhone, 'en-GB')) res.sendStatus(400);
+		else if (!req.body.addressPostcode || !validator.isPostalCode(req.body.addressPostcode, 'GB')) res.sendStatus(400);
 		else hash(req.body.password, 10, (error: Error, hashedPassword: string) => {
 			req.body.password = hashedPassword;
 			const newCustomer = new Customer(req.body);
-			newCustomer.save().then((doc: ICustomer) => {
-				respond(req, res, 201, 'Customer Added Successfully', doc.customerNumber);
+			newCustomer.save().then((doc: CustomerResponse) => {
+				doc.password = undefined;
+				res.send(doc);
 			}, async (error: Error & { name: string, code: number }) => {
 				await Counter.findByIdAndUpdate(config.customerCounter, { $inc: { seq: -1 } });
-				if (error.code === 11000) respond(req, res, 409, 'Customer Number Already in Use');
-				else if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
-				else generate500(req, res, error);
+				if (error.code === 11000) res.sendStatus(409);
+				else if (error.name === 'ValidationError') res.sendStatus(400);
+				else send500(res, error);
 			});
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
 export const getCustomer = async (req: Request & { params: { customer: number } }, res: Response): Promise<void> => {
 	try {
 		Customer.findOne({ customerNumber: req.params.customer }, { password: 0, __v: 0 }).then((doc: ICustomer | null) => {
-			if (!doc) respond(req, res, 404, 'Customer Not Found');
-			else respond(req, res, 200, 'Customer Retrieved Successfully', doc);
+			if (!doc) res.sendStatus(404);
+			else res.send(doc);
 		}, (error: Error & { name: string }) => {
-			if (error.name === 'CastError') respond(req, res, 404, 'Customer Not Found');
-			else generate500(req, res, error);
+			if (error.name === 'CastError') res.sendStatus(404);
+			else send500(res, error);
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
@@ -70,18 +86,17 @@ export const updateCustomer = async (req: Request & { params: { customer: number
 		if (req.body.mobilePhone && validator.isMobilePhone(req.body.mobilePhone, 'en-GB')) update.mobilePhone = req.body.mobilePhone;
 		if (req.body.addressPostcode && validator.isPostalCode(req.body.addressPostcode, 'GB')) update.addressPostcode = req.body.addressPostcode;
 		if (req.body.password) update.password = await hash(req.body.password, 10);
-		if (Object.keys(update).length === 0) respond(req, res, 400, 'Invalid Request Body');
-		else Customer.updateOne({ customerNumber: req.params.customer }, { '$set': update }, { runValidators: true }).then((docs: { n: number, nModified: number }) => {
-			if (docs.n === 0) respond(req, res, 400, 'Invalid Customer Number Provided');
-			else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
-			else respond(req, res, 200, 'Customer Updated Successfully');
+		if (Object.keys(update).length === 0) res.sendStatus(400);
+		else Customer.findOneAndUpdate({ customerNumber: req.params.customer }, { '$set': update }, { runValidators: true, new: true }).then((doc: CustomerResponse | null) => {
+			if (!doc) res.sendStatus(404);
+			else res.send(doc);
 		}, (error: Error & { name: string }) => {
-			if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
-			else if (error.name === 'CastError') respond(req, res, 400, 'Invalid Customer Number Provided');
-			else generate500(req, res, error);
+			if (error.name === 'ValidationError') res.sendStatus(400);
+			else if (error.name === 'CastError') res.sendStatus(404);
+			else send500(res, error);
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
@@ -90,14 +105,14 @@ export const deleteCustomer = async (req: Request & { params: { customer: number
 		Customer.findOne({ customerNumber: req.params.customer }).then(async (doc: ICustomer | null) => {
 			if (doc) {
 				await doc.remove();
-				respond(req, res, 200, 'Customer Deleted Successfully');
+				res.sendStatus(204);
 			}
-			else respond(req, res, 400, 'Invalid Customer Number Provided');
+			else res.sendStatus(404);
 		}, (error: Error & { name: string }) => {
-			if (error.name === 'CastError') respond(req, res, 400, 'Invalid Customer Number Provided');
-			else generate500(req, res, error);
+			if (error.name === 'CastError') res.sendStatus(404);
+			else send500(res, error);
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };

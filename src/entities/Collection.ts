@@ -24,7 +24,7 @@ const collectionProductSchema = new Schema({
 	product: { type: Schema.Types.ObjectId, required: true, ref: 'Product' },
 	quantityOrdered: { type: Number, required: true },
 	quantityPicked: { type: Number, required: true }
-});
+}, { versionKey: false });
 
 const collectionSchema = new Schema({
 	collectionNumber: { type: Number, min: 2000000000, max: 2999999999, required: true },
@@ -33,7 +33,7 @@ const collectionSchema = new Schema({
 	site: { type: Schema.Types.ObjectId, required: true, ref: 'Site' },
 	products: [collectionProductSchema],
 	placedAt: { type: Date, required: true }
-});
+}, { versionKey: false });
 
 collectionSchema.pre('validate', async function() {
 	if (this.isNew) {

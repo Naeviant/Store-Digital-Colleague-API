@@ -2,22 +2,23 @@ import { Router } from 'express';
 import * as userController from '../controllers/userController';
 import { isAdmin } from '../middleware/auth';
 import { getSite } from '../middleware/getSite';
-import { generate405 } from '../helpers/respond';
+import { send405 } from '../helpers/responses';
 
 const router = Router();
 
-router.route('/user')
+router.route('/authenticate/')
+	.post(userController.authenticate)
+	.all(send405);
+router.route('/user/')
+	// TODO
+	.all(send405);
+router.route('/users')
 	.post(isAdmin, getSite, userController.addUser)
-	.all(generate405);
-
-router.route('/user/:username')
+	.all(send405);
+router.route('/users/:username')
 	.get(userController.getUser)
 	.patch(isAdmin, userController.updateUser)
 	.delete(isAdmin, userController.deleteUser)
-	.all(generate405);
-
-router.route('/authenticate/')
-	.post(userController.authenticate)
-	.all(generate405);
+	.all(send405);
 
 export const userRoutes = router;

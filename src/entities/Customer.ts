@@ -32,7 +32,7 @@ const customerSchema = new Schema({
 	addressCity: { type: String, required: true },
 	addressPostcode: { type: String, required: true },
 	mobilePhone: { type: String, required: true }
-});
+}, { versionKey: false });
 
 customerSchema.pre('validate', async function() {
 	if (this.isNew) {

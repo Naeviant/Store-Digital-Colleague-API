@@ -13,6 +13,6 @@ const moduleInstanceSchema = new Schema({
 	module: { type: Schema.Types.ObjectId, ref: 'Module', required: true },
 	site: { type: Schema.Types.ObjectId, ref: 'Site', required: true },
 	bay: { type: Schema.Types.ObjectId, ref: 'Bay' }
-});
+}, { versionKey: false });
 
 export const ModuleInstance = model <IModuleInstance>('ModuleInstance', moduleInstanceSchema);

@@ -1,20 +1,15 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
 import { config } from './helpers/config';
 import { makeConnection } from './helpers/makeConnection';
-import { respond } from './helpers/respond';
-import { productRoutes } from './routes/productRoutes';
-import { productQuantityRoutes } from './routes/productQuantityRoutes';
-import { siteRoutes } from './routes/siteRoutes';
-import { locationRoutes } from './routes/locationRoutes';
-import { assignmentRoutes } from './routes/assignmentRoutes';
-import { userRoutes } from './routes/userRoutes';
-import { moduleRoutes } from './routes/moduleRoutes';
-import { moduleInstanceRoutes } from './routes/moduleInstanceRoutes';
-import { customerRoutes } from './routes/customerRoutes';
-import { collectionRoutes } from './routes/collectionRoutes';
-import { deliveryRoutes } from './routes/deliveryRoutes';
-import { auditLogRoutes } from './routes/auditLogRoutes';
-import { reviewRoutes } from './routes/reviewRoutes';
+
+import { collectionRoutes } from './routes/collections';
+import { customerRoutes } from './routes/customers';
+import { deliveryRoutes } from './routes/deliveries';
+import { locationRoutes } from './routes/locations';
+import { logRoutes } from './routes/logs';
+import { moduleRoutes } from './routes/modules';
+import { productRoutes } from './routes/products';
+import { userRoutes } from './routes/users';
 
 const app = express();
 const router = Router();
@@ -22,27 +17,18 @@ app.use(express.json());
 app.use('/api', router);
 makeConnection();
 
-router.get('/', async (req: Request, res: Response) => {
-	respond(req, res, 200, 'API Online');
+router.head('/', async (req: Request, res: Response) => {
+	res.sendStatus(204);
 });
 
-router.use(productQuantityRoutes);
-router.use(productRoutes);
-router.use(siteRoutes);
-router.use(locationRoutes);
-router.use(assignmentRoutes);
-router.use(userRoutes);
-router.use(moduleInstanceRoutes);
-router.use(moduleRoutes);
-router.use(customerRoutes);
 router.use(collectionRoutes);
+router.use(customerRoutes);
 router.use(deliveryRoutes);
-router.use(auditLogRoutes);
-router.use(reviewRoutes);
-
-router.all('*', (req: Request, res: Response) => {
-	respond(req, res, 404, `Cannot ${req.method} ${req.path}`);
-});
+router.use(locationRoutes);
+router.use(logRoutes);
+router.use(moduleRoutes);
+router.use(productRoutes);
+router.use(userRoutes);
 
 app.listen(config.port, () => {
 	console.log(`Listening on Port ${config.port}`);

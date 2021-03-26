@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import { config } from '../helpers/config';
 import { Delivery, IDelivery, DeliveryProduct, } from '../entities/Delivery';
 import { Counter } from '../entities/Counter';
-import { respond, generate500 } from '../helpers/respond';
+import { send500 } from '../helpers/responses';
 
 class DeliveryQuery {
 	inbound?: number;
@@ -12,10 +12,10 @@ class DeliveryQuery {
 
 export const addDelivery = async (req: Request, res: Response): Promise<void> => {
 	try {
-		axios.get(`${config.base}/site/${req.body.outbound}`).then((response: AxiosResponse) => {
-			const outbound = response.data.data;
-			axios.get(`${config.base}/site/${req.body.inbound}`).then(async (response: AxiosResponse) => {
-				const inbound = response.data.data;
+		axios.get(`${config.base}/locations/${req.body.outbound}`).then((response: AxiosResponse) => {
+			const outbound = response.data;
+			axios.get(`${config.base}/locations/${req.body.inbound}`).then(async (response: AxiosResponse) => {
+				const inbound = response.data;
 				const newDelivery = new Delivery({
 					status: 'Booked',
 					inbound: inbound._id,
@@ -24,52 +24,52 @@ export const addDelivery = async (req: Request, res: Response): Promise<void> =>
 					products: []
 				});
 				for (const product of req.body.products) {
-					const response = await axios.get(`${config.base}/product/${product.ean}`).catch(() => { return; });
+					const response = await axios.get(`${config.base}/products/${product.product}`).catch(() => { return; });
 					if (response && product.quantity > 0) {
-						const newDeliveryProduct = await new DeliveryProduct({
-							product: response.data.data._id,
+						const newDeliveryProduct = new DeliveryProduct({
+							product: response.data._id,
 							quantity: product.quantity
 						});
 						newDelivery.products.push(newDeliveryProduct);
 					}
 				}
-				if (newDelivery.products.length === 0) respond(req, res, 400, 'Invalid Request Body');
+				if (newDelivery.products.length === 0) res.sendStatus(400);
 				else newDelivery.save().then((doc: IDelivery) => {
-					respond(req, res, 201, 'Delivery Added Successfully', doc.deliveryNumber);
+					res.status(201).send(doc);
 				}, async (error: Error & { name: string, code: number }) => {
 					await Counter.findByIdAndUpdate(config.deliveryCounter, { $inc: { seq: -1 } });
-					if (error.code === 11000) respond(req, res, 409, 'Delivery Number Already in Use');
-					else if (error.name === 'ValidationError' || error.name === 'CastError') respond(req, res, 400, 'Invalid Request Body');
-					else generate500(req, res, error);
+					if (error.code === 11000) res.sendStatus(409);
+					else if (error.name === 'ValidationError' || error.name === 'CastError') res.sendStatus(400);
+					else send500(res, error);
 				});
 			}).catch((error: Error & { response: { status: number } }) => {
-				if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Invalid Inbound Site Code Provided');
-				else generate500(req, res, error);
+				if (error.response.status === 404 || error.response.status === 400) res.sendStatus(400);
+				else send500(res, error);
 			});
 		}).catch((error: Error & { response: { status: number } }) => {
-			if (error.response.status === 404 || error.response.status === 400) respond(req, res, 400, 'Invalid Outbound Site Code Provided');
-			else generate500(req, res, error);
+			if (error.response.status === 404 || error.response.status === 400) res.sendStatus(400);
+			else send500(res, error);
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
 export const getDelivery = async (req: Request & { params: { delivery: number } }, res: Response): Promise<void> => {
 	try {
-		Delivery.findOne({ deliveryNumber: req.params.delivery }, { __v: 0 })
-			.populate('inbound', '-__v')
-			.populate('outbound', '-__v')
-			.populate('products.product', '-__v')
+		Delivery.findOne({ deliveryNumber: req.params.delivery })
+			.populate('inbound')
+			.populate('outbound')
+			.populate('products.product')
 			.then((doc: IDelivery | null) => {
-				if (!doc) respond(req, res, 404, 'Delivery Not Found', doc);
-				else respond(req, res, 200, 'Delivery Retrieved Successfully', doc);
+				if (!doc) res.sendStatus(404);
+				else res.send(200);
 			}, (error: Error & { name: string }) => {
-				if (error.name === 'CastError') respond(req, res, 400, 'Invalid Delivery Number Provided');
-				else generate500(req, res, error);
+				if (error.name === 'CastError') res.sendStatus(404);
+				else send500(res, error);
 			});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
@@ -78,45 +78,44 @@ export const getDeliveriesForSite = async (req: Request, res: Response): Promise
 		const query = {} as DeliveryQuery;
 		if (req.params.type === 'inbound') query.inbound = res.locals.site._id;
 		else query.outbound = res.locals.site._id;
-		Delivery.find(query, { _id: 0, __v: 0, 'products._id': 0 })
-			.populate('inbound', '-__v')
-			.populate('outbound', '-__v')
-			.populate('products.product', '-__v')
+		Delivery.find(query)
+			.populate('inbound')
+			.populate('outbound')
+			.populate('products.product')
 			.then((docs: IDelivery[]) => {
-				respond(req, res, 200, 'Deliveries Retrieved Successfully', docs);
+				res.send(docs);
 			});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
 export const getProductDeliveriesForSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		Delivery.find({ inbound: res.locals.site._id }, { _id: 0, __v: 0, 'products._id': 0 })
-			.populate('inbound', '-__v')
-			.populate('outbound', '-__v')
-			.populate('products.product', '-__v')
+		Delivery.find({ inbound: res.locals.site._id })
+			.populate('inbound')
+			.populate('outbound')
+			.populate('products.product')
 			.then((docs: IDelivery[]) => {
 				docs = (docs ?? []).filter(x => { return x.products.map((y: & { product: { ean: string } }) => { return y.product.ean; }).indexOf(req.params.ean) > -1; });
-				respond(req, res, 200, 'Deliveries Retrieved Successfully', docs);
+				res.send(docs);
 			});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
 export const updateDelivery = async (req: Request & { params: { delivery: number } }, res: Response): Promise<void> => {
 	try {
-		Delivery.updateOne({ deliveryNumber: req.params.delivery }, { '$set': { status: req.body.status } }).then((docs: { n: number, nModified: number }) => {
-			if (docs.n === 0) respond(req, res, 400, 'Invalid Delivery Number Provided');
-			else if (docs.nModified === 0) respond(req, res, 200, 'No Changes Required');
-			else respond(req, res, 200, 'Delivery Updated Successfully');
+		Delivery.findOneAndUpdate({ deliveryNumber: req.params.delivery }, { '$set': { status: req.body.status } }).then((doc: IDelivery | null) => {
+			if (!doc) res.sendStatus(404);
+			else res.send(doc);
 		}, (error: Error & { name: string }) => {
-			if (error.name === 'ValidationError' || error.name === 'CastError') respond(req, res, 400, 'Invalid Request Body');
-			else generate500(req, res, error);
+			if (error.name === 'ValidationError' || error.name === 'CastError') res.sendStatus(400);
+			else send500(res, error);
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
@@ -125,14 +124,14 @@ export const deleteDelivery = async (req: Request & { params: { delivery: number
 		Delivery.findOne({ deliveryNumber: req.params.delivery }).then(async (doc: IDelivery | null) => {
 			if (doc) {
 				await doc.remove();
-				respond(req, res, 200, 'Delivery Deleted Successfully');
+				res.sendStatus(204);
 			}
-			else respond(req, res, 400, 'Invalid Delivery Number Provided');
+			else res.sendStatus(404);
 		}, (error: Error & { name: string }) => {
-			if (error.name === 'CastError') respond(req, res, 400, 'Invalid Delivery Number Provided');
-			else generate500(req, res, error);
+			if (error.name === 'CastError') res.sendStatus(404);
+			else send500(res, error);
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };

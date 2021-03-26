@@ -17,7 +17,7 @@ export interface IModule extends Document {
 const moduleProductSchema = new Schema({
 	product: { type: Schema.Types.ObjectId, required: true },
 	facings: { type: Number, required: true }
-});
+}, { versionKey: false });
 
 const moduleSchema = new Schema({
 	discriminator: { type: String, required: true, unique: true, uppercase: true, regex: /^\S+$/ },
@@ -25,7 +25,7 @@ const moduleSchema = new Schema({
 	products: [moduleProductSchema],
 	startDate: { type: Date, required: true },
 	endDate: { type: Date, required: true }
-});
+}, { versionKey: false });
 
 export const Module = model <IModule>('Module', moduleSchema);
 export const ModuleProduct = model <IModuleProduct>('ModuleProduct', moduleProductSchema);

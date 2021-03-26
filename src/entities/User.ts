@@ -18,7 +18,7 @@ const userSchema = new Schema({
 	password: { type: String, required: true },
 	userType: { type: String, required: true, enum: ['Admin', 'Manager', 'Salesperson'] },
 	site: { type: Schema.Types.ObjectId, required: true, ref: 'Site' }
-});
+}, { versionKey: false });
 
 userSchema.post('remove', (doc) => {
 	AuditLog.find({ user: doc._id }, async (err, logs) => {

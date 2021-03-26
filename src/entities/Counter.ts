@@ -6,6 +6,6 @@ export interface ICounter extends Document {
 
 const counterSchema = new Schema({
 	seq: { type: Number, default: 0 }
-});
+}, { versionKey: false });
 
 export const Counter = model <ICounter>('Counter', counterSchema);

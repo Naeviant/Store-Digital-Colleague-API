@@ -3,7 +3,7 @@ import axios from 'axios';
 import { config } from '../helpers/config';
 import { Collection, ICollection, CollectionProduct, } from '../entities/Collection';
 import { Counter } from '../entities/Counter';
-import { respond, generate500 } from '../helpers/respond';
+import { send500 } from '../helpers/responses';
 
 export const addCollection = async (req: Request, res: Response): Promise<void> => {
 	try {
@@ -15,97 +15,97 @@ export const addCollection = async (req: Request, res: Response): Promise<void> 
 			products: []
 		});
 		for (const product of req.body.products) {
-			const response = await axios.get(`${config.base}/product/${product.ean}`).catch(() => { return; });
+			const response = await axios.get(`${config.base}/products/${product.product}`).catch(() => { return; });
 			if (response && product.quantity > 0) {
-				const newCollectionProduct = await new CollectionProduct({
-					product: response.data.data._id,
+				const newCollectionProduct = new CollectionProduct({
+					product: response.data._id,
 					quantityOrdered: product.quantity,
 					quantityPicked: 0
 				});
 				newCollection.products.push(newCollectionProduct);
 			}
 		}
-		if (newCollection.products.length === 0) respond(req, res, 400, 'Invalid Request Body');
+		if (newCollection.products.length === 0) res.sendStatus(400);
 		else newCollection.save().then((doc: ICollection) => {
-			respond(req, res, 201, 'Collection Added Successfully', doc.collectionNumber);
+			res.status(201).send(doc);
 		}, async (error: Error & { name: string, code: number }) => {
 			await Counter.findByIdAndUpdate(config.collectionCounter, { $inc: { seq: -1 } });
-			if (error.code === 11000) respond(req, res, 409, 'Collection Number Already in Use');
-			else if (error.name === 'ValidationError') respond(req, res, 400, 'Invalid Request Body');
-			else generate500(req, res, error);
+			if (error.code === 11000) res.sendStatus(409);
+			else if (error.name === 'ValidationError') res.sendStatus(400);
+			else send500(res, error);
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
 export const getCollection = async (req: Request & { params: { collection: number } }, res: Response): Promise<void> => {
 	try {
-		Collection.findOne({ collectionNumber: req.params.collection }, { __v: 0 })
-			.populate('site', '-__v')
-			.populate('customer', '-__v -password')
-			.populate('products.product', '-__v')
+		Collection.findOne({ collectionNumber: req.params.collection })
+			.populate('site')
+			.populate('customer', '_id title firstName lastName customerNumber')
+			.populate('products.product')
 			.then((doc: ICollection | null) => {
-				if (!doc) respond(req, res, 404, 'Collection Not Found', doc);
-				else respond(req, res, 200, 'Collection Retrieved Successfully', doc);
+				if (!doc) res.sendStatus(404);
+				else res.send(doc);
 			}, (error: Error & { name: string }) => {
-				if (error.name === 'CastError') respond(req, res, 400, 'Invalid Collection Number Provided');
-				else generate500(req, res, error);
+				if (error.name === 'CastError') res.sendStatus(404);
+				else send500(res, error);
 			});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
 export const getCollectionsForCustomer = async (req: Request, res: Response): Promise<void> => {
 	try {
-		Collection.find({ customer: res.locals.customer._id }, { _id: 0, __v: 0, 'products._id': 0 })
-			.populate('site', '-_id -__v')
-			.populate('customer', '-_id -__v -password')
-			.populate('products.product', '-_id -__v')
+		Collection.find({ customer: res.locals.customer._id })
+			.populate('site')
+			.populate('customer', '_id title firstName lastName customerNumber')
+			.populate('products.product')
 			.then((docs: ICollection[]) => {
-				respond(req, res, 200, 'Collections Retrieved Successfully', docs);
+				res.send(docs);
 			});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
 export const getCollectionsAtSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		Collection.find({ site: res.locals.site._id }, { _id: 0, __v: 0, 'products._id': 0 })
-			.populate('site', '-_id -__v')
-			.populate('customer', '-_id -__v -password')
-			.populate('products.product', '-_id -__v')
+		Collection.find({ site: res.locals.site._id })
+			.populate('site')
+			.populate('customer', '_id title firstName lastName customerNumber')
+			.populate('products.product')
 			.then((docs: ICollection[]) => {
-				respond(req, res, 200, 'Collections Retrieved Successfully', docs);
+				res.send(docs);
 			});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
 export const updateCollection = async (req: Request & { params: { collection: number } }, res: Response): Promise<void> => {
 	try {
-		Collection.findOne({ collectionNumber: req.params.collection }).populate('products.product', '-__v').then(async (doc: ICollection | null) => {
-			if (!doc) respond(req, res, 400, 'Invalid Collection Number Provided');
-			else if (!req.body.products && !req.body.status) respond(req, res, 400, 'Invalid Request Body');
+		Collection.findOne({ collectionNumber: req.params.collection }).populate('products.product').then(async (doc: ICollection | null) => {
+			if (!doc) res.sendStatus(400);
+			else if (!req.body.products && !req.body.status) res.sendStatus(400);
 			else {
 				for (const product of req.body.products) {
-					const response = await axios.get(`${config.base}/product/${product.ean}`).catch(() => { return; });
+					const response = await axios.get(`${config.base}/products/${product.product}`).catch(() => { return; });
 					if (response && product.quantity >= 0) {
-						const index = doc.products.map((x) => { return x.product._id; }).indexOf(response.data.data._id);
+						const index = doc.products.map((x) => { return x.product._id; }).indexOf(response.data._id);
 						if (product.quantity > doc.products[index].quantityOrdered) doc.products[index].quantityPicked = doc.products[index].quantityOrdered;
 						else doc.products[index].quantityPicked = product.quantity;
 					}
 				}
 				if (['Not Started', 'In Progress', 'Awaiting Collection', 'Collected'].indexOf(req.body.status) > -1) doc.status = req.body.status;
 				doc.save();
-				respond(req, res, 200, 'Collection Updated Successfully');
+				res.send(doc);
 			}
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };
 
@@ -114,14 +114,14 @@ export const deleteCollection = async (req: Request & { params: { collection: nu
 		Collection.findOne({ collectionNumber: req.params.collection }).then(async (doc: ICollection | null) => {
 			if (doc) {
 				await doc.remove();
-				respond(req, res, 200, 'Collection Deleted Successfully');
+				res.sendStatus(204);
 			}
-			else respond(req, res, 400, 'Invalid Collection Number Provided');
+			else res.sendStatus(404);
 		}, (error: Error & { name: string }) => {
-			if (error.name === 'CastError') respond(req, res, 400, 'Invalid Collection Number Provided');
-			else generate500(req, res, error);
+			if (error.name === 'CastError') res.sendStatus(404);
+			else send500(res, error);
 		});
 	} catch (error) {
-		generate500(req, res, error);
+		send500(res, error);
 	}
 };

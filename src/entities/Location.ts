@@ -13,7 +13,7 @@ const aisleSchema = new Schema({
 	name: { type: String, required: true },
 	aisle: { type: Number, required: true },
 	site: { type: Schema.Types.ObjectId, required: true, ref: 'Site' }
-});
+}, { versionKey: false });
 
 aisleSchema.post('remove', (doc) => {
 	Bay.find({ aisle: doc._id }, async (err, bays) => {
@@ -47,7 +47,7 @@ const baySchema = new Schema({
 	allowsOverstock: { type: Boolean, required: true },
 	allowsTopstock: { type: Boolean, required: true },
 	allowsStockroom: { type: Boolean, required: true }
-});
+}, { versionKey: false });
 
 baySchema.post('remove', (doc) => {
 	Assignment.find({ bay: doc._id }, async (err, assignments) => {

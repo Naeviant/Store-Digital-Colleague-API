@@ -12,6 +12,6 @@ const assignmentSchema = new Schema({
 	product: { type: Schema.Types.ObjectId, required: true, ref: 'Product' },
 	bay: { type: Schema.Types.ObjectId, required: true, ref: 'Bay' },
 	type: { type: String, required: true, enum: ['Multi-Location', 'Clearance', 'Display', 'Overstock', 'Topstock', 'Stockroom'] }
-});
+}, { versionKey: false });
 
 export const Assignment = model <IAssignment>('Assignment', assignmentSchema);

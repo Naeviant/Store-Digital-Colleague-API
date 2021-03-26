@@ -12,6 +12,6 @@ const productQuantitySchema = new Schema({
 	product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
 	site: { type: Schema.Types.ObjectId, ref: 'Site', required: true },
 	quantity: { type: Number, required: true }
-});
+}, { versionKey: false });
 
 export const ProductQuantity = model <IProductQuantity>('ProductQuantity', productQuantitySchema);
