@@ -34,9 +34,8 @@ router.route('/products/:product/reviews')
 	.post(getCustomer, getProduct, reviewController.addReview)
 	.get(getProduct, reviewController.getProductReviews)
 	.all(send405);
-// TODO: Add Delete Review Route
-// router.route('/product/:ean/reviews/:customer')
-//     .delete(isAdmin, getCustomer, getProduct, reviewController.deleteReviews)
-//     .all(send405);
+router.route('/product/:product/reviews/:customer')
+    .delete(isAdmin, getCustomer, getProduct, reviewController.deleteReviews)
+    .all(send405);
 
 export const productRoutes = router;
