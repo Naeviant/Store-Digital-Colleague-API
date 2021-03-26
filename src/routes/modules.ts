@@ -10,9 +10,9 @@ router.route('/modules')
 	.post(isAdmin, moduleController.addModule)
 	.get(moduleController.getAllModules)
 	.all(send405);
-router.route('/modules/:site')
+router.route('/modules/:module')
 	.get(moduleController.getModule)
-	.patch(moduleController.updateModule)
+	.patch(isAdmin, moduleController.updateModule)
 	.delete(isAdmin, moduleController.deleteModule)
 	.all(send405);
 router.route('/modules/:site/products')

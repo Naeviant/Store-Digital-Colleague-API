@@ -5,10 +5,10 @@ import { send405 } from '../helpers/responses';
 
 const router = Router();
 
-router.route('/delivery')
+router.route('/deliveries')
 	.post(isUser, deliveryController.addDelivery)
 	.all(send405);
-router.route('/delivery/:delivery')
+router.route('/deliveries/:delivery')
 	.get(isUser, deliveryController.getDelivery)
 	.patch(isUser, deliveryController.updateDelivery)
 	.delete(isUser, deliveryController.deleteDelivery)

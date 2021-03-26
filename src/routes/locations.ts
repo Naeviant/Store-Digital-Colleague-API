@@ -68,7 +68,7 @@ router.route('/locations/:site/modules/')
 	.post(isAdmin, getSite, getModule, moduleInstanceController.addModuleToSite)
 	.get(getSite, moduleInstanceController.getModulesAtSite)
 	.all(send405);
-router.route('/module/site/:code/:module')
+router.route('/locations/:site/modules/:module')
 	.get(getSite, getModule, moduleInstanceController.getModuleAtSite)
 	.delete(isAdmin, getSite, getModule, moduleInstanceController.deleteModuleFromSite)
 	.all(send405);

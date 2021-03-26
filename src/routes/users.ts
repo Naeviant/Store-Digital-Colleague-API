@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as userController from '../controllers/userController';
-import { isAdmin } from '../middleware/auth';
+import { isAdmin, isUser } from '../middleware/auth';
 import { getAuthUser } from '../middleware/getAuthUser';
 import { getSite } from '../middleware/getSite';
 import { send405 } from '../helpers/responses';
@@ -17,7 +17,7 @@ router.route('/users')
 	.post(isAdmin, getSite, userController.addUser)
 	.all(send405);
 router.route('/users/:username')
-	.get(userController.getUser)
+	.get(isUser, userController.getUser)
 	.patch(isAdmin, userController.updateUser)
 	.delete(isAdmin, userController.deleteUser)
 	.all(send405);
