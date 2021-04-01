@@ -1158,7 +1158,7 @@ paths:
                   type: number
                   description: The Number of Modules which the Bay Can Hold
                   example: 2
-                allowsMultiLocations:
+                allowsMultiLocation:
                   type: boolean
                   description: If Bay Accepts Multi-Location Assignments
                   example: true
@@ -1313,7 +1313,7 @@ paths:
                   type: number
                   description: The Number of Modules which the Bay Can Hold
                   example: 2
-                allowsMultiLocations:
+                allowsMultiLocation:
                   type: boolean
                   description: If Bay Accepts Multi-Location Assignments
                   example: true
@@ -2928,7 +2928,7 @@ components:
           type: number
           description: The Number of Modules which the Bay Can Hold
           example: 2
-        allowsMultiLocations:
+        allowsMultiLocation:
           type: boolean
           description: If Bay Accepts Multi-Location Assignments
           example: true
