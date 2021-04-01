@@ -89,7 +89,10 @@ export const updateCustomer = async (req: Request & { params: { customer: number
 		if (Object.keys(update).length === 0) res.sendStatus(400);
 		else Customer.findOneAndUpdate({ customerNumber: req.params.customer }, { '$set': update }, { runValidators: true, new: true }).then((doc: CustomerResponse | null) => {
 			if (!doc) res.sendStatus(404);
-			else res.send(doc);
+			else {
+				doc.password = undefined;
+				res.send(doc);
+			}
 		}, (error: Error & { name: string }) => {
 			if (error.name === 'ValidationError') res.sendStatus(400);
 			else if (error.name === 'CastError') res.sendStatus(404);
