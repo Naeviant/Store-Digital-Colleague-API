@@ -66,15 +66,17 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 		if (req.body.lastName) update.lastName = req.body.lastName;
 		if (req.body.userType) update.userType = req.body.userType;
 		if (req.body.password) update.password = await hash(req.body.password, 10);
-		if (req.body.code) update.site = await axios.get(`${config.base}/locations/${req.body.site}`).then((response: AxiosResponse) => { return response.data; }).catch(() => { return null; });
+		if (req.body.site) update.site = await axios.get(`${config.base}/locations/${req.body.site}`).then((response: AxiosResponse) => { return response.data; }).catch(() => { return null; });
 		if (req.body.username) update.username = await axios.get(`${config.base}/users/${req.body.username}`).then((response: AxiosResponse) => { return response.data; }).catch(() => { return req.body.username; });
 		if (Object.keys(update).length === 0 || (req.body.code && !update.site)) res.sendStatus(400);
 		else if (req.body.username && typeof update.username !== 'string') res.sendStatus(409);
-		else User.findOneAndUpdate({ username: req.params.username }, { '$set': update }, { runValidators: true, new: true }).then((doc: UserResponse | null) => {
+		else User.findOneAndUpdate({ username: req.params.username }, { '$set': update }, { runValidators: true, new: true }).then(async (doc: IUser | null) => {
 			if (!doc) res.sendStatus(400);
 			else {
-				doc.password = undefined;
-				res.send(doc);
+				await doc.populate('site').execPopulate();
+				const resp: UserResponse = doc as UserResponse;
+				resp.password = undefined;
+				res.send(resp);
 			}
 		}, (error: Error) => {
 			send500(res, error);
