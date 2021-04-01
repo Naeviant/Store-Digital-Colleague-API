@@ -4,6 +4,7 @@ import { send500 } from '../helpers/responses';
 
 class SiteUpdate {
 	name?: string;
+	type?: string;
 }
 
 export const addSite = async (req: Request, res: Response): Promise<void> => {
@@ -51,6 +52,7 @@ export const updateSite = async (req: Request, res: Response): Promise<void> => 
 	try {
 		const update = new SiteUpdate();
 		if (req.body.name) update.name = req.body.name;
+		if (req.body.type) update.type = req.body.type;
 		if (Object.keys(update).length === 0) res.sendStatus(400);
 		else Site.findOneAndUpdate({ code: req.params.site }, { '$set': update }, { new: true, runValidators: true }).then((doc: ISite | null) => {
 			if (!doc) res.sendStatus(404);
