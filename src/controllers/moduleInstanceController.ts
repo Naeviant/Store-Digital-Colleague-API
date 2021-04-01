@@ -9,7 +9,9 @@ export const addModuleToSite = async (req: Request, res: Response): Promise<void
 		const newModuleInstance = new ModuleInstance({ module: res.locals.module._id, site: res.locals.site._id, bay: null });
 		ModuleInstance.findOne({ module: res.locals.module._id, site: res.locals.site._id }).then((doc: IModuleInstance | null) => {
 			if (doc) res.sendStatus(409);
-			else newModuleInstance.save().then((doc: IModuleInstance) => {
+			else newModuleInstance.save().then(async (doc: IModuleInstance) => {
+				await doc.populate({ path: 'site' }).execPopulate();
+				await doc.populate({ path: 'module', populate: { path: 'products.product', model: 'Product' }}).execPopulate();
 				res.status(201).send(doc);
 			}, (error: Error & { name: string }) => {
 				if (error.name === 'ValidationError') res.sendStatus(400);
