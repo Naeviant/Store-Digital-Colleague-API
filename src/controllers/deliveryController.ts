@@ -108,7 +108,7 @@ export const getProductDeliveriesForSite = async (req: Request, res: Response): 
 
 export const updateDelivery = async (req: Request & { params: { delivery: number } }, res: Response): Promise<void> => {
 	try {
-		Delivery.findOneAndUpdate({ deliveryNumber: req.params.delivery }, { '$set': { status: req.body.status } }).then(async (doc: IDelivery | null) => {
+		Delivery.findOneAndUpdate({ deliveryNumber: req.params.delivery }, { '$set': { status: req.body.status } }, { new: true }).then(async (doc: IDelivery | null) => {
 			if (!doc) res.sendStatus(404);
 			else {
 				await doc.populate('inbound outbound products.product').execPopulate();
