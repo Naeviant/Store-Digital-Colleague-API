@@ -293,6 +293,7 @@ paths:
               - firstName
               - lastName
               - email
+              - password
               - addressNumberName
               - addressStreet1
               - addressCity
@@ -321,6 +322,10 @@ paths:
                   format: EmailAddress
                   description: Customer's Email Address
                   example: example@example.com
+                password:
+                  type: string
+                  description: Customer's Password
+                  example: S0m3R@nd0mStr!ng
                 addressNumberName:
                   type: string
                   description: House Number/Name of Customer's Address
@@ -442,6 +447,10 @@ paths:
                   format: EmailAddress
                   description: Customer's Email Address
                   example: example@example.com
+                password:
+                  type: string
+                  description: Customer's Password
+                  example: S0m3R@nd0mStr!ng
                 addressNumberName:
                   type: string
                   description: House Number/Name of Customer's Address
