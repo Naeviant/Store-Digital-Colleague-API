@@ -93,20 +93,10 @@ paths:
             schema:
               type: object
               required:
-              - status
               - site
               - customer
               - products
               properties:
-                status:
-                  type: string
-                  description: Status of Collection
-                  example: In Progress
-                  enum:
-                  - Not Started
-                  - In Progress
-                  - Awaiting Collection
-                  - Collected
                 site:
                   type: number
                   description: Site Code for Collection
@@ -604,7 +594,10 @@ paths:
             schema:
               type: object
               required:
-              - status
+              - inbound
+              - outbound
+              - arrivesAt
+              - products
               properties:
                 inbound:
                   type: number
