@@ -61,7 +61,7 @@ router.route('/locations/:site/aisles/:aisle/bays/:bay/modules/:module')
 router.route('/locations/:site/collections')
 	.get(isUser, getSite, collectionController.getCollectionsAtSite)
 	.all(send405);
-router.route('/locations/:site/:type(inbound|outbound)')
+router.route('/locations/:site/deliveries/:type(inbound|outbound)')
 	.get(isUser, getSite, deliveryController.getDeliveriesForSite)
 	.all(send405);
 router.route('/locations/:site/modules/')
