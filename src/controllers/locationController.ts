@@ -45,7 +45,7 @@ export const addAisle = async (req: Request, res: Response): Promise<void> => {
 
 export const getAisle = async (req: Request & { params: { aisle: number } }, res: Response): Promise<void> => {
 	try {
-		Aisle.findOne({ site: res.locals.site._id, aisle: req.params.aisle }, { __v: 0 }).populate('site').then((doc: IAisle | null) => {
+		Aisle.findOne({ site: res.locals.site._id, aisle: req.params.aisle }).populate('site').then((doc: IAisle | null) => {
 			if (!doc) res.sendStatus(404);
 			else res.send(doc);
 		}, (error: Error & { name: string }) => {
@@ -59,7 +59,7 @@ export const getAisle = async (req: Request & { params: { aisle: number } }, res
 
 export const getAllAislesAtSite = async (req: Request, res: Response): Promise<void> => {
 	try {
-		Aisle.find({ site: res.locals.site._id }, { _id: 0, __v: 0 }).populate('site').then((docs: IAisle[] | null) => {
+		Aisle.find({ site: res.locals.site._id }).populate('site').then((docs: IAisle[] | null) => {
 			res.send(docs);
 		}, (error: Error) => {
 			send500(res, error);
