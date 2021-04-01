@@ -64,7 +64,7 @@ export const getDelivery = async (req: Request & { params: { delivery: number } 
 			.populate('products.product')
 			.then((doc: IDelivery | null) => {
 				if (!doc) res.sendStatus(404);
-				else res.send(200);
+				else res.send(doc);
 			}, (error: Error & { name: string }) => {
 				if (error.name === 'CastError') res.sendStatus(404);
 				else send500(res, error);
