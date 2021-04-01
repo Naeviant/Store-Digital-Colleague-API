@@ -15,10 +15,10 @@ router.route('/modules/:module')
 	.patch(isAdmin, moduleController.updateModule)
 	.delete(isAdmin, moduleController.deleteModule)
 	.all(send405);
-router.route('/modules/:site/products')
+router.route('/modules/:module/products')
 	.post(isAdmin, getProduct, moduleController.addModuleProduct)
 	.all(send405);
-router.route('/modules/:site/products/:sequence')
+router.route('/modules/:module/products/:sequence')
 	.delete(isAdmin, moduleController.deleteModuleProduct)
 	.all(send405);
 
