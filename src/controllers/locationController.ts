@@ -28,7 +28,8 @@ export const addAisle = async (req: Request, res: Response): Promise<void> => {
 		}).catch((error: Error & { response: { status: number } }) => {
 			if (error.response.status === 404 || error.response.status === 400) {
 				const newAisle = new Aisle({ name: req.body.name, aisle: req.body.aisle, site: res.locals.site._id });
-				newAisle.save().then((doc: IAisle) => {
+				newAisle.save().then(async (doc: IAisle) => {
+					await newAisle.populate('site').execPopulate();
 					res.status(201).send(doc);
 				}, (error: Error & { name: string }) => {
 					if (error.name === 'ValidationError' || error.name === 'CastError') res.sendStatus(400);
@@ -75,9 +76,12 @@ export const updateAisle = async (req: Request & { params: { aisle: number } }, 
 		if (Number.isInteger(Number(req.body.aisle))) update.aisle = await axios.get(`${config.base}/locations/${req.params.site}/aisles/${req.body.aisle}`).then((response: AxiosResponse) => { return response.data; }).catch(() => { return req.body.aisle; });
 		if (Object.keys(update).length === 0) res.sendStatus(400);
 		else if (req.body.aisle && typeof update.aisle !== 'number') res.sendStatus(409);
-		else Aisle.findOneAndUpdate({ site: res.locals.site._id, aisle: req.params.aisle }, { '$set': update }, { new: true, runValidators: true }).then((doc: IAisle | null) => {
+		else Aisle.findOneAndUpdate({ site: res.locals.site._id, aisle: req.params.aisle }, { '$set': update }, { new: true, runValidators: true }).then(async (doc: IAisle | null) => {
 			if (!doc) res.sendStatus(404);
-			else res.send(doc);
+			else { 
+				await doc.populate('site').execPopulate();
+				res.send(doc);
+			}
 		}, (error: Error & { name: string }) => {
 			if (error.name === 'ValidationError') res.sendStatus(400);
 			else if (error.name === 'CastError') res.sendStatus(404);
