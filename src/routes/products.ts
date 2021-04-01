@@ -34,7 +34,7 @@ router.route('/products/:product/reviews')
 	.post(getCustomer, getProduct, reviewController.addReview)
 	.get(getProduct, reviewController.getProductReviews)
 	.all(send405);
-router.route('/productz/:product/reviews/:customer')
+router.route('/products/:product/reviews/:customer')
 	.delete(isAdmin, getCustomer, getProduct, reviewController.deleteReviews)
 	.all(send405);
 
