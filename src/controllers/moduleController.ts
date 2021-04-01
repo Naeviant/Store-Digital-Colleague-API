@@ -56,9 +56,12 @@ export const updateModule = async (req: Request, res: Response): Promise<void> =
 		if (!isNaN(Date.parse(req.body.startDate))) update.startDate = req.body.startDate;
 		if (!isNaN(Date.parse(req.body.endDate))) update.endDate = req.body.endDate;
 		if (Object.keys(update).length === 0) res.sendStatus(400);
-		else Module.findOneAndUpdate({ discriminator: req.params.module }, { '$set': update }, { runValidators: true, new: true }).then((doc: IModule | null) => {
+		else Module.findOneAndUpdate({ discriminator: req.params.module }, { '$set': update }, { runValidators: true, new: true }).then(async (doc: IModule | null) => {
 			if (!doc) res.sendStatus(404);
-			else res.send(doc);
+			else {
+				await doc.populate({ path: 'products.product', model: 'Product' }).execPopulate();
+				res.send(doc);
+			}
 		}, (error: Error & { name: string }) => {
 			if (error.name === 'ValidationError') res.sendStatus(400);
 			else send500(res, error);
