@@ -23,7 +23,7 @@ router.route('/products/:product')
 router.route('/products/:product/assignments/:site')
 	.get(getSite, getProduct, assignmentController.getAssignmentsByProduct)
 	.all(send405);
-router.route('/productss/:product/deliveries/:site')
+router.route('/products/:product/deliveries/:site')
 	.get(getSite, getProduct, deliveryController.getProductDeliveriesForSite)
 	.all(send405);
 router.route('/products/:product/quantity/:site')
@@ -34,7 +34,7 @@ router.route('/products/:product/reviews')
 	.post(getCustomer, getProduct, reviewController.addReview)
 	.get(getProduct, reviewController.getProductReviews)
 	.all(send405);
-router.route('/product/:product/reviews/:customer')
+router.route('/productz/:product/reviews/:customer')
 	.delete(isAdmin, getCustomer, getProduct, reviewController.deleteReviews)
 	.all(send405);
 
