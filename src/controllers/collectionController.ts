@@ -26,7 +26,9 @@ export const addCollection = async (req: Request, res: Response): Promise<void> 
 			}
 		}
 		if (newCollection.products.length === 0) res.sendStatus(400);
-		else newCollection.save().then((doc: ICollection) => {
+		else newCollection.save().then(async (doc: ICollection) => {
+			await doc.populate('site products.product').execPopulate();
+			await doc.populate({ path: 'customer', select: '_id title firstName lastName customerNumber'}).execPopulate();
 			res.status(201).send(doc);
 		}, async (error: Error & { name: string, code: number }) => {
 			await Counter.findByIdAndUpdate(config.collectionCounter, { $inc: { seq: -1 } });
@@ -91,16 +93,20 @@ export const updateCollection = async (req: Request & { params: { collection: nu
 			if (!doc) res.sendStatus(400);
 			else if (!req.body.products && !req.body.status) res.sendStatus(400);
 			else {
-				for (const product of req.body.products) {
-					const response = await axios.get(`${config.base}/products/${product.product}`).catch(() => { return; });
-					if (response && product.quantity >= 0) {
-						const index = doc.products.map((x) => { return x.product._id; }).indexOf(response.data._id);
-						if (product.quantity > doc.products[index].quantityOrdered) doc.products[index].quantityPicked = doc.products[index].quantityOrdered;
-						else doc.products[index].quantityPicked = product.quantity;
+				if (req.body.products && req.body.products.length > 0) {
+					for (const product of req.body.products) {
+						const response = await axios.get(`${config.base}/products/${product.product}`).catch(() => { return; });
+						if (response && product.quantity >= 0) {
+							const index = doc.products.map((x) => { return x.product._id; }).indexOf(response.data._id);
+							if (product.quantity > doc.products[index].quantityOrdered) doc.products[index].quantityPicked = doc.products[index].quantityOrdered;
+							else doc.products[index].quantityPicked = product.quantity;
+						}
 					}
 				}
 				if (['Not Started', 'In Progress', 'Awaiting Collection', 'Collected'].indexOf(req.body.status) > -1) doc.status = req.body.status;
 				doc.save();
+				await doc.populate('site products.product').execPopulate();
+				await doc.populate({ path: 'customer', select: '_id title firstName lastName customerNumber'}).execPopulate();
 				res.send(doc);
 			}
 		});
