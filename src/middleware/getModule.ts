@@ -4,7 +4,7 @@ import axios, { AxiosResponse } from 'axios';
 import { send500 } from '../helpers/responses';
 
 export const getModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	axios.get(`${config.base}/module/${req.params.module ?? req.body.module}`).then((response: AxiosResponse) => {
+	axios.get(`${config.base}/modules/${req.params.module ?? req.body.module}`).then((response: AxiosResponse) => {
 		res.locals.module = response.data;
 		next();
 	}).catch((error: Error & { response: { status: number } }) => {
