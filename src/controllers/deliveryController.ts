@@ -34,7 +34,8 @@ export const addDelivery = async (req: Request, res: Response): Promise<void> =>
 					}
 				}
 				if (newDelivery.products.length === 0) res.sendStatus(400);
-				else newDelivery.save().then((doc: IDelivery) => {
+				else newDelivery.save().then(async (doc: IDelivery) => {
+					await doc.populate('inbound outbound products.product').execPopulate();
 					res.status(201).send(doc);
 				}, async (error: Error & { name: string, code: number }) => {
 					await Counter.findByIdAndUpdate(config.deliveryCounter, { $inc: { seq: -1 } });
@@ -107,9 +108,12 @@ export const getProductDeliveriesForSite = async (req: Request, res: Response): 
 
 export const updateDelivery = async (req: Request & { params: { delivery: number } }, res: Response): Promise<void> => {
 	try {
-		Delivery.findOneAndUpdate({ deliveryNumber: req.params.delivery }, { '$set': { status: req.body.status } }).then((doc: IDelivery | null) => {
+		Delivery.findOneAndUpdate({ deliveryNumber: req.params.delivery }, { '$set': { status: req.body.status } }).then(async (doc: IDelivery | null) => {
 			if (!doc) res.sendStatus(404);
-			else res.send(doc);
+			else {
+				await doc.populate('inbound outbound products.product').execPopulate();
+				res.send(doc);
+			}
 		}, (error: Error & { name: string }) => {
 			if (error.name === 'ValidationError' || error.name === 'CastError') res.sendStatus(400);
 			else send500(res, error);
