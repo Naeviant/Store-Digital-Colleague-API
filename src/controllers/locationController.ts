@@ -118,7 +118,9 @@ export const addBay = async (req: Request, res: Response): Promise<void> => {
 			if (error.response.status === 404 || error.response.status === 400) {
 				req.body.aisle = res.locals.aisle._id;
 				const newBay = new Bay(req.body);
-				newBay.save().then((doc: IBay) => {
+				newBay.save().then(async (doc: IBay) => {
+					await doc.populate('aisle').execPopulate();
+					await doc.populate('aisle.site').execPopulate();
 					res.status(201).send(doc);
 				}, (error: Error & { name: string }) => {
 					if (error.name === 'ValidationError' || error.name === 'CastError') res.sendStatus(400);
@@ -171,9 +173,13 @@ export const updateBay = async (req: Request & { params: { bay: number } }, res:
 		if (Number.isInteger(Number(req.body.bay))) update.bay = await axios.get(`${config.base}/locations/${req.params.site}/aisles/${req.params.aisle}/bays/${req.body.bay}`).then((response: AxiosResponse) => { return response.data; }).catch(() => { return req.body.bay; });
 		if (Object.keys(update).length === 0) res.sendStatus(400);
 		else if (req.body.bay && typeof update.bay !== 'number') res.sendStatus(409);
-		else Bay.findOneAndUpdate({ aisle: res.locals.aisle._id, bay: req.params.bay }, { '$set': update }, { new: true, runValidators: true }).then((doc: IBay | null) => {
+		else Bay.findOneAndUpdate({ aisle: res.locals.aisle._id, bay: req.params.bay }, { '$set': update }, { new: true, runValidators: true }).then(async (doc: IBay | null) => {
 			if (!doc) res.sendStatus(404);
-			else res.send(doc);
+			else {
+				await doc.populate('aisle').execPopulate();
+				await doc.populate('aisle.site').execPopulate();
+				res.send(doc);
+			}
 		}, (error: Error & { name: string }) => {
 			if (error.name === 'CastError') res.sendStatus(404);
 			else send500(res, error);
