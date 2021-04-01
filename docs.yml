@@ -2022,12 +2022,12 @@ paths:
             schema:
               type: object
               required:
-              - id
+              - discriminator
               - name
               - startDate
               - endDate
               properties:
-                id:
+                discriminator:
                   type: string
                   description: ID of Module
                   example: MYMODULE
@@ -3171,7 +3171,7 @@ components:
           type: string
           format: ObjectID
           example: '507f1f77bcf86cd799439011'
-        id:
+        discriminator:
           type: string
           description: ID of Module
           example: MYMODULE
