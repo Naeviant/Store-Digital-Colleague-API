@@ -44,13 +44,13 @@ export const getAssignmentsByLocation = async (req: Request, res: Response): Pro
 export const getAssignmentsByProduct = async (req: Request, res: Response): Promise<void> => {
 	try {
 		Assignment.find({ product: res.locals.product._id })
-		.populate('product')
-		.populate({ path: 'bay', model: 'Bay', populate: { path: 'aisle', model: 'Aisle', populate: { path: 'site', model: 'Site', match: { _id: res.locals.site._id } } } })
-		.then((docs: IAssignment[]) => {
-			res.send(docs.filter((x: IAssignment) => x.bay.aisle.site !== null));
-		}, (error: Error) => {
-			send500(res, error);
-		});
+			.populate('product')
+			.populate({ path: 'bay', model: 'Bay', populate: { path: 'aisle', model: 'Aisle', populate: { path: 'site', model: 'Site', match: { _id: res.locals.site._id } } } })
+			.then((docs: IAssignment[]) => {
+				res.send(docs.filter((x: IAssignment) => x.bay.aisle.site !== null));
+			}, (error: Error) => {
+				send500(res, error);
+			});
 	} catch (error) {
 		send500(res, error);
 	}
