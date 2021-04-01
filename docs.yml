@@ -2625,10 +2625,10 @@ paths:
             schema:
               type: object
               required:
-              - customerNumber
+              - customer
               - rating
               properties:
-                customerNumber:
+                customer:
                   type: number
                   description: Customer Number of Reviewing Customer
                   example: 1000000000
