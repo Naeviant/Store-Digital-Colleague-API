@@ -21,6 +21,10 @@ router.head('/', async (req: Request, res: Response) => {
 	res.sendStatus(204);
 });
 
+app.all('*', async (req: Request, res: Response) => {
+	res.sendStatus(404);	
+});
+
 router.use(collectionRoutes);
 router.use(customerRoutes);
 router.use(deliveryRoutes);
