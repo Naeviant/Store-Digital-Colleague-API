@@ -91,9 +91,12 @@ export const addModuleProduct = async (req: Request, res: Response): Promise<voi
 		else {
 			const newModuleProduct = new ModuleProduct({ product: res.locals.product._id, facings: req.body.facings });
 			if (req.body.sequence) req.body.sequence -= 1;
-			Module.findOneAndUpdate({ discriminator: req.params.module }, { '$push': { products: { '$each': [newModuleProduct], '$position': req.body.sequence } } }, { new: true }).then((doc: IModule | null) => {
+			Module.findOneAndUpdate({ discriminator: req.params.module }, { '$push': { products: { '$each': [newModuleProduct], '$position': req.body.sequence } } }, { new: true }).then(async (doc: IModule | null) => {
 				if (!doc) res.sendStatus(404);
-				else res.send(doc);
+				else {
+					await doc.populate({ path: 'products.product', model: 'Product' }).execPopulate();
+					res.send(doc);
+				}
 			}, (error: Error) => {
 				send500(res, error);
 			});
@@ -109,10 +112,12 @@ export const deleteModuleProduct = async (req: Request, res: Response): Promise<
 		Module.updateOne({ discriminator: req.params.module }, { '$unset': { [key]: 1 } }).then((docs: { n: number, nModified: number }) => {
 			if (docs.n === 0) res.sendStatus(404);
 			else if (docs.nModified === 0) res.sendStatus(422);
-			else Module.updateOne({ discriminator: req.params.module }, { '$pull': { products: null } }).then((docs: { n: number, nModified: number }) => {
-				if (docs.n === 0) res.sendStatus(404);
-				else if (docs.nModified === 0) res.sendStatus(422);
-				else res.sendStatus(204);
+			else Module.findOneAndUpdate({ discriminator: req.params.module }, { '$pull': { products: null } }, { new: true }).then(async (doc: IModule | null) => {
+				if (!doc) res.sendStatus(404);
+				else {
+					await doc.populate({ path: 'products.product', model: 'Product' }).execPopulate();
+					res.send(doc);
+				}
 			}, (error: Error) => {
 				send500(res, error);
 			});
