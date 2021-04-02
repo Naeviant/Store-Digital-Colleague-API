@@ -76,9 +76,14 @@ export const addModuleToBay = async (req: Request, res: Response): Promise<void>
 		axios.get(`${config.base}/locations/${req.params.site}/aisles/${req.params.aisle}/bays/${req.params.bay}`).then((response: AxiosResponse) => {
 			const bayModules = response.data;
 			if (bayModules.length >= res.locals.bay.moduleLimit) res.sendStatus(422);
-			else ModuleInstance.findOneAndUpdate({ site: res.locals.bay.aisle.site._id, module: res.locals.module._id }, { '$set': { bay: res.locals.bay._id } }, { new: true }).then((doc: IModuleInstance | null) => {
+			else ModuleInstance.findOneAndUpdate({ site: res.locals.bay.aisle.site._id, module: res.locals.module._id }, { '$set': { bay: res.locals.bay._id } }, { new: true }).then(async (doc: IModuleInstance | null) => {
 				if (!doc) res.sendStatus(404);
-				else res.send(doc);
+				else {
+					await doc.populate({ path: 'site' }).execPopulate();
+					await doc.populate({ path: 'module', populate: { path: 'products.product', model: 'Product' }}).execPopulate();
+					await doc.populate({ path: 'bay', populate: { path: 'aisle', populate: { path: 'site' } } }).execPopulate();
+					res.send(doc);
+				}
 			}, (error: Error) => {
 				send500(res, error);
 			});
