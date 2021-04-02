@@ -16,7 +16,9 @@ export const addAssignment = async (req: Request, res: Response): Promise<void> 
 		) res.sendStatus(422);
 		else {
 			const newAssignment = new Assignment({ bay: res.locals.bay._id, product: res.locals.product._id, type: req.body.type });
-			newAssignment.save().then((doc: IAssignment) => {
+			newAssignment.save().then(async (doc: IAssignment) => {
+				await newAssignment.populate({ path: 'bay', model: 'Bay', populate: { path: 'aisle', model: 'Aisle', populate: { path: 'site', model: 'Site' } } }).execPopulate();
+				await newAssignment.populate('product').execPopulate();
 				res.status(201).send(doc);
 			}, (error: Error & { name: string }) => {
 				if (error.name === 'ValidationError') res.sendStatus(400);
