@@ -15,7 +15,7 @@ export interface ISite extends Document {
 
 const siteSchema = new Schema({
 	name: { type: String, required: true },
-	code: { type: Number, required: true, unique: true },
+	code: { type: Number, required: true, min: 1000, max: 9999, unique: true },
 	type: { type: String, required: true, enum: ['Store', 'Supplier', 'Distribution Centre'] }
 }, { versionKey: false });
 
